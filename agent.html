@@ -330,48 +330,49 @@ async function answerCall(visitorId,name,lang,type){
 
 async function joinAgentRoom(roomName, token, roomUrl){
   mlog('Joining Daily.co room as agent…','inf');
-  // always use the exact URL returned by Daily.co API — never build it manually
-  if(!roomUrl){ mlog('ERROR: No room URL from backend','err'); return; }
-  const url = roomUrl;
+  const url = roomUrl || ('https://medinah-guide.daily.co/'+roomName);
   mlog('Room URL: '+url,'inf');
 
   if(!token){ mlog('ERROR: No agent token from backend','err'); return; }
 
   try{
-    // fully destroy any previous Daily instance before creating a new one
+    // destroy any previous instance
     if(callFrame){
       try{ callFrame.off('left-meeting'); await callFrame.leave(); }catch(e){}
       try{ callFrame.destroy(); }catch(e){}
       callFrame=null;
-      await new Promise(r=>setTimeout(r,400));
+      await new Promise(r=>setTimeout(r,500));
     }
-    // remove any orphaned Daily iframes
+    // remove orphaned iframes
     document.querySelectorAll('iframe').forEach(f=>{
       if(f.src && f.src.includes('daily.co')) f.remove();
     });
+    await new Promise(r=>setTimeout(r,200));
 
-    callFrame=window.DailyIframe.createFrame({
-      iframeStyle:{position:'fixed',top:'-9999px',left:'-9999px',width:'1px',height:'1px',border:'none'},
-      showLeaveButton:false,showFullscreenButton:false
+    // createCallObject does NOT use an iframe — pure WebRTC directly in page
+    // this works on github.io and any https domain without iframe restrictions
+    callFrame = window.DailyIframe.createCallObject({
+      audioSource: true,
+      videoSource: false,
     });
-    callFrame.on('joining-meeting',()=>{ mlog('Joining room…','inf'); });
-    callFrame.on('joined-meeting',()=>{
-      mlog('🎙️ Agent audio connected!','ok');
+
+    callFrame.on('joining-meeting', ()=>{ mlog('Joining room…','inf'); });
+    callFrame.on('joined-meeting',  ()=>{
+      mlog('🎙️ Agent audio connected ✓','ok');
       document.getElementById('audioActive').style.display='flex';
     });
-    callFrame.on('participant-joined',e=>{ mlog('Visitor joined — both sides can hear each other ✓','ok'); });
-    callFrame.on('participant-left',e=>{ mlog('Visitor left the room','inf'); });
-    callFrame.on('left-meeting',()=>{ if(currentRoom) endActiveCall(); });
-    callFrame.on('error',e=>{ mlog('Daily.co error: '+JSON.stringify(e),'err'); });
+    callFrame.on('participant-joined', ()=>{ mlog('Visitor joined — both can hear each other ✓','ok'); });
+    callFrame.on('participant-left',   ()=>{ mlog('Visitor left the room','inf'); });
+    callFrame.on('left-meeting',       ()=>{ if(currentRoom) endActiveCall(); });
+    callFrame.on('error', e=>{ mlog('Daily.co error: '+JSON.stringify(e),'err'); });
 
-    mlog('Joining room — mic already pre-approved ✓','inf');
-    // join with a timeout so it does not hang forever
+    mlog('Connecting via WebRTC — no iframe needed ✓','inf');
     await Promise.race([
-      callFrame.join({ url, token, audioSource:true, videoSource:false }),
-      new Promise((_,reject) => setTimeout(()=>reject(new Error('Join timeout after 20s')), 20000))
+      callFrame.join({ url, token }),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout after 30s')), 30000))
     ]);
 
-  }catch(e){ mlog('Join error — '+e.message,'err'); }
+  }catch(e){ mlog('Join error — '+e.message,'err'); endActiveCall(); }
 }
 
 function showActiveCall(name,lang,type,data){
