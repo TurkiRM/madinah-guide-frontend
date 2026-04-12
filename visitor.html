@@ -150,25 +150,40 @@ async function startCall(){
     document.getElementById('qcard').style.display='block';
     log('Joined queue at position '+d.position,'ok');
     showQueue(d.position,d.queueLength);
+    notFoundCount = 0;
     pollInterval=setInterval(pollQueue,3000);
   }catch(e){log('Error — '+e.message,'err');setStatus('Could not connect','s-err');resetUI();}
 }
+
+let notFoundCount = 0; // grace counter for not-found
 
 async function pollQueue(){
   try{
     const r=await fetch(BACKEND+'/visitor/queue/'+visitorId);
     const d=await r.json();
     if(d.status==='in-call'){
+      notFoundCount = 0;
       clearInterval(pollInterval);
+      log('Agent answered — joining room now…','ok');
       await joinRoom(d.roomName, d.token, d.roomUrl);
     }
     else if(d.status==='queued'){
+      notFoundCount = 0;
       setStatus('You are #'+d.position+' in queue','s-conn');
       showQueue(d.position,d.queueLength);
-      // log the room info we have so far for debugging
       if(d.roomUrl) log('Room ready: '+d.roomUrl,'inf');
     }
-    else if(d.status==='not-found'&&inCall){clearInterval(pollInterval);await endCall();}
+    else if(d.status==='not-found' && inCall){
+      // give 5 retries (~15 seconds) before giving up
+      // agent may be in the process of answering right now
+      notFoundCount++;
+      log('Waiting for agent to connect… ('+notFoundCount+'/5)','inf');
+      if(notFoundCount >= 5){
+        clearInterval(pollInterval);
+        log('No agent connected after waiting — ending call','err');
+        await endCall();
+      }
+    }
   }catch(e){log('Poll error — '+e.message,'err');}
 }
 
