@@ -324,7 +324,7 @@ async function answerCall(visitorId,name,lang,type){
     mlog('Room created: '+d.roomName,'ok');
     mlog('Agent token: '+(d.agentToken?'received ✓':'MISSING ✗'),'inf');
     showActiveCall(name,lang,type,d);
-    await joinAgentRoom(d.roomName, d.agentToken, d.dailyRoomUrl);
+    await joinAgentRoom(d.roomName, d.agentToken, d.roomUrl || ('https://medinah-guide.daily.co/'+d.roomName));
   }catch(e){mlog('Answer error — '+e.message,'err');alert('Could not answer: '+e.message);}
 }
 
