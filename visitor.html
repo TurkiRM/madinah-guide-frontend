@@ -189,21 +189,22 @@ async function joinRoom(roomName, token, roomUrl){
     // destroy any existing frame first
     if(callFrame){ try{callFrame.destroy();}catch(e){} callFrame=null; }
 
-    callFrame=window.DailyIframe.createFrame({
-      iframeStyle:{position:'fixed',top:'-9999px',left:'-9999px',width:'1px',height:'1px',border:'none'},
-      showLeaveButton:false,showFullscreenButton:false
+    // createCallObject = pure WebRTC, no iframe — works on github.io
+    callFrame = window.DailyIframe.createCallObject({
+      audioSource: true,
+      videoSource: false,
     });
-    callFrame.on('joining-meeting',()=>{ log('Joining room…','inf'); });
-    callFrame.on('joined-meeting',()=>{ log('🎙️ Audio connected — speak now!','ok'); onConnected(roomName); });
-    callFrame.on('left-meeting',()=>{ if(inCall) endCall(); });
-    callFrame.on('error',e=>{ log('Daily.co error: '+JSON.stringify(e),'err'); setStatus('Audio error — check console','s-err'); });
-    callFrame.on('participant-joined',e=>{ log('Agent joined — you can now hear each other ✓','ok'); });
-    callFrame.on('participant-left',e=>{ log('Agent left the room','inf'); });
+    callFrame.on('joining-meeting', ()=>{ log('Joining room…','inf'); });
+    callFrame.on('joined-meeting',  ()=>{ log('🎙️ Audio connected — speak now!','ok'); onConnected(roomName); });
+    callFrame.on('left-meeting',    ()=>{ if(inCall) endCall(); });
+    callFrame.on('error', e=>{ log('Daily.co error: '+JSON.stringify(e),'err'); setStatus('Audio error','s-err'); });
+    callFrame.on('participant-joined', ()=>{ log('Agent joined — both can hear each other ✓','ok'); });
+    callFrame.on('participant-left',   ()=>{ log('Agent left the room','inf'); });
 
-    log('Requesting microphone permission…','inf');
+    log('Connecting via WebRTC ✓','inf');
     await Promise.race([
-      callFrame.join({ url, token, audioSource:true, videoSource:false }),
-      new Promise((_,reject) => setTimeout(()=>reject(new Error('Join timeout after 20s')), 20000))
+      callFrame.join({ url, token }),
+      new Promise((_,reject) => setTimeout(()=>reject(new Error('Timeout after 30s')), 30000))
     ]);
 
   }catch(e){
