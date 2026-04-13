@@ -65,6 +65,7 @@
   </style>
 </head>
 <body>
+<audio id="remoteAudio" autoplay playsinline style="display:none"></audio>
 <div class="app">
   <div class="topbar">
     <div class="tb-icon">🕌</div>
@@ -214,6 +215,18 @@ async function joinRoom(roomName, token, roomUrl){
     callFrame.on('left-meeting',    ()=>{ if(inCall) endCall(); });
     callFrame.on('error', e=>{ log('Daily.co error: '+JSON.stringify(e),'err'); setStatus('Audio error','s-err'); });
     callFrame.on('participant-joined', ()=>{ log('Agent joined — both can hear each other ✓','ok'); });
+    callFrame.on('track-started', (e)=>{
+      if(e.track && e.track.kind === 'audio' && e.participant && !e.participant.local){
+        log('Remote audio track received — attaching to speaker…','ok');
+        const audio = document.getElementById('remoteAudio');
+        if(audio){
+          const stream = new MediaStream([e.track]);
+          audio.srcObject = stream;
+          audio.play().then(()=>{ log('🔊 Speaker output active ✓','ok'); })
+               .catch(err=>{ log('Speaker error: '+err.message,'err'); });
+        }
+      }
+    });
     callFrame.on('participant-left',   ()=>{ log('Agent left the room','inf'); });
 
     log('Connecting via WebRTC ✓','inf');
