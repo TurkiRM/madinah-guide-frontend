@@ -91,6 +91,7 @@
   </style>
 </head>
 <body>
+<audio id="remoteAudio" autoplay playsinline style="display:none"></audio>
 <div class="dash">
   <div class="topbar">
     <div>
@@ -246,6 +247,20 @@ async function doLogin(){
   }catch(e){llog('Login error — '+e.message,'err');btn.disabled=false;btn.textContent='Go online — بدء العمل';}
 }
 
+function enableAudioOnTap(){
+  // mobile browsers need a user gesture to play audio
+  const banner = document.createElement('div');
+  banner.style = 'position:fixed;top:0;left:0;right:0;background:#1D9E75;color:#fff;text-align:center;padding:14px;font-size:14px;font-weight:600;z-index:9999;cursor:pointer';
+  banner.textContent = '🔊 Tap here to enable call audio';
+  banner.onclick = () => {
+    const audio = document.getElementById('remoteAudio');
+    if(audio) audio.play().catch(()=>{});
+    banner.remove();
+    mlog('Audio enabled by user tap ✓','ok');
+  };
+  document.body.appendChild(banner);
+}
+
 function showMain(){
   document.getElementById('loginWrap').style.display='none';
   const m=document.getElementById('mainWrap');m.style.display='flex';m.style.flexDirection='column';
@@ -362,6 +377,18 @@ async function joinAgentRoom(roomName, token, roomUrl){
       document.getElementById('audioActive').style.display='flex';
     });
     callFrame.on('participant-joined', ()=>{ mlog('Visitor joined — both can hear each other ✓','ok'); });
+    callFrame.on('track-started', (e)=>{
+      if(e.track && e.track.kind === 'audio' && e.participant && !e.participant.local){
+        mlog('Remote audio track received — attaching to speaker…','ok');
+        const audio = document.getElementById('remoteAudio');
+        if(audio){
+          const stream = new MediaStream([e.track]);
+          audio.srcObject = stream;
+          audio.play().then(()=>{ mlog('🔊 Speaker output active ✓','ok'); })
+               .catch(err=>{ mlog('Speaker error — tap screen to enable audio: '+err.message,'err'); enableAudioOnTap(); });
+        }
+      }
+    });
     callFrame.on('participant-left',   ()=>{ mlog('Visitor left the room','inf'); });
     callFrame.on('left-meeting',       ()=>{ if(currentRoom) endActiveCall(); });
     callFrame.on('error', e=>{ mlog('Daily.co error: '+JSON.stringify(e),'err'); });
