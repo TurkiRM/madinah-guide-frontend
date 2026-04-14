@@ -478,7 +478,47 @@ async function updateStatus(status){
   catch(e){mlog('Status update failed','err');}
 }
 
+// ─── Read token from URL (passed from agent-login.html) ──────────────────────
+function bootFromToken() {
+  const hash = window.location.hash.slice(1);
+  const params = new URLSearchParams(hash);
+  const token = params.get('token');
+  const agentRaw = params.get('agent');
+
+  if (token && agentRaw) {
+    try {
+      const agent = JSON.parse(decodeURIComponent(agentRaw));
+      sessionStorage.setItem('agent_token', token);
+      sessionStorage.setItem('agent_data', JSON.stringify(agent));
+      // clean URL
+      window.history.replaceState(null, '', 'agent.html');
+      agentId   = agent.id;
+      agentName = agent.name;
+      selectedLangs = agent.languages || ['ar','en'];
+      showMain();
+      return true;
+    } catch(e) {}
+  }
+
+  // check existing session
+  const saved = sessionStorage.getItem('agent_data');
+  const savedToken = sessionStorage.getItem('agent_token');
+  if (saved && savedToken) {
+    const agent = JSON.parse(saved);
+    agentId   = agent.id;
+    agentName = agent.name;
+    selectedLangs = agent.languages || ['ar','en'];
+    showMain();
+    return true;
+  }
+
+  // no session — redirect to login
+  window.location.href = 'agent-login.html';
+  return false;
+}
+
 checkHealth();
+bootFromToken();
 </script>
 </body>
 </html>
