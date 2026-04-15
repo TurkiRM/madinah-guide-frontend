@@ -382,25 +382,19 @@ async function sendMessage() {
   showTyping();
 
   try {
-    const L = LANGS[curLang] || LANGS.en;
-
-    // add visitor type context to system prompt
-    let systemPrompt = L.systemPrompt;
-    if(detectedType) systemPrompt += `\n\nDetected visitor type: ${detectedType}. Tailor all advice for a ${detectedType}.`;
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(BACKEND + '/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: chatHistory
+        messages:     chatHistory,
+        language:     curLang,
+        visitorType:  detectedType,
       })
     });
 
     const data = await res.json();
-    const reply = data.content?.map(b=>b.text||'').join('') || 'Sorry, I could not get a response. Please try again.';
+    if(!data.success) throw new Error(data.detail || data.error || 'Server error');
+    const reply = data.reply || 'Sorry, I could not get a response. Please try again.';
     chatHistory.push({ role:'assistant', content: reply });
 
     removeTyping();
