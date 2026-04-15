@@ -178,7 +178,8 @@
   <div class="tabs">
     <div class="tab on" id="tab-overview" onclick="showTab('overview',this)">📊 Overview</div>
     <div class="tab" id="tab-agents"   onclick="showTab('agents',this)">👥 Agents</div>
-    <div class="tab" id="tab-logs"     onclick="showTab('logs',this)">📋 Call logs</div>
+    <div class="tab" id="tab-logs"      onclick="showTab('logs',this)">📋 Call logs</div>
+    <div class="tab" id="tab-businesses" onclick="showTab('businesses',this)">🏪 Businesses</div>
   </div>
 
   <div class="content">
@@ -223,6 +224,20 @@
         </div>
         <div id="agentRows"><div class="ql-empty">Loading…</div></div>
       </div>
+    </div>
+
+    <!-- BUSINESSES -->
+    <div class="scr" id="scr-businesses">
+      <div class="section-title">
+        Pending registrations
+        <button class="refresh-btn" onclick="loadBusinesses()">↻ Refresh</button>
+      </div>
+      <div id="pendingRegs"><div class="ql-empty">Loading…</div></div>
+      <div class="section-title" style="margin-top:0.5rem">
+        Active businesses
+        <span style="font-size:11px;color:#888;font-weight:400" id="bizCount"></span>
+      </div>
+      <div id="activeBizList"><div class="ql-empty">Loading…</div></div>
     </div>
 
     <!-- CALL LOGS -->
@@ -391,8 +406,9 @@ function showTab(name,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   document.getElementById('scr-'+name).classList.add('on');
   el.classList.add('on');
-  if(name==='agents') loadAgents();
-  if(name==='logs')   loadLogs();
+  if(name==='agents')     loadAgents();
+  if(name==='logs')       loadLogs();
+  if(name==='businesses') loadBusinesses();
 }
 
 // ── LOAD DASHBOARD ────────────────────────────────────────────────────────────
@@ -577,6 +593,109 @@ function togglePw(id){
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
+// ── LOAD BUSINESSES ───────────────────────────────────────────────────────────
+async function loadBusinesses() {
+  try {
+    const [r1, r2] = await Promise.all([
+      fetch(BACKEND+'/manager/business-registrations?status=pending', {headers:{Authorization:'Bearer '+mgrToken}}),
+      fetch(BACKEND+'/manager/businesses', {headers:{Authorization:'Bearer '+mgrToken}})
+    ]);
+    const d1 = await r1.json();
+    const d2 = await r2.json();
+    renderPendingRegs(d1.registrations||[]);
+    renderActiveBiz(d2.businesses||[]);
+  } catch(e) { console.error('Business load error',e); }
+}
+
+function renderPendingRegs(regs) {
+  const el = document.getElementById('pendingRegs');
+  if(!regs.length){ el.innerHTML='<div class="ql-empty">No pending registrations 🎉</div>'; return; }
+  el.innerHTML='';
+  regs.forEach(r=>{
+    const div=document.createElement('div');
+    div.style='background:#fff;border-radius:14px;border:1px solid #FAC775;padding:0.85rem;margin-bottom:8px';
+    div.innerHTML=`
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:#1a1a1a">${r.business_name_en||'—'}</div>
+          <div style="font-size:11px;color:#888;margin-top:2px">${r.category} · ${r.owner_name} · ${r.owner_phone}</div>
+          <div style="font-size:11px;color:#888">${r.address_en||'No address'}</div>
+          <div style="font-size:11px;color:#0F6E56;margin-top:3px">Payment ref: ${r.payment_ref||'—'} · ${r.amount_paid||0} SAR</div>
+          <div style="font-size:10px;color:#aaa;margin-top:2px">Submitted: ${new Date(r.submitted_at).toLocaleDateString()}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <button onclick="approveReg('${r.id}')" style="padding:6px 12px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">✓ Approve</button>
+          <button onclick="rejectReg('${r.id}')" style="padding:6px 12px;background:#FCEBEB;color:#A32D2D;border:1px solid #F09595;border-radius:8px;font-size:12px;cursor:pointer">✗ Reject</button>
+        </div>
+      </div>`;
+    el.appendChild(div);
+  });
+}
+
+function renderActiveBiz(businesses) {
+  document.getElementById('bizCount').textContent = businesses.length+' businesses';
+  const el = document.getElementById('activeBizList');
+  if(!businesses.length){ el.innerHTML='<div class="ql-empty">No active businesses yet</div>'; return; }
+  el.innerHTML='';
+  businesses.forEach(b=>{
+    const div=document.createElement('div');
+    div.style='background:#fff;border-radius:14px;border:1px solid #e0e0e0;padding:0.85rem;margin-bottom:8px;display:flex;align-items:center;gap:10px';
+    div.innerHTML=`
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="font-size:13px;font-weight:600;color:#1a1a1a">${b.name_en}</div>
+          ${b.featured?'<span style="font-size:10px;padding:2px 7px;border-radius:6px;background:#FAEEDA;color:#633806">⭐ Featured</span>':''}
+        </div>
+        <div style="font-size:11px;color:#888;margin-top:2px">${b.category} · ${b.address_en||'—'}</div>
+        <div style="font-size:11px;color:#888">⭐ ${b.rating||0} · ${b.review_count||0} reviews · ${b.view_count||0} views</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <button onclick="toggleFeatured('${b.id}',${!b.featured})" style="padding:5px 10px;background:${b.featured?'#f9f9f9':'#FAEEDA'};color:${b.featured?'#888':'#633806'};border:1px solid #ddd;border-radius:8px;font-size:11px;cursor:pointer">${b.featured?'Remove feature':'⭐ Feature'}</button>
+        <button onclick="toggleBizActive('${b.id}',${!b.is_active})" style="padding:5px 10px;background:${b.is_active?'#FCEBEB':'#E1F5EE'};color:${b.is_active?'#A32D2D':'#085041'};border:1px solid ${b.is_active?'#F09595':'#5DCAA5'};border-radius:8px;font-size:11px;cursor:pointer">${b.is_active?'Deactivate':'Activate'}</button>
+      </div>`;
+    el.appendChild(div);
+  });
+}
+
+async function approveReg(id) {
+  if(!confirm('Approve this business registration?')) return;
+  try {
+    const r = await fetch(BACKEND+'/manager/business-registrations/'+id+'/approve', {method:'POST',headers:{Authorization:'Bearer '+mgrToken}});
+    const d = await r.json();
+    if(d.success){ alert('Business approved and listed ✓'); loadBusinesses(); }
+    else alert('Error: '+d.error);
+  } catch(e){ alert('Error: '+e.message); }
+}
+
+async function rejectReg(id) {
+  const reason = prompt('Reason for rejection (optional):');
+  try {
+    const r = await fetch(BACKEND+'/manager/business-registrations/'+id+'/reject', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+mgrToken},
+      body: JSON.stringify({reason})
+    });
+    const d = await r.json();
+    if(d.success){ alert('Registration rejected.'); loadBusinesses(); }
+    else alert('Error: '+d.error);
+  } catch(e){ alert('Error: '+e.message); }
+}
+
+async function toggleFeatured(id, featured) {
+  await fetch(BACKEND+'/manager/businesses/'+id, {
+    method:'PATCH', headers:{'Content-Type':'application/json','Authorization':'Bearer '+mgrToken},
+    body: JSON.stringify({featured})
+  });
+  loadBusinesses();
+}
+
+async function toggleBizActive(id, is_active) {
+  await fetch(BACKEND+'/manager/businesses/'+id, {
+    method:'PATCH', headers:{'Content-Type':'application/json','Authorization':'Bearer '+mgrToken},
+    body: JSON.stringify({is_active})
+  });
+  loadBusinesses();
+}
+
 checkHealth();
 checkSession();
 </script>
