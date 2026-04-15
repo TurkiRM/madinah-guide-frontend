@@ -195,6 +195,27 @@
     </div>
   </div>
 
+  <!-- Photos + Instagram -->
+  <div class="card">
+    <div class="card-title"><span class="ct-icon">📸</span><span id="ct6">Photos & social media</span></div>
+
+    <div class="flbl">Business photos <span style="color:#888;font-weight:400">(up to 5 photos)</span></div>
+    <div id="photoPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"></div>
+    <label style="display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px dashed #ddd;border-radius:12px;cursor:pointer;background:#f9f9f9;margin-bottom:0.5rem" id="uploadLabel">
+      <span style="font-size:20px">📷</span>
+      <span style="font-size:13px;color:#888">Tap to select photos from your phone</span>
+      <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handlePhotos(this)"/>
+    </label>
+    <div style="font-size:11px;color:#aaa;margin-bottom:0.85rem">Photos will appear on your business listing and help visitors find you</div>
+
+    <div class="flbl">Instagram account</div>
+    <div style="display:flex;align-items:center;border:1.5px solid #e0e0e0;border-radius:10px;overflow:hidden;background:#f9f9f9;margin-bottom:0.5rem">
+      <span style="padding:0 10px;color:#888;font-size:14px;border-right:1px solid #e0e0e0;background:#f0f0f0">@</span>
+      <input style="flex:1;padding:10px 12px;font-size:14px;border:none;background:transparent;color:#1a1a1a;outline:none" id="instagram" placeholder="your_business_handle"/>
+    </div>
+    <div style="font-size:11px;color:#aaa">Optional — visitors can follow you and see your latest posts</div>
+  </div>
+
   <!-- Plan selection -->
   <div class="fee-card">
     <div class="fee-title" id="ft">Choose your listing plan</div>
@@ -299,6 +320,70 @@ function showErr(msg) {
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+let uploadedPhotoUrls = [];
+
+async function handlePhotos(input) {
+  const files = Array.from(input.files).slice(0, 5);
+  if(!files.length) return;
+  const preview = document.getElementById('photoPreview');
+  preview.innerHTML = '';
+  uploadedPhotoUrls = [];
+
+  // show local previews immediately
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const wrap = document.createElement('div');
+      wrap.style = 'position:relative';
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.style = 'width:80px;height:80px;object-fit:cover;border-radius:10px;border:2px solid #ddd';
+      const spin = document.createElement('div');
+      spin.style = 'position:absolute;top:0;left:0;width:80px;height:80px;background:rgba(0,0,0,0.3);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px';
+      spin.textContent = 'Uploading…';
+      spin.id = 'spin-'+file.name;
+      wrap.appendChild(img);
+      wrap.appendChild(spin);
+      preview.appendChild(wrap);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('uploadLabel').querySelector('span:last-child').textContent = 'Uploading ' + files.length + ' photo' + (files.length>1?'s':'') + '…';
+
+  // upload each file via backend
+  let uploaded = 0;
+  for (const file of files) {
+    try {
+      // convert to base64
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const r = await fetch(BACKEND + '/upload/photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ base64, fileName: file.name, mimeType: file.type })
+      });
+      const d = await r.json();
+      if (d.success && d.url) {
+        uploadedPhotoUrls.push(d.url);
+        uploaded++;
+        // update spinner for this file
+        const sp = document.getElementById('spin-'+file.name);
+        if(sp){ sp.textContent='✓'; sp.style.background='rgba(29,158,117,0.6)'; }
+      }
+    } catch(e) {
+      console.error('Upload error:', e);
+    }
+  }
+
+  document.getElementById('uploadLabel').innerHTML = `<span style="font-size:20px">${uploaded>0?'✅':'📷'}</span><span style="font-size:13px;color:${uploaded>0?'#0F6E56':'#888'}">${uploaded>0? uploaded+' photo'+(uploaded>1?'s':'')+' uploaded successfully ✓' : 'Upload failed — try again'}</span><input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handlePhotos(this)"/>`;
+}
+
 async function submitRegistration() {
   const nameEn    = document.getElementById('nameEn').value.trim();
   const addrEn    = document.getElementById('addrEn').value.trim();
@@ -344,6 +429,8 @@ async function submitRegistration() {
         opening_hours:    document.getElementById('hours').value.trim(),
         languages:        selectedLangs,
         plan:             selectedPlan,
+        instagram:        document.getElementById('instagram').value.trim().replace('@',''),
+        photos:           uploadedPhotoUrls,
         payment_ref:      payRef,
         amount_paid:      amount,
         payment_status:   'paid',
