@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Madinah Guide — Register Your Business</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;min-height:100vh}
+    .topbar{background:#085041;padding:0.85rem 1.25rem;display:flex;align-items:center;gap:10px}
+    .tb-icon{width:32px;height:32px;border-radius:8px;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:16px}
+    .tb-en{font-size:14px;font-weight:600;color:#fff}
+    .tb-ar{font-size:11px;color:#9FE1CB}
+    .lang-row{display:flex;gap:4px;margin-left:auto}
+    .lb{font-size:10px;padding:3px 7px;border-radius:10px;border:1px solid #5DCAA5;color:#9FE1CB;cursor:pointer}
+    .lb.on{background:#1D9E75;color:#fff;border-color:#1D9E75}
+
+    .hero{background:#085041;padding:2rem 1.25rem 1.5rem;text-align:center}
+    .hero-icon{font-size:48px;margin-bottom:0.75rem}
+    .hero-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:6px}
+    .hero-sub{font-size:14px;color:#9FE1CB;line-height:1.6;max-width:480px;margin:0 auto 1.25rem}
+    .hero-badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+    .badge{font-size:12px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.15);color:#fff}
+
+    .steps{display:flex;gap:0;background:#fff;border-bottom:1px solid #eee;max-width:700px;margin:0 auto}
+    .step{flex:1;padding:0.75rem 0.5rem;text-align:center;font-size:12px;color:#aaa;border-bottom:2px solid transparent;cursor:pointer}
+    .step.on{color:#085041;border-bottom:2px solid #085041;font-weight:600}
+    .step.done{color:#1D9E75}
+    .step-num{display:block;font-size:18px;font-weight:700;margin-bottom:2px}
+
+    .form-wrap{max-width:700px;margin:0 auto;padding:1rem}
+    .card{background:#fff;border-radius:16px;border:1px solid #e0e0e0;padding:1.25rem;margin-bottom:1rem}
+    .card-title{font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+    .ct-icon{font-size:18px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0.85rem}
+    @media(max-width:500px){.grid2{grid-template-columns:1fr}}
+    .flbl{font-size:11px;color:#888;font-weight:500;margin-bottom:4px}
+    .flbl .req{color:#E24B4A}
+    .finput{width:100%;padding:10px 12px;font-size:14px;border:1.5px solid #e0e0e0;border-radius:10px;background:#f9f9f9;color:#1a1a1a;outline:none;transition:border-color 0.2s;margin-bottom:0.5rem}
+    .finput:focus{border-color:#1D9E75;background:#fff}
+    textarea.finput{resize:vertical;min-height:80px}
+    select.finput{cursor:pointer}
+    .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:0.5rem}
+    @media(max-width:400px){.cat-grid{grid-template-columns:repeat(2,1fr)}}
+    .cat-btn{padding:8px 6px;border-radius:10px;border:1.5px solid #e0e0e0;background:#f9f9f9;cursor:pointer;text-align:center;transition:all 0.15s}
+    .cat-btn:hover{border-color:#1D9E75}
+    .cat-btn.on{border-color:#1D9E75;background:#E1F5EE}
+    .cat-icon{font-size:20px;display:block;margin-bottom:3px}
+    .cat-label{font-size:11px;color:#555;font-weight:500}
+    .cat-btn.on .cat-label{color:#085041}
+
+    .lang-checks{display:flex;gap:6px;flex-wrap:wrap}
+    .lchk{font-size:11px;padding:5px 10px;border-radius:10px;border:1px solid #ddd;color:#666;cursor:pointer;background:#f9f9f9}
+    .lchk.on{background:#E1F5EE;color:#085041;border-color:#5DCAA5;font-weight:600}
+
+    .fee-card{background:linear-gradient(135deg,#085041,#0F6E56);border-radius:16px;padding:1.25rem;color:#fff;margin-bottom:1rem}
+    .fee-title{font-size:14px;font-weight:600;margin-bottom:0.75rem}
+    .fee-plans{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
+    .fee-plan{background:rgba(255,255,255,0.1);border-radius:12px;padding:0.85rem;border:2px solid transparent;cursor:pointer;transition:all 0.2s}
+    .fee-plan.on{border-color:#9FE1CB;background:rgba(255,255,255,0.2)}
+    .fp-name{font-size:13px;font-weight:600;color:#fff;margin-bottom:3px}
+    .fp-price{font-size:22px;font-weight:700;color:#9FE1CB}
+    .fp-sar{font-size:12px;color:#9FE1CB}
+    .fp-features{margin-top:6px}
+    .fp-feat{font-size:11px;color:rgba(255,255,255,0.8);display:flex;align-items:center;gap:4px;margin-bottom:2px}
+
+    .payment-info{background:#FAEEDA;border-radius:12px;border:1px solid #FAC775;padding:0.85rem;margin-bottom:1rem}
+    .pi-title{font-size:13px;font-weight:600;color:#633806;margin-bottom:6px}
+    .pi-text{font-size:12px;color:#854F0B;line-height:1.6}
+    .pi-ref{font-family:monospace;font-size:13px;font-weight:600;color:#633806;background:rgba(0,0,0,0.05);padding:4px 8px;border-radius:6px}
+
+    .submit-btn{width:100%;padding:14px;background:#085041;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s}
+    .submit-btn:hover{background:#0F6E56}
+    .submit-btn:disabled{background:#5DCAA5;cursor:not-allowed}
+    .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:sp 0.7s linear infinite;display:none}
+    @keyframes sp{to{transform:rotate(360deg)}}
+
+    .err-msg{padding:10px 12px;border-radius:10px;font-size:13px;background:#FCEBEB;color:#A32D2D;border:1px solid #F09595;display:none;margin-bottom:0.75rem}
+
+    .success-page{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:2rem;text-align:center}
+    .success-icon{font-size:64px;margin-bottom:1rem}
+    .success-title{font-size:22px;font-weight:700;color:#085041;margin-bottom:0.5rem}
+    .success-sub{font-size:14px;color:#888;line-height:1.6;max-width:400px;margin:0 auto 1.5rem}
+    .success-ref{font-family:monospace;font-size:16px;font-weight:700;color:#085041;background:#E1F5EE;padding:8px 16px;border-radius:10px;margin-bottom:1.5rem;display:inline-block}
+    .back-btn{padding:12px 24px;background:#085041;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-icon">🕌</div>
+  <div>
+    <div class="tb-en">Madinah Guide — Business Registration</div>
+    <div class="tb-ar">تسجيل نشاطك التجاري · دليل المدينة المنورة</div>
+  </div>
+  <div class="lang-row">
+    <div class="lb on" onclick="setLang(this,'en')">EN</div>
+    <div class="lb" onclick="setLang(this,'ar')">عربي</div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-icon">🏪</div>
+  <div class="hero-title" id="heroTitle">List your business on Madinah Guide</div>
+  <div class="hero-sub" id="heroSub">Reach thousands of Hajj and Umrah pilgrims and Madinah visitors. Get discovered by visitors from 50+ countries in their own language.</div>
+  <div class="hero-badges">
+    <span class="badge">🌍 50+ countries</span>
+    <span class="badge">📞 Direct calls</span>
+    <span class="badge">⭐ Reviews</span>
+    <span class="badge">🗺️ Map listing</span>
+  </div>
+</div>
+
+<!-- FORM -->
+<div class="form-wrap" id="formWrap">
+  <div class="err-msg" id="errMsg"></div>
+
+  <!-- Business type -->
+  <div class="card">
+    <div class="card-title"><span class="ct-icon">🏪</span><span id="ct1">Business type</span></div>
+    <div class="cat-grid" id="catGrid">
+      <div class="cat-btn on" onclick="selectCat(this,'restaurant')"><span class="cat-icon">🍽️</span><span class="cat-label">Restaurant</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'cafe')"><span class="cat-icon">☕</span><span class="cat-label">Café</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'dates_shop')"><span class="cat-icon">🌴</span><span class="cat-label">Dates shop</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'attar_perfume')"><span class="cat-icon">🌸</span><span class="cat-label">Attar & oud</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'shop')"><span class="cat-icon">🛍️</span><span class="cat-label">Shop / gifts</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'hotel')"><span class="cat-icon">🏨</span><span class="cat-label">Hotel</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'pharmacy')"><span class="cat-icon">💊</span><span class="cat-label">Pharmacy</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'transport')"><span class="cat-icon">🚕</span><span class="cat-label">Transport</span></div>
+      <div class="cat-btn" onclick="selectCat(this,'other')"><span class="cat-icon">📦</span><span class="cat-label">Other</span></div>
+    </div>
+  </div>
+
+  <!-- Business info -->
+  <div class="card">
+    <div class="card-title"><span class="ct-icon">📋</span><span id="ct2">Business information</span></div>
+    <div class="flbl"><span id="l-name-en">Business name (English)</span> <span class="req">*</span></div>
+    <input class="finput" id="nameEn" placeholder="e.g. Al-Nakheel Dates Shop"/>
+    <div class="flbl"><span id="l-name-ar">Business name (Arabic)</span></div>
+    <input class="finput" id="nameAr" placeholder="مثال: محل النخيل للتمور" dir="rtl"/>
+    <div class="flbl"><span id="l-desc-en">Description (English)</span></div>
+    <textarea class="finput" id="descEn" placeholder="Tell visitors what makes your business special…"></textarea>
+    <div class="flbl"><span id="l-desc-ar">Description (Arabic)</span></div>
+    <textarea class="finput" id="descAr" placeholder="أخبر الزوار عن مميزات نشاطك التجاري…" dir="rtl"></textarea>
+  </div>
+
+  <!-- Location & contact -->
+  <div class="card">
+    <div class="card-title"><span class="ct-icon">📍</span><span id="ct3">Location & contact</span></div>
+    <div class="flbl"><span id="l-addr-en">Address (English)</span> <span class="req">*</span></div>
+    <input class="finput" id="addrEn" placeholder="e.g. Al-Anbariyya Street, near Prophet Mosque"/>
+    <div class="flbl"><span id="l-addr-ar">Address (Arabic)</span></div>
+    <input class="finput" id="addrAr" placeholder="مثال: شارع العنبرية، بجانب المسجد النبوي" dir="rtl"/>
+    <div class="grid2">
+      <div>
+        <div class="flbl"><span id="l-phone">Phone</span> <span class="req">*</span></div>
+        <input class="finput" id="bizPhone" type="tel" placeholder="+966XXXXXXXXX"/>
+      </div>
+      <div>
+        <div class="flbl"><span id="l-wa">WhatsApp</span></div>
+        <input class="finput" id="bizWa" type="tel" placeholder="+966XXXXXXXXX"/>
+      </div>
+    </div>
+    <div class="flbl"><span id="l-hours">Opening hours</span></div>
+    <input class="finput" id="hours" placeholder="e.g. 8:00 AM – 11:00 PM · Closed Friday morning"/>
+  </div>
+
+  <!-- Owner info -->
+  <div class="card">
+    <div class="card-title"><span class="ct-icon">👤</span><span id="ct4">Owner / contact person</span></div>
+    <div class="grid2">
+      <div>
+        <div class="flbl"><span id="l-owner">Full name</span> <span class="req">*</span></div>
+        <input class="finput" id="ownerName" placeholder="Your full name"/>
+      </div>
+      <div>
+        <div class="flbl"><span id="l-owner-phone">Phone</span> <span class="req">*</span></div>
+        <input class="finput" id="ownerPhone" type="tel" placeholder="+966XXXXXXXXX"/>
+      </div>
+    </div>
+    <div class="flbl"><span id="l-email">Email</span></div>
+    <input class="finput" id="ownerEmail" type="email" placeholder="your@email.com"/>
+  </div>
+
+  <!-- Staff languages -->
+  <div class="card">
+    <div class="card-title"><span class="ct-icon">🌍</span><span id="ct5">Staff languages</span></div>
+    <div style="font-size:12px;color:#888;margin-bottom:0.65rem" id="langHint">Which languages does your staff speak? Visitors will be matched to your staff accordingly.</div>
+    <div class="lang-checks" id="langChecks">
+      <div class="lchk on" onclick="toggleLang(this,'ar')">🇸🇦 عربي</div>
+      <div class="lchk on" onclick="toggleLang(this,'en')">🇬🇧 English</div>
+      <div class="lchk" onclick="toggleLang(this,'ur')">🇵🇰 اردو</div>
+      <div class="lchk" onclick="toggleLang(this,'fr')">🇫🇷 Français</div>
+      <div class="lchk" onclick="toggleLang(this,'id')">🇮🇩 Indonesia</div>
+    </div>
+  </div>
+
+  <!-- Plan selection -->
+  <div class="fee-card">
+    <div class="fee-title" id="ft">Choose your listing plan</div>
+    <div class="fee-plans">
+      <div class="fee-plan on" id="plan-basic" onclick="selectPlan('basic')">
+        <div class="fp-name">Basic listing</div>
+        <div><span class="fp-price">500</span> <span class="fp-sar">SAR</span></div>
+        <div class="fp-features">
+          <div class="fp-feat">✓ Listed in search results</div>
+          <div class="fp-feat">✓ Visitor reviews</div>
+          <div class="fp-feat">✓ Direct call button</div>
+          <div class="fp-feat">✓ Arabic + English</div>
+        </div>
+      </div>
+      <div class="fee-plan" id="plan-featured" onclick="selectPlan('featured')">
+        <div class="fp-name">⭐ Featured listing</div>
+        <div><span class="fp-price">1,200</span> <span class="fp-sar">SAR</span></div>
+        <div class="fp-features">
+          <div class="fp-feat">✓ Everything in Basic</div>
+          <div class="fp-feat">✓ Top of search results</div>
+          <div class="fp-feat">✓ Featured badge</div>
+          <div class="fp-feat">✓ AI recommends first</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment info -->
+  <div class="payment-info" id="paymentInfo">
+    <div class="pi-title">💳 Payment instructions</div>
+    <div class="pi-text">
+      Transfer the registration fee to:<br><br>
+      <strong>Bank:</strong> Al-Rajhi Bank · البنك الراجحي<br>
+      <strong>Account:</strong> SA12 3456 7890 1234 5678 9012<br>
+      <strong>Name:</strong> Madinah Guide Co.<br><br>
+      After transferring, enter your payment reference number below. Your registration will be reviewed within 24 hours after payment confirmation.
+    </div>
+    <div style="margin-top:0.75rem">
+      <div class="flbl">Payment reference number <span class="req">*</span></div>
+      <input class="finput" id="payRef" placeholder="e.g. TXN123456789"/>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submitRegistration()">
+    <div class="spin" id="spin"></div>
+    <span id="submitLbl">Submit registration — تقديم الطلب</span>
+  </button>
+  <div style="font-size:11px;color:#aaa;text-align:center;margin-top:0.75rem">Your application will be reviewed by our team within 24 hours · سيتم مراجعة طلبك خلال 24 ساعة</div>
+</div>
+
+<!-- SUCCESS PAGE -->
+<div class="success-page" id="successPage">
+  <div class="success-icon">🎉</div>
+  <div class="success-title">Registration submitted!</div>
+  <div class="success-sub">Your business registration has been received. Our team will review your application and contact you within 24 hours.</div>
+  <div class="success-ref" id="successRef">REF: —</div>
+  <div style="font-size:13px;color:#888;margin-bottom:1.5rem">Keep this reference number. You will receive a call from our team to confirm your listing.</div>
+  <button class="back-btn" onclick="window.location.href='index.html'">Back to Madinah Guide</button>
+</div>
+
+<script>
+const BACKEND = 'https://madinah-guide-backend-1.onrender.com';
+let selectedCat = 'restaurant';
+let selectedPlan = 'basic';
+let selectedLangs = ['ar','en'];
+
+function selectCat(el, cat) {
+  selectedCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.getElementById('plan-basic').classList.toggle('on', plan==='basic');
+  document.getElementById('plan-featured').classList.toggle('on', plan==='featured');
+}
+
+function toggleLang(el, lang) {
+  el.classList.toggle('on');
+  if(el.classList.contains('on')){ if(!selectedLangs.includes(lang)) selectedLangs.push(lang); }
+  else { selectedLangs = selectedLangs.filter(l=>l!==lang); }
+}
+
+function setLang(el, lang) {
+  document.querySelectorAll('.lb').forEach(l=>l.classList.remove('on'));
+  el.classList.add('on');
+  if(lang==='ar') {
+    document.documentElement.dir='rtl';
+    document.getElementById('heroTitle').textContent='سجّل نشاطك التجاري في دليل المدينة المنورة';
+    document.getElementById('heroSub').textContent='تواصل مع آلاف حجاج وزوار المدينة المنورة. اجعل نشاطك مكتشفاً من زوار أكثر من 50 دولة بلغتهم الخاصة.';
+  } else {
+    document.documentElement.dir='ltr';
+    document.getElementById('heroTitle').textContent='List your business on Madinah Guide';
+    document.getElementById('heroSub').textContent='Reach thousands of Hajj and Umrah pilgrims and Madinah visitors. Get discovered by visitors from 50+ countries in their own language.';
+  }
+}
+
+function showErr(msg) {
+  const e=document.getElementById('errMsg');
+  e.textContent=msg; e.style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function submitRegistration() {
+  const nameEn    = document.getElementById('nameEn').value.trim();
+  const addrEn    = document.getElementById('addrEn').value.trim();
+  const bizPhone  = document.getElementById('bizPhone').value.trim();
+  const ownerName = document.getElementById('ownerName').value.trim();
+  const ownerPhone= document.getElementById('ownerPhone').value.trim();
+  const payRef    = document.getElementById('payRef').value.trim();
+
+  document.getElementById('errMsg').style.display='none';
+
+  if(!nameEn)    { showErr('Please enter your business name in English.'); return; }
+  if(!addrEn)    { showErr('Please enter your business address.'); return; }
+  if(!bizPhone)  { showErr('Please enter your business phone number.'); return; }
+  if(!ownerName) { showErr('Please enter the owner name.'); return; }
+  if(!ownerPhone){ showErr('Please enter the owner phone number.'); return; }
+  if(!payRef)    { showErr('Please enter your payment reference number.'); return; }
+  if(!selectedLangs.length){ showErr('Please select at least one staff language.'); return; }
+
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;
+  document.getElementById('spin').style.display='block';
+  document.getElementById('submitLbl').textContent='Submitting…';
+
+  const amount = selectedPlan==='featured' ? 1200 : 500;
+
+  try {
+    const r = await fetch(BACKEND+'/business/register', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        business_name_en: nameEn,
+        business_name_ar: document.getElementById('nameAr').value.trim(),
+        owner_name:       ownerName,
+        owner_phone:      ownerPhone,
+        owner_email:      document.getElementById('ownerEmail').value.trim(),
+        category:         selectedCat,
+        description_en:   document.getElementById('descEn').value.trim(),
+        description_ar:   document.getElementById('descAr').value.trim(),
+        address_en:       addrEn,
+        address_ar:       document.getElementById('addrAr').value.trim(),
+        phone:            bizPhone,
+        whatsapp:         document.getElementById('bizWa').value.trim(),
+        opening_hours:    document.getElementById('hours').value.trim(),
+        languages:        selectedLangs,
+        plan:             selectedPlan,
+        payment_ref:      payRef,
+        amount_paid:      amount,
+        payment_status:   'paid',
+      })
+    });
+    const d = await r.json();
+    if(d.success) {
+      document.getElementById('formWrap').style.display='none';
+      document.getElementById('successPage').style.display='flex';
+      document.getElementById('successRef').textContent='REF: '+d.ref;
+    } else {
+      showErr(d.error||'Submission failed. Please try again.');
+    }
+  } catch(e) {
+    showErr('Cannot connect to server. Please check your connection and try again.');
+  }
+
+  btn.disabled=false;
+  document.getElementById('spin').style.display='none';
+  document.getElementById('submitLbl').textContent='Submit registration — تقديم الطلب';
+}
+</script>
+</body>
+</html>
