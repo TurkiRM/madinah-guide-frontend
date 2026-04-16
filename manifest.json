@@ -2,7 +2,7 @@
   "name": "Madinah Guide — دليل المدينة المنورة",
   "short_name": "Madinah Guide",
   "description": "Your AI-powered guide to Madinah — trip planning, local businesses, and human guides",
-  "start_url": "/madinah-guide-frontend/app.html",
+  "start_url": "/madinah-guide-frontend/",
   "scope": "/madinah-guide-frontend/",
   "display": "standalone",
   "orientation": "portrait",
@@ -28,12 +28,12 @@
   "shortcuts": [
     {
       "name": "Plan my trip",
-      "url": "/madinah-guide-frontend/app.html#planner",
+      "url": "/madinah-guide-frontend/#planner",
       "description": "AI trip planner for Madinah"
     },
     {
       "name": "Call a guide",
-      "url": "/madinah-guide-frontend/app.html#call",
+      "url": "/madinah-guide-frontend/#call",
       "description": "Talk to a local Madinah guide"
     }
   ]
