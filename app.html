@@ -13,52 +13,37 @@
   <style>
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#085041}
-
-    /* ── SCREENS ── */
-    .screen{position:fixed;inset:0;display:flex;flex-direction:column;transition:transform 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.35s;will-change:transform}
-    .screen.hidden{transform:translateY(100%);opacity:0;pointer-events:none}
-    .screen.slide-left{transform:translateX(-100%);opacity:0;pointer-events:none}
-
-    /* ── LANGUAGE SELECTION ── */
-    #langScreen{background:#085041;align-items:center;justify-content:center;padding:2rem 1.5rem}
-    .ls-logo{font-size:56px;margin-bottom:1rem}
-    .ls-title{font-size:26px;font-weight:700;color:#fff;margin-bottom:6px;text-align:center}
-    .ls-ar{font-size:18px;color:#9FE1CB;margin-bottom:2.5rem;text-align:center}
-    .ls-prompt{font-size:14px;color:#5DCAA5;margin-bottom:1.25rem;text-align:center}
-    .lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;width:100%;max-width:360px}
-    .lang-opt{background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.2);border-radius:16px;padding:1rem;cursor:pointer;text-align:center;transition:all 0.2s;active:scale(0.97)}
+    #langScreen{position:fixed;inset:0;background:#085041;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;z-index:100}
+    #langScreen.gone{display:none}
+    .ls-logo{font-size:60px;margin-bottom:1rem}
+    .ls-title{font-size:26px;font-weight:700;color:#fff;margin-bottom:4px;text-align:center}
+    .ls-ar{font-size:17px;color:#9FE1CB;margin-bottom:2rem;text-align:center}
+    .ls-prompt{font-size:13px;color:#5DCAA5;margin-bottom:1.25rem}
+    .lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;width:100%;max-width:340px}
+    .lang-opt{background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.2);border-radius:16px;padding:1rem;cursor:pointer;text-align:center}
     .lang-opt:active{transform:scale(0.96);background:rgba(255,255,255,0.25)}
     .lang-flag{font-size:28px;display:block;margin-bottom:4px}
     .lang-name{font-size:14px;font-weight:600;color:#fff}
-    .lang-native{font-size:12px;color:#9FE1CB}
+    .lang-native{font-size:11px;color:#9FE1CB}
     .lang-opt.full{grid-column:1/-1}
-
-    /* ── MAIN APP ── */
-    #mainApp{background:#f5f5f0;flex-direction:column}
-
-    /* Call banner */
-    .call-banner{background:#085041;padding:0.6rem 1rem;padding-top:calc(0.6rem + env(safe-area-inset-top));display:flex;align-items:center;gap:10px;flex-shrink:0}
+    #app{position:fixed;inset:0;display:flex;flex-direction:column;background:#f5f5f0;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.4,0,0.2,1)}
+    #app.visible{transform:translateY(0)}
+    .call-banner{background:#085041;padding:0.65rem 1rem;padding-top:calc(0.65rem + env(safe-area-inset-top));display:flex;align-items:center;gap:10px;flex-shrink:0}
     .cb-dot{width:8px;height:8px;border-radius:50%;background:#1D9E75;animation:pulse 1.5s infinite;flex-shrink:0}
-    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.2)}}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.2)}}
     .cb-text{flex:1;min-width:0}
-    .cb-strong{font-size:13px;font-weight:600;color:#fff;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .cb-strong{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
     .cb-sub{font-size:11px;color:#9FE1CB}
-    .call-now-btn{background:#1D9E75;color:#fff;border:none;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}
-
-    /* Bottom nav */
+    .call-now-btn{background:#1D9E75;color:#fff;border:none;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0}
+    .call-now-btn:active{background:#5DCAA5}
+    .tab-content{flex:1;overflow:hidden;position:relative}
+    .pane{position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;transition:transform 0.3s ease,opacity 0.3s ease}
+    .pane.hidden{transform:translateX(30px);opacity:0;pointer-events:none}
     .bottom-nav{display:flex;background:#fff;border-top:1px solid #eee;padding-bottom:env(safe-area-inset-bottom);flex-shrink:0}
-    .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 0;cursor:pointer;transition:color 0.2s;border:none;background:transparent}
-    .bn-icon{font-size:22px;margin-bottom:2px;display:block}
-    .bn-label{font-size:10px;color:#aaa;font-weight:500}
-    .bn-item.on .bn-label{color:#085041;font-weight:600}
-
-    /* Tab content */
-    .tab-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative}
-    .tab-pane{display:none;flex-direction:column;height:100%}
-    .tab-pane.on{display:flex}
-
-    /* ── PLANNER TAB ── */
-    .planner-wrap{display:flex;flex-direction:column;height:100%}
+    .bn{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 0;cursor:pointer;border:none;background:transparent}
+    .bn-icon{font-size:22px;margin-bottom:2px}
+    .bn-lbl{font-size:10px;color:#aaa;font-weight:500}
+    .bn.on .bn-lbl{color:#085041;font-weight:700}
     .messages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1rem;display:flex;flex-direction:column;gap:0.85rem}
     .msg{display:flex;gap:8px;align-items:flex-end}
     .msg.user{flex-direction:row-reverse}
@@ -68,16 +53,16 @@
     .bubble{padding:10px 13px;border-radius:18px;max-width:82%;font-size:14px;line-height:1.6;word-break:break-word;white-space:pre-wrap}
     .msg.ai .bubble{background:#fff;color:#1a1a1a;border:1px solid #eee;border-bottom-left-radius:4px}
     .msg.user .bubble{background:#085041;color:#fff;border-bottom-right-radius:4px}
-    .typing{display:flex;gap:4px;align-items:center;padding:12px 14px;background:#fff;border:1px solid #eee;border-radius:18px;border-bottom-left-radius:4px}
-    .typing span{width:7px;height:7px;border-radius:50%;background:#1D9E75;animation:bounce 1.2s ease-in-out infinite}
+    .typing{display:flex;gap:4px;align-items:center;padding:12px 14px;background:#fff;border:1px solid #eee;border-radius:18px;border-bottom-left-radius:4px;width:58px}
+    .typing span{width:7px;height:7px;border-radius:50%;background:#1D9E75;animation:bn 1.2s ease-in-out infinite}
     .typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
-    @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
-    .visitor-badge{margin:0 1rem;padding:6px 10px;border-radius:10px;font-size:12px;display:none;align-items:center;gap:6px}
-    .vb-pilgrim{background:#E1F5EE;color:#085041;display:flex}
-    .vb-tourist{background:#FAEEDA;color:#633806;display:flex}
+    @keyframes bn{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+    .visitor-badge{margin:0 1rem 0.5rem;padding:7px 12px;border-radius:10px;font-size:12px;display:none;align-items:center;gap:6px;flex-shrink:0}
+    .vb-p{background:#E1F5EE;color:#085041;display:flex}
+    .vb-t{background:#FAEEDA;color:#633806;display:flex}
     .chips-row{padding:0 1rem 0.75rem;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0}
     .chips-row::-webkit-scrollbar{display:none}
-    .chip{font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid #ddd;color:#555;cursor:pointer;background:#fff;white-space:nowrap;flex-shrink:0}
+    .chip{font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid #ddd;color:#555;background:#fff;white-space:nowrap;flex-shrink:0;cursor:pointer}
     .chip:active{background:#E1F5EE;color:#085041}
     .input-bar{background:#fff;border-top:1px solid #eee;padding:0.65rem 1rem;display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
     .input-bar textarea{flex:1;padding:10px 12px;font-size:16px;border:1.5px solid #e0e0e0;border-radius:22px;background:#f9f9f9;color:#1a1a1a;resize:none;outline:none;font-family:inherit;line-height:1.4;max-height:100px}
@@ -86,208 +71,136 @@
     .send-btn:active{background:#1D9E75}
     .send-btn:disabled{background:#ccc}
     .send-icon{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-    /* Welcome cards */
-    .welcome{padding:1rem;display:flex;flex-direction:column;gap:0.75rem}
-    .wlc-greet{font-size:18px;font-weight:700;color:#1a1a1a}
-    .wlc-sub{font-size:13px;color:#888;line-height:1.5;margin-top:3px}
+    .welcome{padding:1rem;display:flex;flex-direction:column;gap:0.85rem}
     .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;margin-top:0.25rem}
-    .feat-card{background:#fff;border-radius:14px;border:1px solid #eee;padding:0.85rem;cursor:pointer;active:opacity:.8}
+    .feat-card{background:#fff;border-radius:14px;border:1px solid #eee;padding:0.85rem;cursor:pointer}
     .feat-card:active{border-color:#1D9E75;background:#f0faf5}
     .feat-icon{font-size:24px;margin-bottom:4px}
     .feat-title{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:2px}
     .feat-desc{font-size:11px;color:#888;line-height:1.3}
-
-    /* ── DISCOVER TAB ── */
-    .discover-wrap{padding:1rem;display:flex;flex-direction:column;gap:1rem}
-    .disc-title{font-size:17px;font-weight:700;color:#1a1a1a}
-    .disc-sub{font-size:13px;color:#888;margin-top:2px}
-    .cat-scroll{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+    .places-wrap{padding:1rem;display:flex;flex-direction:column;gap:0.85rem}
+    .cat-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
     .cat-scroll::-webkit-scrollbar{display:none}
-    .cat-pill{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:1.5px solid #e0e0e0;background:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0;font-size:13px;color:#555;font-weight:500}
+    .cat-pill{padding:7px 14px;border-radius:20px;border:1.5px solid #e0e0e0;background:#fff;cursor:pointer;white-space:nowrap;font-size:13px;color:#555;font-weight:500;flex-shrink:0}
     .cat-pill.on{border-color:#085041;background:#085041;color:#fff}
     .cat-pill:active{opacity:0.8}
-    .biz-grid{display:flex;flex-direction:column;gap:0.75rem}
-    .biz-card{background:#fff;border-radius:16px;border:1px solid #eee;overflow:hidden;cursor:pointer;active:opacity:.9}
-    .biz-card:active{opacity:0.85}
-    .biz-photos{height:140px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:48px;position:relative;overflow:hidden}
-    .biz-photos img{width:100%;height:100%;object-fit:cover}
-    .biz-featured-badge{position:absolute;top:8px;right:8px;background:#FAEEDA;color:#633806;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px}
-    .biz-body{padding:0.85rem}
-    .biz-name{font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:3px}
-    .biz-cat{font-size:11px;color:#888;margin-bottom:6px}
-    .biz-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-    .biz-rating{font-size:12px;color:#BA7517;font-weight:600}
-    .biz-hours{font-size:11px;color:#888}
-    .biz-insta{font-size:11px;color:#534AB7;display:flex;align-items:center;gap:3px}
-    .biz-actions{display:flex;gap:6px;margin-top:0.65rem}
-    .biz-btn{flex:1;padding:8px;border-radius:10px;border:none;font-size:12px;font-weight:600;cursor:pointer;text-align:center}
-    .biz-btn-call{background:#085041;color:#fff}
-    .biz-btn-wa{background:#25D366;color:#fff}
-    .biz-btn-insta{background:#EEEDFE;color:#534AB7}
-    .loading-cards{display:flex;flex-direction:column;gap:0.75rem}
-    .skeleton{background:#e0e0e0;border-radius:16px;height:200px;animation:shimmer 1.2s ease-in-out infinite}
-    @keyframes shimmer{0%,100%{opacity:1}50%{opacity:0.5}}
-
-    /* ── CALL TAB ── */
-    .call-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:2rem 1.5rem;text-align:center;gap:1rem}
-    .call-avatar{width:80px;height:80px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:36px;animation:pulse 2s infinite}
-    .call-title{font-size:20px;font-weight:700;color:#1a1a1a}
-    .call-sub{font-size:14px;color:#888;line-height:1.6;max-width:320px}
+    .place-card{background:#fff;border-radius:16px;border:1px solid #eee;overflow:hidden;cursor:pointer}
+    .place-card:active{opacity:0.85}
+    .place-img{height:110px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:44px}
+    .place-body{padding:0.85rem}
+    .place-name{font-size:15px;font-weight:600;color:#1a1a1a}
+    .place-name-ar{font-size:12px;color:#888;direction:rtl;margin-top:1px}
+    .place-meta{display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap}
+    .place-cost{font-size:11px;color:#0F6E56;font-weight:600}
+    .place-rating{font-size:11px;color:#BA7517;font-weight:600}
+    .place-desc{font-size:13px;color:#555;line-height:1.5;margin-top:6px}
+    .call-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:2rem 1.5rem;text-align:center;gap:1.25rem}
+    .call-av{width:84px;height:84px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:38px;animation:pulse 2s infinite}
+    .call-title{font-size:21px;font-weight:700;color:#1a1a1a}
+    .call-sub{font-size:14px;color:#888;line-height:1.65;max-width:300px}
     .call-langs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
     .call-lang{font-size:12px;padding:5px 12px;border-radius:12px;background:#E1F5EE;color:#085041;font-weight:500}
-    .big-call-btn{width:100%;max-width:320px;padding:16px;background:#1D9E75;color:#fff;border:none;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+    .big-call-btn{width:100%;max-width:300px;padding:16px;background:#1D9E75;color:#fff;border:none;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
     .big-call-btn:active{background:#085041}
-    .call-note{font-size:12px;color:#aaa;max-width:280px}
-
-    /* ── REGISTER TAB ── */
-    .reg-wrap{padding:1rem;display:flex;flex-direction:column;gap:0.85rem}
-    .reg-hero{background:#085041;border-radius:16px;padding:1.25rem;text-align:center;color:#fff}
-    .reg-hero-icon{font-size:36px;margin-bottom:8px}
-    .reg-hero-title{font-size:17px;font-weight:700;margin-bottom:4px}
-    .reg-hero-sub{font-size:13px;color:#9FE1CB;line-height:1.5}
-    .reg-link-btn{display:block;width:100%;padding:14px;background:#1D9E75;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;margin-top:0.5rem}
-    .reg-link-btn:active{background:#085041}
-    .plan-cards{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem}
-    .plan-card{background:#fff;border-radius:14px;border:1px solid #e0e0e0;padding:0.85rem}
-    .pc-name{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
-    .pc-price{font-size:22px;font-weight:700;color:#085041}
-    .pc-sar{font-size:12px;color:#888}
-    .pc-feat{font-size:11px;color:#888;margin-top:6px;line-height:1.6}
-
-    /* ── MODALS ── */
-    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:flex-end;justify-content:center}
+    .call-free{font-size:12px;color:#aaa;max-width:260px;line-height:1.5}
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;justify-content:center}
     .modal-bg.open{display:flex}
-    .modal-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding:1rem 1.25rem 2rem;padding-bottom:calc(1.5rem + env(safe-area-inset-bottom))}
+    .modal-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1rem 1.25rem;padding-bottom:calc(1.5rem + env(safe-area-inset-bottom))}
     .modal-handle{width:40px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 1rem}
-    .modal-title{font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:0.5rem}
-
-    /* install prompt */
-    .install-banner{position:fixed;bottom:calc(60px + env(safe-area-inset-bottom));left:1rem;right:1rem;background:#085041;border-radius:16px;padding:1rem;display:none;align-items:center;gap:10px;z-index:200;animation:slideup 0.4s ease}
-    @keyframes slideup{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .install-banner{position:fixed;bottom:calc(56px + env(safe-area-inset-bottom) + 8px);left:1rem;right:1rem;background:#085041;border-radius:14px;padding:0.85rem 1rem;display:none;align-items:center;gap:10px;z-index:150}
     .ib-text{flex:1;font-size:13px;color:#fff;line-height:1.4}
-    .ib-install{background:#1D9E75;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
-    .ib-close{background:none;border:none;color:#9FE1CB;font-size:18px;cursor:pointer;padding:4px}
+    .ib-btn{background:#1D9E75;color:#fff;border:none;border-radius:9px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+    .ib-x{background:none;border:none;color:#9FE1CB;font-size:18px;cursor:pointer}
   </style>
 </head>
 <body>
 
-<!-- ══ LANGUAGE SELECTION ══ -->
-<div class="screen" id="langScreen">
+<div id="langScreen">
   <div class="ls-logo">🕌</div>
   <div class="ls-title">Madinah Guide</div>
   <div class="ls-ar">دليل المدينة المنورة</div>
   <div class="ls-prompt">Choose your language · اختر لغتك</div>
   <div class="lang-grid">
-    <div class="lang-opt" onclick="chooseLang('ar')">
-      <span class="lang-flag">🇸🇦</span>
-      <span class="lang-name">عربي</span>
-      <span class="lang-native">Arabic</span>
-    </div>
-    <div class="lang-opt" onclick="chooseLang('en')">
-      <span class="lang-flag">🇬🇧</span>
-      <span class="lang-name">English</span>
-      <span class="lang-native">English</span>
-    </div>
-    <div class="lang-opt" onclick="chooseLang('ur')">
-      <span class="lang-flag">🇵🇰</span>
-      <span class="lang-name">اردو</span>
-      <span class="lang-native">Urdu</span>
-    </div>
-    <div class="lang-opt" onclick="chooseLang('fr')">
-      <span class="lang-flag">🇫🇷</span>
-      <span class="lang-name">Français</span>
-      <span class="lang-native">French</span>
-    </div>
-    <div class="lang-opt full" onclick="chooseLang('id')">
-      <span class="lang-flag">🇮🇩</span>
-      <span class="lang-name">Indonesia</span>
-      <span class="lang-native">Indonesian</span>
-    </div>
+    <div class="lang-opt" onclick="chooseLang('ar')"><span class="lang-flag">🇸🇦</span><span class="lang-name">عربي</span><span class="lang-native">Arabic</span></div>
+    <div class="lang-opt" onclick="chooseLang('en')"><span class="lang-flag">🇬🇧</span><span class="lang-name">English</span><span class="lang-native">English</span></div>
+    <div class="lang-opt" onclick="chooseLang('ur')"><span class="lang-flag">🇵🇰</span><span class="lang-name">اردو</span><span class="lang-native">Urdu</span></div>
+    <div class="lang-opt" onclick="chooseLang('fr')"><span class="lang-flag">🇫🇷</span><span class="lang-name">Français</span><span class="lang-native">French</span></div>
+    <div class="lang-opt full" onclick="chooseLang('id')"><span class="lang-flag">🇮🇩</span><span class="lang-name">Indonesia</span><span class="lang-native">Indonesian</span></div>
   </div>
 </div>
 
-<!-- ══ MAIN APP ══ -->
-<div class="screen hidden" id="mainApp">
-
-  <!-- Call banner -->
+<div id="app">
   <div class="call-banner">
     <div class="cb-dot"></div>
     <div class="cb-text">
       <span class="cb-strong" id="bannerTitle">Talk to a local Madinah guide</span>
       <span class="cb-sub" id="bannerSub">Real humans · Free call</span>
     </div>
-    <button class="call-now-btn" onclick="showTab('call')">📞 <span id="callNowLbl">Call now</span></button>
+    <button class="call-now-btn" onclick="showTab('call')" id="callNowBtn">📞 Call now</button>
   </div>
 
-  <!-- Tab content -->
   <div class="tab-content">
 
-    <!-- PLANNER -->
-    <div class="tab-pane on" id="pane-plan">
-      <div class="planner-wrap">
-        <div class="messages" id="messages">
-          <div class="welcome" id="welcomeScreen">
-            <div>
-              <div class="wlc-greet" id="wlcGreet">Welcome to Madinah Guide 🕌</div>
-              <div class="wlc-sub" id="wlcSub">Ask me anything about visiting Madinah — I will plan your trip with real local recommendations.</div>
-            </div>
-            <div class="feat-grid">
-              <div class="feat-card" onclick="sendChip('plan-umrah')"><div class="feat-icon">🤲</div><div class="feat-title" id="fc1t">Umrah guidance</div><div class="feat-desc" id="fc1d">Sites, etiquette and ziyarat</div></div>
-              <div class="feat-card" onclick="sendChip('plan-hotel')"><div class="feat-icon">🏨</div><div class="feat-title" id="fc2t">Hotels & stay</div><div class="feat-desc" id="fc2d">Near the mosque, all budgets</div></div>
-              <div class="feat-card" onclick="sendChip('plan-food')"><div class="feat-icon">🍽️</div><div class="feat-title" id="fc3t">Food & dining</div><div class="feat-desc" id="fc3d">Restaurants and local food</div></div>
-              <div class="feat-card" onclick="sendChip('plan-dates')"><div class="feat-icon">🌴</div><div class="feat-title" id="fc4t">Dates & gifts</div><div class="feat-desc" id="fc4d">Best shops and markets</div></div>
-              <div class="feat-card" onclick="sendChip('plan-transport')"><div class="feat-icon">🚌</div><div class="feat-title" id="fc5t">Transport</div><div class="feat-desc" id="fc5d">Airport, taxis, train</div></div>
-              <div class="feat-card" onclick="sendChip('plan-itinerary')"><div class="feat-icon">🗺️</div><div class="feat-title" id="fc6t">Full itinerary</div><div class="feat-desc" id="fc6d">Day by day plan + costs</div></div>
-            </div>
+    <!-- PLAN -->
+    <div class="pane" id="pane-plan">
+      <div class="messages" id="messages">
+        <div class="welcome" id="welcomeScreen">
+          <div style="font-size:44px;text-align:center;margin-top:0.5rem">🕌</div>
+          <div>
+            <div style="font-size:19px;font-weight:700;color:#1a1a1a" id="wlcTitle">Welcome to Madinah Guide</div>
+            <div style="font-size:13px;color:#888;line-height:1.5;margin-top:3px" id="wlcSub">Ask me anything about visiting Madinah — I will plan your trip with real local knowledge.</div>
+          </div>
+          <div class="feat-grid">
+            <div class="feat-card" onclick="quickSend('umrah')"><div class="feat-icon">🤲</div><div class="feat-title" id="fc1t">Umrah guidance</div><div class="feat-desc" id="fc1d">Sites, etiquette, ziyarat</div></div>
+            <div class="feat-card" onclick="quickSend('hotel')"><div class="feat-icon">🏨</div><div class="feat-title" id="fc2t">Hotels & stay</div><div class="feat-desc" id="fc2d">Near the mosque</div></div>
+            <div class="feat-card" onclick="quickSend('food')"><div class="feat-icon">🍽️</div><div class="feat-title" id="fc3t">Food & dining</div><div class="feat-desc" id="fc3d">Best restaurants</div></div>
+            <div class="feat-card" onclick="quickSend('dates')"><div class="feat-icon">🌴</div><div class="feat-title" id="fc4t">Dates & gifts</div><div class="feat-desc" id="fc4d">Best shops</div></div>
+            <div class="feat-card" onclick="quickSend('transport')"><div class="feat-icon">🚌</div><div class="feat-title" id="fc5t">Transport</div><div class="feat-desc" id="fc5d">Airport, taxis, train</div></div>
+            <div class="feat-card" onclick="quickSend('itinerary')"><div class="feat-icon">🗺️</div><div class="feat-title" id="fc6t">Full itinerary</div><div class="feat-desc" id="fc6d">Day by day + costs</div></div>
           </div>
         </div>
-        <div class="visitor-badge" id="visitorBadge"></div>
-        <div class="chips-row" id="chipsRow" style="display:none">
-          <div class="chip" onclick="sendChip('prayer-times')">🕐 Prayer times</div>
-          <div class="chip" onclick="sendChip('dress-code')">👗 Dress code</div>
-          <div class="chip" onclick="sendChip('best-season')">📅 Best season</div>
-          <div class="chip" onclick="sendChip('budget')">💰 Budget</div>
-          <div class="chip" onclick="sendChip('safety')">✅ Safety tips</div>
-        </div>
-        <div class="input-bar">
-          <textarea id="userInput" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)" id="userInput"></textarea>
-          <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-            <svg class="send-icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-        </div>
+      </div>
+      <div class="visitor-badge" id="visitorBadge"></div>
+      <div class="chips-row" id="chipsRow" style="display:none">
+        <div class="chip" onclick="quickSend('prayer')">🕐 Prayer times</div>
+        <div class="chip" onclick="quickSend('dress')">👗 Dress code</div>
+        <div class="chip" onclick="quickSend('season')">📅 Best season</div>
+        <div class="chip" onclick="quickSend('budget')">💰 Budget</div>
+        <div class="chip" onclick="quickSend('safety')">✅ Safety</div>
+      </div>
+      <div class="input-bar">
+        <textarea id="userInput" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg class="send-icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
       </div>
     </div>
 
-    <!-- DISCOVER -->
-    <div class="tab-pane" id="pane-discover">
-      <div class="discover-wrap">
+    <!-- PLACES -->
+    <div class="pane hidden" id="pane-places">
+      <div class="places-wrap">
         <div>
-          <div class="disc-title" id="discTitle">Discover Madinah</div>
-          <div class="disc-sub" id="discSub">Restaurants, shops, cafés and more</div>
+          <div style="font-size:18px;font-weight:700;color:#1a1a1a" id="placesTitle">Madinah Places</div>
+          <div style="font-size:13px;color:#888;margin-top:2px" id="placesSub">Holy sites, hotels, food & more</div>
         </div>
-        <div class="cat-scroll" id="catScroll">
-          <div class="cat-pill on" onclick="filterBiz(this,'')">⭐ All</div>
-          <div class="cat-pill" onclick="filterBiz(this,'restaurant')">🍽️ Restaurants</div>
-          <div class="cat-pill" onclick="filterBiz(this,'cafe')">☕ Cafés</div>
-          <div class="cat-pill" onclick="filterBiz(this,'dates_shop')">🌴 Dates</div>
-          <div class="cat-pill" onclick="filterBiz(this,'attar_perfume')">🌸 Attar</div>
-          <div class="cat-pill" onclick="filterBiz(this,'shop')">🛍️ Shops</div>
-          <div class="cat-pill" onclick="filterBiz(this,'hotel')">🏨 Hotels</div>
+        <div class="cat-scroll">
+          <div class="cat-pill on" onclick="filterPlaces(this,'all')">⭐ All</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'mosque')">🕌 Mosques</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'historic')">🏛️ Historic</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'hotel')">🏨 Hotels</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'restaurant')">🍽️ Food</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'shop')">🛍️ Shops</div>
         </div>
-        <div class="biz-grid" id="bizGrid">
-          <div class="skeleton"></div>
-          <div class="skeleton"></div>
-        </div>
+        <div id="placesList" style="display:flex;flex-direction:column;gap:0.75rem"></div>
       </div>
     </div>
 
     <!-- CALL -->
-    <div class="tab-pane" id="pane-call">
+    <div class="pane hidden" id="pane-call">
       <div class="call-wrap">
-        <div class="call-avatar">👨‍💼</div>
+        <div class="call-av">👨‍💼</div>
         <div class="call-title" id="callTitle">Talk to a local guide</div>
-        <div class="call-sub" id="callSubText">Connect with a real person who lives in Madinah. They know the city personally and can help you in your language.</div>
+        <div class="call-sub" id="callSub">Connect with a real person who lives in Madinah. They know the city personally and speak your language.</div>
         <div class="call-langs">
           <span class="call-lang">🇸🇦 عربي</span>
           <span class="call-lang">🇬🇧 English</span>
@@ -295,276 +208,120 @@
           <span class="call-lang">🇫🇷 Français</span>
           <span class="call-lang">🇮🇩 Indonesia</span>
         </div>
-        <button class="big-call-btn" onclick="goToVoiceCall()">
-          📞 <span id="callBtnLbl">Connect me to an agent</span>
-        </button>
-        <div class="call-note" id="callNote">Free for you · Cost is covered by Madinah Guide · Available during business hours</div>
-      </div>
-    </div>
-
-    <!-- REGISTER -->
-    <div class="tab-pane" id="pane-register">
-      <div class="reg-wrap">
-        <div class="reg-hero">
-          <div class="reg-hero-icon">🏪</div>
-          <div class="reg-hero-title" id="regTitle">List your business</div>
-          <div class="reg-hero-sub" id="regSub">Reach thousands of Madinah visitors from 50+ countries in their own language</div>
-        </div>
-        <div class="plan-cards">
-          <div class="plan-card">
-            <div class="pc-name">Basic</div>
-            <div><span class="pc-price">500</span> <span class="pc-sar">SAR</span></div>
-            <div class="pc-feat">✓ Listed in search<br>✓ Direct calls<br>✓ 5 photos<br>✓ Reviews</div>
-          </div>
-          <div class="plan-card" style="border-color:#1D9E75">
-            <div class="pc-name">⭐ Featured</div>
-            <div><span class="pc-price">1,200</span> <span class="pc-sar">SAR</span></div>
-            <div class="pc-feat">✓ Top of results<br>✓ AI recommends you<br>✓ Featured badge<br>✓ Everything in Basic</div>
-          </div>
-        </div>
-        <a class="reg-link-btn" href="register-business.html" id="regBtn">Register my business →</a>
-        <div style="font-size:11px;color:#aaa;text-align:center">Manager reviews and approves within 24 hours</div>
+        <button class="big-call-btn" onclick="goToCall()">📞 <span id="callBtnLbl">Connect me to an agent</span></button>
+        <div class="call-free" id="callFree">Free for you · Cost covered by Madinah Guide · Available during business hours</div>
       </div>
     </div>
 
   </div>
 
-  <!-- Bottom nav -->
   <div class="bottom-nav">
-    <button class="bn-item on" id="bn-plan" onclick="showTab('plan')">
-      <span class="bn-icon">🔍</span>
-      <span class="bn-label" id="bnl-plan">Plan</span>
-    </button>
-    <button class="bn-item" id="bn-discover" onclick="showTab('discover')">
-      <span class="bn-icon">🏪</span>
-      <span class="bn-label" id="bnl-discover">Discover</span>
-    </button>
-    <button class="bn-item" id="bn-call" onclick="showTab('call')">
-      <span class="bn-icon">📞</span>
-      <span class="bn-label" id="bnl-call">Call guide</span>
-    </button>
-    <button class="bn-item" id="bn-register" onclick="showTab('register')">
-      <span class="bn-icon">🏪</span>
-      <span class="bn-label" id="bnl-register">For business</span>
-    </button>
+    <button class="bn on" id="bn-plan" onclick="showTab('plan')"><span class="bn-icon">🔍</span><span class="bn-lbl" id="bnl-plan">Plan</span></button>
+    <button class="bn" id="bn-places" onclick="showTab('places')"><span class="bn-icon">🕌</span><span class="bn-lbl" id="bnl-places">Places</span></button>
+    <button class="bn" id="bn-call" onclick="showTab('call')"><span class="bn-icon">📞</span><span class="bn-lbl" id="bnl-call">Call guide</span></button>
   </div>
 </div>
 
-<!-- Business detail modal -->
-<div class="modal-bg" id="bizModal">
+<div class="modal-bg" id="placeModal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div id="bizModalContent"></div>
+    <div id="placeModalContent"></div>
   </div>
 </div>
 
-<!-- Install banner -->
 <div class="install-banner" id="installBanner">
   <div class="ib-text">📱 <strong>Add to home screen</strong> for the best experience</div>
-  <button class="ib-install" id="installBtn">Install</button>
-  <button class="ib-close" onclick="dismissInstall()">✕</button>
+  <button class="ib-btn" id="installBtn">Install</button>
+  <button class="ib-x" onclick="document.getElementById('installBanner').style.display='none'">✕</button>
 </div>
 
 <script>
-const BACKEND = 'https://madinah-guide-backend-1.onrender.com';
-const VOICE_URL = 'visitor.html';
+const BACKEND  = 'https://madinah-guide-backend-1.onrender.com';
+const CALL_URL = 'visitor.html';
 
-// ── Language configs ──────────────────────────────────────────────────────────
-const L = {
-  en: {
-    banner:'Talk to a local Madinah guide', bannerSub:'Real humans · Free call', callNow:'Call now',
-    greet:'Welcome to Madinah Guide 🕌', sub:'Ask me anything about visiting Madinah — I will plan your trip with real local recommendations.',
-    placeholder:'Ask anything about Madinah…',
-    chips:{plan:'What should I visit in Madinah?','plan-umrah':'Plan my Umrah visit to Madinah with sites, etiquette and tips','plan-hotel':'Best hotels near the Prophet Mosque in Madinah for all budgets','plan-food':'Best restaurants and local food to try in Madinah','plan-dates':'Best shops to buy Ajwa dates and Islamic gifts in Madinah','plan-transport':'How to get around Madinah — airport, taxis, Haramain train','plan-itinerary':'Build me a 3-day Madinah itinerary with costs in SAR','prayer-times':'What prayer times should I know when visiting Madinah?','dress-code':'What is the dress code for visiting Al-Masjid an-Nabawi?','best-season':'What is the best time of year to visit Madinah?','budget':'How much should I budget for 5 days in Madinah?','safety':'Is Madinah safe? Tips for first-time visitors?'},
-    discTitle:'Discover Madinah', discSub:'Restaurants, shops, cafés and more',
-    callTitle:'Talk to a local guide', callSub:'Connect with a real person who lives in Madinah. They know the city personally and can help you in your language.',
-    callBtn:'Connect me to an agent', callNote:'Free for you · Available during business hours',
-    regTitle:'List your business', regSub:'Reach thousands of Madinah visitors from 50+ countries in their own language', regBtn:'Register my business →',
-    bnPlan:'Plan', bnDiscover:'Discover', bnCall:'Call guide', bnReg:'For business',
-    fc1t:'Umrah guidance',fc1d:'Sites, etiquette, ziyarat',fc2t:'Hotels & stay',fc2d:'Near the mosque',fc3t:'Food & dining',fc3d:'Restaurants & local food',fc4t:'Dates & gifts',fc4d:'Best shops',fc5t:'Transport',fc5d:'Airport, taxis, train',fc6t:'Full itinerary',fc6d:'Day by day + costs',
-    pilgrimBadge:'🤲 Pilgrim mode — guidance tailored for Hajj & Umrah', touristBadge:'🧳 Tourist mode — tailored for general visitors',
-  },
-  ar: {
-    banner:'تحدث مع مرشد محلي في المدينة', bannerSub:'بشر حقيقيون · مكالمة مجانية', callNow:'اتصل الآن',
-    greet:'مرحباً بك في دليل المدينة 🕌', sub:'اسألني عن أي شيء في المدينة المنورة — سأخطط رحلتك بتوصيات محلية حقيقية.',
-    placeholder:'اسألني عن المدينة المنورة…',
-    chips:{'plan-umrah':'خطط زيارة عمرتي للمدينة المنورة مع المواقع والآداب','plan-hotel':'أفضل الفنادق بالقرب من المسجد النبوي لجميع الميزانيات','plan-food':'أفضل المطاعم والأكل المحلي في المدينة المنورة','plan-dates':'أفضل محلات التمر والهدايا الإسلامية في المدينة','plan-transport':'كيف أتنقل في المدينة المنورة — المطار والتاكسي والقطار','plan-itinerary':'ابن لي برنامجاً لـ3 أيام في المدينة مع التكاليف'},
-    discTitle:'اكتشف المدينة المنورة', discSub:'مطاعم، محلات، مقاهي والمزيد',
-    callTitle:'تحدث مع مرشد محلي', callSub:'تواصل مع شخص حقيقي يعيش في المدينة المنورة ويعرفها جيداً.',
-    callBtn:'تواصل مع وكيل', callNote:'مجاني لك · متاح خلال ساعات العمل',
-    regTitle:'سجّل نشاطك التجاري', regSub:'تواصل مع آلاف زوار المدينة من أكثر من 50 دولة بلغتهم الخاصة', regBtn:'سجّل نشاطي التجاري ←',
-    bnPlan:'التخطيط', bnDiscover:'اكتشف', bnCall:'اتصل بمرشد', bnReg:'للأعمال',
-    fc1t:'إرشادات العمرة',fc1d:'المواقع والآداب',fc2t:'الفنادق والإقامة',fc2d:'قرب المسجد',fc3t:'الطعام والمطاعم',fc3d:'مطاعم وأكل محلي',fc4t:'التمر والهدايا',fc4d:'أفضل المحلات',fc5t:'المواصلات',fc5d:'المطار والتاكسي',fc6t:'برنامج كامل',fc6d:'يوم بيوم مع التكاليف',
-    pilgrimBadge:'🤲 وضع الحاج — إرشادات مخصصة للحج والعمرة', touristBadge:'🧳 وضع السائح — مخصص للزوار العاديين',
-  },
-  ur: {
-    banner:'مدینہ کے مقامی گائیڈ سے بات کریں', bannerSub:'حقیقی انسان · مفت کال', callNow:'ابھی کال کریں',
-    greet:'مدینہ گائیڈ میں خوش آمدید 🕌', sub:'مدینہ کے بارے میں کچھ بھی پوچھیں — میں حقیقی مقامی سفارشات کے ساتھ آپ کا سفر پلان کروں گا۔',
-    placeholder:'مدینہ کے بارے میں پوچھیں…',
-    chips:{'plan-umrah':'مدینہ منورہ کے لیے میرا عمرہ دورہ پلان کریں','plan-itinerary':'مدینہ کے لیے 3 دن کا پروگرام بنائیں'},
-    discTitle:'مدینہ دریافت کریں', discSub:'ریستوران، دکانیں، کیفے اور مزید',
-    callTitle:'مقامی گائیڈ سے بات کریں', callSub:'مدینہ میں رہنے والے کسی حقیقی شخص سے جڑیں۔',
-    callBtn:'ایجنٹ سے جوڑیں', callNote:'آپ کے لیے مفت · کاروباری اوقات میں دستیاب',
-    regTitle:'اپنا کاروبار رجسٹر کریں', regSub:'50 سے زیادہ ممالک کے ہزاروں مدینہ زائرین تک پہنچیں', regBtn:'میرا کاروبار رجسٹر کریں →',
-    bnPlan:'منصوبہ', bnDiscover:'دریافت', bnCall:'گائیڈ کو کال', bnReg:'کاروبار کے لیے',
-    fc1t:'عمرہ رہنمائی',fc1d:'مقامات، آداب',fc2t:'ہوٹل و قیام',fc2d:'مسجد کے قریب',fc3t:'کھانا و ریستوران',fc3d:'مقامی کھانا',fc4t:'کھجور و تحائف',fc4d:'بہترین دکانیں',fc5t:'نقل و حمل',fc5d:'ہوائی اڈہ، ٹیکسی',fc6t:'مکمل پروگرام',fc6d:'روز بروز + اخراجات',
-    pilgrimBadge:'🤲 حاجی موڈ — حج اور عمرہ کے لیے رہنمائی', touristBadge:'🧳 سیاح موڈ — عام زائرین کے لیے',
-  },
-  fr: {
-    banner:'Parler à un guide local de Médine', bannerSub:'Humains réels · Appel gratuit', callNow:'Appeler',
-    greet:'Bienvenue sur Madinah Guide 🕌', sub:'Posez-moi n\'importe quelle question sur Médine — je planifierai votre voyage avec de vraies recommandations locales.',
-    placeholder:'Posez une question sur Médine…',
-    chips:{'plan-umrah':'Planifiez ma visite Umrah à Médine','plan-itinerary':'Créez un itinéraire de 3 jours à Médine avec les coûts'},
-    discTitle:'Découvrir Médine', discSub:'Restaurants, boutiques, cafés et plus',
-    callTitle:'Parler à un guide local', callSub:'Connectez-vous avec une vraie personne qui vit à Médine.',
-    callBtn:'Me connecter à un agent', callNote:'Gratuit pour vous · Disponible pendant les heures de bureau',
-    regTitle:'Listez votre entreprise', regSub:'Atteignez des milliers de visiteurs de Médine de plus de 50 pays', regBtn:'Enregistrer mon entreprise →',
-    bnPlan:'Planifier', bnDiscover:'Découvrir', bnCall:'Appeler guide', bnReg:'Pour entreprises',
-    fc1t:'Guide Umrah',fc1d:'Sites, étiquette',fc2t:'Hôtels',fc2d:'Près de la mosquée',fc3t:'Restaurants',fc3d:'Cuisine locale',fc4t:'Dattes & cadeaux',fc4d:'Meilleures boutiques',fc5t:'Transport',fc5d:'Aéroport, taxi',fc6t:'Itinéraire complet',fc6d:'Jour par jour + coûts',
-    pilgrimBadge:'🤲 Mode pèlerin — Guide Hajj & Umrah', touristBadge:'🧳 Mode touriste — pour visiteurs généraux',
-  },
-  id: {
-    banner:'Bicara dengan pemandu lokal Madinah', bannerSub:'Manusia nyata · Panggilan gratis', callNow:'Hubungi',
-    greet:'Selamat datang di Madinah Guide 🕌', sub:'Tanyakan apa saja tentang Madinah — saya akan merencanakan perjalanan Anda dengan rekomendasi lokal nyata.',
-    placeholder:'Tanyakan tentang Madinah…',
-    chips:{'plan-umrah':'Rencanakan kunjungan Umrah saya ke Madinah','plan-itinerary':'Buat itinerari 3 hari Madinah dengan biaya'},
-    discTitle:'Jelajahi Madinah', discSub:'Restoran, toko, kafe dan lainnya',
-    callTitle:'Bicara dengan pemandu lokal', callSub:'Terhubung dengan orang sungguhan yang tinggal di Madinah.',
-    callBtn:'Hubungkan saya ke agen', callNote:'Gratis untuk Anda · Tersedia selama jam kerja',
-    regTitle:'Daftarkan bisnis Anda', regSub:'Jangkau ribuan pengunjung Madinah dari 50+ negara', regBtn:'Daftarkan bisnis saya →',
-    bnPlan:'Rencana', bnDiscover:'Jelajahi', bnCall:'Hubungi panduan', bnReg:'Untuk bisnis',
-    fc1t:'Panduan Umrah',fc1d:'Situs, etika',fc2t:'Hotel',fc2d:'Dekat masjid',fc3t:'Restoran',fc3d:'Makanan lokal',fc4t:'Kurma & hadiah',fc4d:'Toko terbaik',fc5t:'Transportasi',fc5d:'Bandara, taksi',fc6t:'Itinerari lengkap',fc6d:'Hari per hari + biaya',
-    pilgrimBadge:'🤲 Mode jemaah — Panduan Haji & Umrah', touristBadge:'🧳 Mode wisatawan — untuk pengunjung umum',
-  }
+const T = {
+  en:{banner:'Talk to a local Madinah guide',bannerSub:'Real humans · Free call',callNow:'📞 Call now',wlcTitle:'Welcome to Madinah Guide 🕌',wlcSub:'Ask me anything about Madinah — I will plan your trip with real local knowledge.',placeholder:'Ask anything about Madinah…',placesTitle:'Madinah Places',placesSub:'Holy sites, hotels, food & more',callTitle:'Talk to a local guide',callSub:'Connect with a real person who lives in Madinah. They know the city personally and speak your language.',callBtn:'Connect me to an agent',callFree:'Free for you · Cost covered by Madinah Guide · Available during business hours',bnPlan:'Plan',bnPlaces:'Places',bnCall:'Call guide',pilgrim:'🤲 Pilgrim mode — tailored for Hajj & Umrah',tourist:'🧳 Tourist mode — tailored for general visitors',chips:{umrah:'Plan my Umrah visit to Madinah — sites, etiquette and tips',hotel:'Best hotels near the Prophet Mosque in Madinah for all budgets',food:'Best restaurants and local food to try in Madinah',dates:'Best shops for Ajwa dates and Islamic gifts in Madinah',transport:'How to get around Madinah — airport, taxis, Haramain train',itinerary:'Build me a 3-day Madinah itinerary with costs in SAR',prayer:'What prayer times should I know when visiting Madinah?',dress:'What is the dress code for visiting Al-Masjid an-Nabawi?',season:'What is the best time of year to visit Madinah?',budget:'How much should I budget for 5 days in Madinah?',safety:'Is Madinah safe? Tips for first-time visitors?'},fc:['Umrah guidance','Hotels & stay','Food & dining','Dates & gifts','Transport','Full itinerary'],fd:['Sites, etiquette, ziyarat','Near the mosque','Best restaurants','Best shops','Airport, taxis, train','Day by day + costs']},
+  ar:{banner:'تحدث مع مرشد محلي في المدينة',bannerSub:'بشر حقيقيون · مكالمة مجانية',callNow:'📞 اتصل الآن',wlcTitle:'مرحباً بك في دليل المدينة 🕌',wlcSub:'اسألني عن أي شيء في المدينة المنورة — سأخطط رحلتك.',placeholder:'اسألني عن المدينة المنورة…',placesTitle:'أماكن المدينة المنورة',placesSub:'المساجد والفنادق والطعام والمزيد',callTitle:'تحدث مع مرشد محلي',callSub:'تواصل مع شخص حقيقي يعيش في المدينة المنورة.',callBtn:'تواصل مع وكيل',callFree:'مجاني لك · متاح خلال ساعات العمل',bnPlan:'التخطيط',bnPlaces:'الأماكن',bnCall:'اتصل بمرشد',pilgrim:'🤲 وضع الحاج — إرشادات الحج والعمرة',tourist:'🧳 وضع السائح — للزوار العاديين',chips:{umrah:'خطط زيارة عمرتي للمدينة مع المواقع والآداب',hotel:'أفضل فنادق المدينة قرب المسجد النبوي',food:'أفضل المطاعم في المدينة المنورة',dates:'أفضل محلات التمر والهدايا',transport:'كيف أتنقل في المدينة المنورة',itinerary:'برنامج 3 أيام في المدينة مع التكاليف',prayer:'مواقيت الصلاة في المدينة',dress:'كود اللباس لزيارة المسجد النبوي',season:'أفضل وقت لزيارة المدينة',budget:'الميزانية اللازمة لـ5 أيام',safety:'هل المدينة آمنة؟ نصائح للزيارة الأولى'},fc:['إرشادات العمرة','الفنادق والإقامة','الطعام والمطاعم','التمر والهدايا','المواصلات','برنامج كامل'],fd:['المواقع والآداب','قرب المسجد','أفضل المطاعم','أفضل المحلات','المطار والتاكسي','يوم بيوم + التكاليف']},
+  ur:{banner:'مدینہ کے مقامی گائیڈ سے بات کریں',bannerSub:'حقیقی انسان · مفت کال',callNow:'📞 کال کریں',wlcTitle:'مدینہ گائیڈ میں خوش آمدید 🕌',wlcSub:'مدینہ کے بارے میں کچھ بھی پوچھیں۔',placeholder:'مدینہ کے بارے میں پوچھیں…',placesTitle:'مدینہ کے مقامات',placesSub:'مساجد، ہوٹل، کھانا اور مزید',callTitle:'مقامی گائیڈ سے بات کریں',callSub:'مدینہ میں رہنے والے حقیقی شخص سے جڑیں۔',callBtn:'ایجنٹ سے جوڑیں',callFree:'آپ کے لیے مفت · کاروباری اوقات میں دستیاب',bnPlan:'منصوبہ',bnPlaces:'مقامات',bnCall:'گائیڈ کو کال',pilgrim:'🤲 حاجی موڈ — حج اور عمرہ رہنمائی',tourist:'🧳 سیاح موڈ',chips:{umrah:'مدینہ کے لیے عمرہ دورہ پلان کریں',hotel:'مسجد کے قریب بہترین ہوٹل',food:'مدینہ کے بہترین ریستوران',dates:'کھجور اور تحائف کی دکانیں',transport:'مدینہ میں نقل و حمل',itinerary:'3 دن کا مدینہ پروگرام',prayer:'نماز کے اوقات',dress:'مسجد کا لباس کوڈ',season:'مدینہ جانے کا بہترین وقت',budget:'5 دن کا بجٹ',safety:'مدینہ میں حفاظت'},fc:['عمرہ رہنمائی','ہوٹل','کھانا','کھجور','نقل و حمل','مکمل پروگرام'],fd:['مقامات اور آداب','مسجد کے قریب','مقامی کھانا','بہترین دکانیں','ہوائی اڈہ، ٹیکسی','روز بروز']},
+  fr:{banner:'Parler à un guide local de Médine',bannerSub:'Humains réels · Appel gratuit',callNow:'📞 Appeler',wlcTitle:'Bienvenue sur Madinah Guide 🕌',wlcSub:'Posez-moi n\'importe quelle question sur Médine.',placeholder:'Posez une question sur Médine…',placesTitle:'Lieux de Médine',placesSub:'Sites sacrés, hôtels, restaurants',callTitle:'Parler à un guide local',callSub:'Connectez-vous avec une vraie personne qui vit à Médine.',callBtn:'Me connecter à un agent',callFree:'Gratuit · Disponible pendant les heures de bureau',bnPlan:'Planifier',bnPlaces:'Lieux',bnCall:'Appeler guide',pilgrim:'🤲 Mode pèlerin — Guide Hajj & Umrah',tourist:'🧳 Mode touriste',chips:{umrah:'Planifiez ma visite Umrah à Médine',hotel:'Meilleurs hôtels près de la mosquée',food:'Meilleurs restaurants à Médine',dates:'Magasins de dattes et cadeaux',transport:'Transport à Médine',itinerary:'Itinéraire 3 jours à Médine',prayer:'Horaires de prière',dress:'Code vestimentaire mosquée',season:'Meilleure période pour visiter',budget:'Budget 5 jours',safety:'Médine est-elle sûre?'},fc:['Guide Umrah','Hôtels','Restaurants','Dattes','Transport','Itinéraire complet'],fd:['Sites, étiquette','Près de la mosquée','Cuisine locale','Meilleures boutiques','Aéroport, taxi','Jour par jour']},
+  id:{banner:'Bicara dengan pemandu lokal Madinah',bannerSub:'Manusia nyata · Panggilan gratis',callNow:'📞 Hubungi',wlcTitle:'Selamat datang di Madinah Guide 🕌',wlcSub:'Tanyakan apa saja tentang Madinah.',placeholder:'Tanyakan tentang Madinah…',placesTitle:'Tempat di Madinah',placesSub:'Situs suci, hotel, makanan dan lainnya',callTitle:'Bicara dengan pemandu lokal',callSub:'Terhubung dengan orang sungguhan yang tinggal di Madinah.',callBtn:'Hubungkan saya ke agen',callFree:'Gratis untuk Anda · Tersedia selama jam kerja',bnPlan:'Rencana',bnPlaces:'Tempat',bnCall:'Hubungi panduan',pilgrim:'🤲 Mode jemaah — Panduan Haji & Umrah',tourist:'🧳 Mode wisatawan',chips:{umrah:'Rencanakan kunjungan Umrah saya ke Madinah',hotel:'Hotel terbaik dekat Masjid Nabawi',food:'Restoran terbaik di Madinah',dates:'Toko kurma dan hadiah',transport:'Transportasi di Madinah',itinerary:'Itinerari 3 hari Madinah',prayer:'Waktu sholat',dress:'Kode berpakaian masjid',season:'Waktu terbaik mengunjungi',budget:'Anggaran 5 hari',safety:'Apakah Madinah aman?'},fc:['Panduan Umrah','Hotel','Restoran','Kurma','Transportasi','Itinerari lengkap'],fd:['Situs, etika','Dekat masjid','Makanan lokal','Toko terbaik','Bandara, taksi','Hari per hari']},
 };
 
-let curLang = 'en';
-let chatHistory = [];
-let isTyping = false;
-let detectedType = null;
-let allBusinesses = [];
-let filteredCat = '';
-let deferredPrompt = null;
+const PLACES = [
+  {id:1,icon:'🕌',cat:'mosque',nameEn:'Al-Masjid an-Nabawi',nameAr:'المسجد النبوي',cost:'Free',rating:5.0,descEn:'The Prophet\'s Mosque — one of the holiest sites in Islam, built by Prophet Muhammad ﷺ. Open 24 hours.',descAr:'المسجد النبوي الشريف — أحد أقدس المساجد في الإسلام. مفتوح على مدار الساعة.',lat:24.4672,lng:39.6111},
+  {id:2,icon:'🕍',cat:'mosque',nameEn:'Quba Mosque',nameAr:'مسجد قباء',cost:'Free',rating:4.9,descEn:'The first mosque ever built in Islam, founded by Prophet Muhammad ﷺ.',descAr:'أول مسجد بُني في الإسلام.',lat:24.4401,lng:39.6174},
+  {id:3,icon:'🕌',cat:'mosque',nameEn:'Masjid al-Qiblatayn',nameAr:'مسجد القبلتين',cost:'Free',rating:4.8,descEn:'The Mosque of the Two Qiblas — where the direction of prayer changed from Jerusalem to Makkah.',descAr:'مسجد القبلتين — حيث تحولت القبلة من القدس إلى مكة.',lat:24.4745,lng:39.5921},
+  {id:4,icon:'🕌',cat:'mosque',nameEn:'Seven Mosques',nameAr:'المساجد السبعة',cost:'Free',rating:4.7,descEn:'Historic cluster of mosques built on the site of the Battle of the Trench.',descAr:'مجموعة مساجد تاريخية بُنيت على موقع غزوة الخندق.',lat:24.4798,lng:39.5894},
+  {id:5,icon:'🏔️',cat:'historic',nameEn:'Mount Uhud',nameAr:'جبل أحد',cost:'Free',rating:4.7,descEn:'Historic mountain where the Battle of Uhud took place. A deeply meaningful site.',descAr:'الجبل التاريخي الذي شهد غزوة أحد.',lat:24.5052,lng:39.6148},
+  {id:6,icon:'🪦',cat:'historic',nameEn:'Al-Baqi Cemetery',nameAr:'البقيع',cost:'Free',rating:4.6,descEn:'Ancient cemetery where many companions of the Prophet ﷺ and his family are buried.',descAr:'المقبرة التي تضم قبور الصحابة وآل البيت.',lat:24.4665,lng:39.6144},
+  {id:7,icon:'🏛️',cat:'historic',nameEn:'Dar Al Madinah Museum',nameAr:'متحف دار المدينة',cost:'20 SAR',rating:4.5,descEn:'Fascinating museum showcasing the history and heritage of Madinah through artifacts.',descAr:'متحف رائع يعرض تاريخ وتراث المدينة.',lat:24.4633,lng:39.6078},
+  {id:8,icon:'🚂',cat:'historic',nameEn:'Hijaz Railway Museum',nameAr:'متحف سكة الحديد الحجازية',cost:'Free',rating:4.3,descEn:'Historic railway station turned museum — the famous Hijaz Railway from Damascus to Madinah.',descAr:'محطة تاريخية تحولت إلى متحف يروي قصة الخط الحجازي.',lat:24.4689,lng:39.6012},
+  {id:9,icon:'🏨',cat:'hotel',nameEn:'Anwar Al Madinah Mövenpick',nameAr:'أنوار المدينة موفنبيك',cost:'400–800 SAR/night',rating:4.7,descEn:'5-star hotel connected directly to the Prophet\'s Mosque. Best location in Madinah.',descAr:'فندق 5 نجوم متصل مباشرة بالمسجد النبوي.',lat:24.4680,lng:39.6105},
+  {id:10,icon:'🏨',cat:'hotel',nameEn:'Oberoi Madinah',nameAr:'أوبروي المدينة',cost:'600–1200 SAR/night',rating:4.8,descEn:'Luxury hotel with stunning views of Al-Masjid an-Nabawi.',descAr:'فندق فاخر بإطلالة رائعة على المسجد النبوي.',lat:24.4675,lng:39.6098},
+  {id:11,icon:'🏨',cat:'hotel',nameEn:'Pullman Zamzam Madinah',nameAr:'بولمان زمزم المدينة',cost:'300–600 SAR/night',rating:4.6,descEn:'4-star hotel directly overlooking Al-Masjid an-Nabawi. Great value.',descAr:'فندق 4 نجوم يطل مباشرة على المسجد النبوي.',lat:24.4677,lng:39.6108},
+  {id:12,icon:'🍽️',cat:'restaurant',nameEn:'Al-Baik Restaurant',nameAr:'مطعم البيك',cost:'15–40 SAR',rating:4.8,descEn:'Iconic Saudi fast food loved by pilgrims. Famous for crispy chicken and garlic sauce.',descAr:'سلسلة مطاعم سعودية شهيرة يحبها الحجاج.',lat:24.4678,lng:39.6090},
+  {id:13,icon:'🍽️',cat:'restaurant',nameEn:'Bab Al Hara',nameAr:'مطعم باب الحارة',cost:'30–80 SAR',rating:4.5,descEn:'Traditional Syrian and Saudi cuisine, popular with families.',descAr:'مطبخ سوري وسعودي تقليدي محبوب لدى العائلات.',lat:24.4660,lng:39.6120},
+  {id:14,icon:'🍽️',cat:'restaurant',nameEn:'Herfy Burgers',nameAr:'هرفي',cost:'20–50 SAR',rating:4.3,descEn:'Popular Saudi burger chain. Clean, fast and affordable near the mosque.',descAr:'سلسلة برغر سعودية شعبية. سريعة وبأسعار معقولة.',lat:24.4665,lng:39.6095},
+  {id:15,icon:'🌴',cat:'shop',nameEn:'Al-Anbariyya Souq',nameAr:'سوق العنبرية',cost:'Free entry',rating:4.4,descEn:'Traditional market — best for Ajwa dates, miswak, attar and Islamic gifts.',descAr:'السوق التقليدي — أفضل مكان للتمر والمسواك والعطور.',lat:24.4678,lng:39.6098},
+  {id:16,icon:'🌴',cat:'shop',nameEn:'Tamr Al-Madinah',nameAr:'تمر المدينة',cost:'50–500 SAR',rating:4.9,descEn:'Premium Ajwa, Medjool and Sukkari dates with gift packaging.',descAr:'تمر عجوة ومجدول وسكري فاخر مع تغليف هدايا.',lat:24.4670,lng:39.6100},
+  {id:17,icon:'🌸',cat:'shop',nameEn:'Medina Perfumes',nameAr:'عطور المدينة',cost:'30–300 SAR',rating:4.6,descEn:'Authentic Arabian attar, oud and miswak. Family business since 1985.',descAr:'عطور عربية أصيلة وعود ومسواك. عمل عائلي منذ 1985.',lat:24.4672,lng:39.6102},
+];
 
-// ── PWA install prompt ────────────────────────────────────────────────────────
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  setTimeout(()=>{ document.getElementById('installBanner').style.display='flex'; }, 3000);
-});
+let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null;
 
-document.getElementById('installBtn').onclick = async () => {
-  if(!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  dismissInstall();
-};
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;setTimeout(()=>{document.getElementById('installBanner').style.display='flex';},4000);});
+document.getElementById('installBtn').onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBanner').style.display='none';};
 
-function dismissInstall() {
-  document.getElementById('installBanner').style.display='none';
-}
-
-// ── Service worker ────────────────────────────────────────────────────────────
-if('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
-
-// ── Language selection ────────────────────────────────────────────────────────
-function chooseLang(lang) {
-  curLang = lang;
-  localStorage.setItem('madinah_lang', lang);
-  applyLang(lang);
-  document.getElementById('langScreen').classList.add('hidden');
-  document.getElementById('mainApp').classList.remove('hidden');
-  loadBusinesses();
-}
-
-function applyLang(lang) {
-  const t = L[lang] || L.en;
-  const isRTL = lang==='ar'||lang==='ur';
-  document.documentElement.dir = isRTL?'rtl':'ltr';
-  document.documentElement.lang = lang;
-
-  document.getElementById('bannerTitle').textContent = t.banner;
-  document.getElementById('bannerSub').textContent   = t.bannerSub;
-  document.getElementById('callNowLbl').textContent  = t.callNow;
-  document.getElementById('wlcGreet').textContent    = t.greet;
-  document.getElementById('wlcSub').textContent      = t.sub;
-  document.getElementById('userInput').placeholder   = t.placeholder;
-  document.getElementById('discTitle').textContent   = t.discTitle;
-  document.getElementById('discSub').textContent     = t.discSub;
-  document.getElementById('callTitle').textContent   = t.callTitle;
-  document.getElementById('callSubText').textContent = t.callSub;
-  document.getElementById('callBtnLbl').textContent  = t.callBtn;
-  document.getElementById('callNote').textContent    = t.callNote;
-  document.getElementById('regTitle').textContent    = t.regTitle;
-  document.getElementById('regSub').textContent      = t.regSub;
-  document.getElementById('regBtn').textContent      = t.regBtn;
-  document.getElementById('bnl-plan').textContent    = t.bnPlan;
-  document.getElementById('bnl-discover').textContent= t.bnDiscover;
-  document.getElementById('bnl-call').textContent   = t.bnCall;
-  document.getElementById('bnl-register').textContent= t.bnReg;
-  ['1','2','3','4','5','6'].forEach(n=>{
-    if(document.getElementById('fc'+n+'t')) document.getElementById('fc'+n+'t').textContent=t['fc'+n+'t']||'';
-    if(document.getElementById('fc'+n+'d')) document.getElementById('fc'+n+'d').textContent=t['fc'+n+'d']||'';
+function chooseLang(lang){
+  curLang=lang; localStorage.setItem('mg_lang',lang);
+  const t=T[lang]||T.en; const rtl=lang==='ar'||lang==='ur';
+  document.documentElement.dir=rtl?'rtl':'ltr'; document.documentElement.lang=lang;
+  ['bannerTitle','bannerSub','wlcTitle','wlcSub','placesTitle','placesSub','callTitle','callSub','callBtnLbl','callFree','bnl-plan','bnl-places','bnl-call'].forEach(id=>{
+    const map={bannerTitle:t.banner,bannerSub:t.bannerSub,wlcTitle:t.wlcTitle,wlcSub:t.wlcSub,placesTitle:t.placesTitle,placesSub:t.placesSub,callTitle:t.callTitle,callSub:t.callSub,callBtnLbl:t.callBtn,callFree:t.callFree,'bnl-plan':t.bnPlan,'bnl-places':t.bnPlaces,'bnl-call':t.bnCall};
+    const el=document.getElementById(id); if(el) el.textContent=map[id]||'';
   });
-  document.getElementById('userInput').dir = isRTL?'rtl':'ltr';
+  document.getElementById('callNowBtn').textContent=t.callNow;
+  document.getElementById('userInput').placeholder=t.placeholder;
+  document.getElementById('userInput').dir=rtl?'rtl':'ltr';
+  t.fc.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'t');if(e)e.textContent=v;});
+  t.fd.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'d');if(e)e.textContent=v;});
+  document.getElementById('langScreen').classList.add('gone');
+  document.getElementById('app').classList.add('visible');
+  renderPlaces();
 }
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
-function showTab(tab) {
-  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('on'));
-  document.getElementById('pane-'+tab).classList.add('on');
+function showTab(tab){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.add('hidden'));
+  document.querySelectorAll('.bn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pane-'+tab).classList.remove('hidden');
   document.getElementById('bn-'+tab).classList.add('on');
-  if(tab==='discover' && !allBusinesses.length) loadBusinesses();
 }
 
-// ── Chat ──────────────────────────────────────────────────────────────────────
-function addMsg(role, text) {
-  const ws=document.getElementById('welcomeScreen');
-  if(ws){ws.style.display='none';}
+function hideWelcome(){
+  const ws=document.getElementById('welcomeScreen'); if(ws) ws.style.display='none';
   document.getElementById('chipsRow').style.display='flex';
-  const msgs=document.getElementById('messages');
-  const t=L[curLang]||L.en;
-  const div=document.createElement('div');
-  div.className='msg '+(role==='user'?'user':'ai');
-  div.innerHTML=`<div class="msg-av">${role==='user'?(curLang==='ar'?'أنا':curLang==='ur'?'میں':'Me'):'🕌'}</div><div class="bubble">${escHtml(text)}</div>`;
-  msgs.appendChild(div);
-  msgs.scrollTop=msgs.scrollHeight;
 }
-
-function showTyping(){
-  const ws=document.getElementById('welcomeScreen');
-  if(ws){ws.style.display='none';}
-  const div=document.createElement('div');
-  div.className='msg ai';div.id='typingInd';
-  div.innerHTML='<div class="msg-av">🕌</div><div class="typing"><span></span><span></span><span></span></div>';
+function addMsg(role,text){
+  hideWelcome();
   const msgs=document.getElementById('messages');
-  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+  const av=role==='user'?(curLang==='ar'?'أنا':curLang==='ur'?'میں':'Me'):'🕌';
+  const div=document.createElement('div'); div.className='msg '+(role==='user'?'user':'ai');
+  div.innerHTML=`<div class="msg-av">${av}</div><div class="bubble">${text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
 }
-function removeTyping(){const e=document.getElementById('typingInd');if(e)e.remove();}
+function showTyping(){hideWelcome();const div=document.createElement('div');div.className='msg ai';div.id='typ';div.innerHTML='<div class="msg-av">🕌</div><div class="typing"><span></span><span></span><span></span></div>';const m=document.getElementById('messages');m.appendChild(div);m.scrollTop=m.scrollHeight;}
+function removeTyping(){const e=document.getElementById('typ');if(e)e.remove();}
 
 function detectType(text){
-  const pilgrim=['hajj','umrah','umra','ziyarat','prophet','rawdah','nabawi','pilgrimage','عمرة','حج','نبوي','زيارة','روضة','عمرہ','حج'];
-  const tourist=['tourist','tourism','sightseeing','photograph','vacation','holiday'];
+  if(detectedType)return;
+  const p=['hajj','umrah','umra','ziyarat','prophet','rawdah','nabawi','pilgrimage','عمرة','حج','نبوي','روضة','عمرہ'];
+  const to=['tourist','tourism','sightseeing','vacation','holiday'];
   const low=text.toLowerCase();
-  if(!detectedType){
-    if(pilgrim.some(w=>low.includes(w))) setType('pilgrim');
-    else if(tourist.some(w=>low.includes(w))) setType('tourist');
-  }
+  const t=T[curLang]||T.en;
+  if(p.some(w=>low.includes(w))){detectedType='pilgrim';const b=document.getElementById('visitorBadge');b.textContent=t.pilgrim;b.className='visitor-badge vb-p';}
+  else if(to.some(w=>low.includes(w))){detectedType='tourist';const b=document.getElementById('visitorBadge');b.textContent=t.tourist;b.className='visitor-badge vb-t';}
 }
-
-function setType(type){
-  detectedType=type;
-  const b=document.getElementById('visitorBadge');
-  const t=L[curLang]||L.en;
-  b.textContent=type==='pilgrim'?t.pilgrimBadge:t.touristBadge;
-  b.className='visitor-badge '+(type==='pilgrim'?'vb-pilgrim':'vb-tourist');
-}
-
-function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 async function sendMessage(){
   const input=document.getElementById('userInput');
@@ -575,301 +332,80 @@ async function sendMessage(){
   addMsg('user',text);detectType(text);
   chatHistory.push({role:'user',content:text});
   showTyping();
-
+  const bizContext='\n\nOUR MADINAH PLACES (recommend by exact name):\n'+PLACES.map(p=>`- ${p.nameEn} (${p.nameAr}): ${p.cat}, ${p.cost}, ★${p.rating}`).join('\n');
   try{
-    // fetch our database businesses to give Claude real context
-    let bizContext='';
-    if(allBusinesses.length){
-      bizContext='\n\nREGISTERED BUSINESSES IN OUR APP (recommend these first by name):\n';
-      allBusinesses.slice(0,20).forEach(b=>{
-        bizContext+=`- ${b.name_en}${b.name_ar?' ('+b.name_ar+')':''}: ${b.category}, ${b.address_en||''}, ${b.opening_hours||''}, Rating: ${b.rating||'new'}${b.featured?' ⭐FEATURED':''}\n`;
-      });
-      bizContext+='\nAlways recommend these specific businesses when relevant, using their exact names.';
-    }
-
-    const r=await fetch(BACKEND+'/chat',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        messages:chatHistory.slice(-10),
-        language:curLang,
-        visitorType:detectedType,
-        bizContext,
-      })
-    });
+    const r=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.slice(-10),language:curLang,visitorType:detectedType,bizContext})});
     const d=await r.json();
     if(!d.success)throw new Error(d.detail||d.error);
     const reply=d.reply||'Sorry, please try again.';
     chatHistory.push({role:'assistant',content:reply});
     removeTyping();addMsg('ai',reply);detectType(reply);
-  }catch(e){
-    removeTyping();
-    addMsg('ai','Sorry, I could not connect. Please check your connection or call a local guide directly.');
-  }
+  }catch(e){removeTyping();addMsg('ai','Sorry, I could not connect. Please try again or call a local guide.');}
   isTyping=false;document.getElementById('sendBtn').disabled=false;
 }
 
-function sendChip(key){
-  const t=L[curLang]||L.en;
-  const q=t.chips[key]||key;
-  document.getElementById('userInput').value=q;
-  sendMessage();
-  showTab('plan');
+function quickSend(key){
+  const t=T[curLang]||T.en;
+  document.getElementById('userInput').value=t.chips[key]||key;
+  showTab('plan');sendMessage();
 }
-
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
 
-// ── Businesses ────────────────────────────────────────────────────────────────
-async function loadBusinesses(){
-  try{
-    const r=await fetch(BACKEND+'/businesses');
-    const d=await r.json();
-    allBusinesses=d.businesses||[];
-    renderBusinesses(allBusinesses);
-  }catch(e){
-    document.getElementById('bizGrid').innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px">Could not load businesses.<br>Pull to refresh.</div>';
-  }
-}
-
-function filterBiz(el,cat){
-  filteredCat=cat;
+function filterPlaces(el,cat){
+  curCat=cat;
   document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('on'));
-  el.classList.add('on');
-  const filtered=cat?allBusinesses.filter(b=>b.category===cat):allBusinesses;
-  renderBusinesses(filtered);
+  el.classList.add('on');renderPlaces();
 }
 
-const CAT_ICONS={restaurant:'🍽️',cafe:'☕',dates_shop:'🌴',attar_perfume:'🌸',shop:'🛍️',hotel:'🏨',pharmacy:'💊',transport:'🚕',other:'📦'};
-
-function renderBusinesses(list){
-  const el=document.getElementById('bizGrid');
-  if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px">No businesses in this category yet.</div>';return;}
-  el.innerHTML='';
-  list.forEach(b=>{
-    const icon=CAT_ICONS[b.category]||'📦';
-    const photos=b.photos&&b.photos.length?b.photos.filter(p=>p):[];
-    const div=document.createElement('div');div.className='biz-card';
-    div.onclick=()=>openBizModal(b);
-    div.innerHTML=`
-      <div class="biz-photos">
-        ${photos.length?`<img src="${photos[0]}" alt="${b.name_en}" loading="lazy" onerror="this.style.display='none'">`:`<span>${icon}</span>`}
-        ${b.featured?'<div class="biz-featured-badge">⭐ Featured</div>':''}
-      </div>
-      <div class="biz-body">
-        <div class="biz-name">${b.name_en}${b.name_ar?`<span style="font-size:13px;color:#888;margin-right:6px"> · ${b.name_ar}</span>`:''}
-        </div>
-        <div class="biz-cat">${icon} ${b.category.replace('_',' ')}${b.address_en?' · '+b.address_en.slice(0,35)+'…':''}</div>
-        <div class="biz-row">
-          ${b.rating?`<span class="biz-rating">★ ${b.rating} (${b.review_count})</span>`:'<span class="biz-rating" style="color:#aaa">New listing</span>'}
-          ${b.opening_hours?`<span class="biz-hours">· ${b.opening_hours.slice(0,20)}</span>`:''}
-        </div>
-        ${b.instagram?`<div class="biz-insta">📸 @${b.instagram}</div>`:''}
-        <div class="biz-actions">
-          ${b.phone?`<button class="biz-btn biz-btn-call" onclick="event.stopPropagation();window.location.href='tel:${b.phone}'">📞 Call</button>`:''}
-          ${b.whatsapp?`<button class="biz-btn biz-btn-wa" onclick="event.stopPropagation();window.open('https://wa.me/${b.whatsapp.replace(/[^0-9]/g,'')}')">WhatsApp</button>`:''}
-          ${b.instagram?`<button class="biz-btn biz-btn-insta" onclick="event.stopPropagation();window.open('https://instagram.com/${b.instagram}')">Instagram</button>`:''}
-        </div>
-      </div>`;
-    el.appendChild(div);
+function renderPlaces(){
+  const list=document.getElementById('placesList');
+  const lang=curLang;
+  const filtered=curCat==='all'?PLACES:PLACES.filter(p=>p.cat===curCat);
+  list.innerHTML='';
+  filtered.forEach(p=>{
+    const rtl=lang==='ar'||lang==='ur';
+    const name=(rtl&&p.nameAr)?p.nameAr:p.nameEn;
+    const nameAlt=(rtl)?p.nameEn:p.nameAr;
+    const desc=(lang==='ar'&&p.descAr)?p.descAr:p.descEn;
+    const div=document.createElement('div');div.className='place-card';div.onclick=()=>openModal(p);
+    div.innerHTML=`<div class="place-img">${p.icon}</div><div class="place-body"><div class="place-name">${name}</div>${nameAlt?`<div class="place-name-ar">${nameAlt}</div>`:''}<div class="place-meta"><span class="place-cost">${p.cost}</span><span class="place-rating">★ ${p.rating}</span></div><div class="place-desc">${desc}</div></div>`;
+    list.appendChild(div);
   });
 }
 
-let mapsKey = null;
-
-async function loadMapsKey() {
-  if (mapsKey) return mapsKey;
-  try {
-    const r = await fetch(BACKEND + '/config/maps-key');
-    const d = await r.json();
-    mapsKey = d.key || null;
-  } catch(e) { mapsKey = null; }
-  return mapsKey;
-}
-
-async function openBizModal(b) {
-  const icon = CAT_ICONS[b.category] || '📦';
-  const photos = (b.photos || []).filter(p => p);
-  const modal = document.getElementById('bizModalContent');
-
-  // ── photo carousel ──────────────────────────────────────────────────────────
-  const photoCarousel = photos.length
-    ? `<div style="position:relative;margin:-1rem -1.25rem 1rem;height:220px;overflow:hidden;background:#E1F5EE">
-        <div id="photoCarousel" style="display:flex;height:100%;transition:transform 0.3s ease;will-change:transform">
-          ${photos.map(p=>`<img src="${p}" style="min-width:100%;height:220px;object-fit:cover;flex-shrink:0" loading="lazy" onerror="this.parentElement.parentElement.style.display='none'">`).join('')}
-        </div>
-        ${photos.length>1?`
-        <button onclick="slidePhoto(-1)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.4);color:#fff;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
-        <button onclick="slidePhoto(1)"  style="position:absolute;right:8px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.4);color:#fff;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
-        <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px">
-          ${photos.map((_,i)=>`<div class="photo-dot" id="dot-${i}" style="width:6px;height:6px;border-radius:50%;background:${i===0?'#fff':'rgba(255,255,255,0.5)'}"></div>`).join('')}
-        </div>`:''}
-        ${b.featured?'<div style="position:absolute;top:10px;right:10px;background:#FAEEDA;color:#633806;font-size:11px;font-weight:700;padding:4px 10px;border-radius:10px">⭐ Featured</div>':''}
-      </div>`
-    : `<div style="height:160px;background:#E1F5EE;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:1rem">${icon}</div>`;
-
-  // ── Google Maps embed ───────────────────────────────────────────────────────
-  const key = await loadMapsKey();
-  let mapHtml = '';
-  if (b.latitude && b.longitude) {
-    if (key) {
-      mapHtml = `<div style="border-radius:14px;overflow:hidden;margin-bottom:0.85rem;height:160px">
-        <iframe width="100%" height="160" style="border:none" loading="lazy" allowfullscreen
-          src="https://www.google.com/maps/embed/v1/place?key=${key}&q=${b.latitude},${b.longitude}&zoom=17">
-        </iframe>
-      </div>`;
-    } else {
-      // fallback — directions link only (no embed without key)
-      mapHtml = `<a href="https://www.google.com/maps?q=${b.latitude},${b.longitude}" target="_blank"
-        style="display:flex;align-items:center;gap:8px;background:#E6F1FB;border-radius:12px;padding:10px 14px;margin-bottom:0.85rem;text-decoration:none;color:#0C447C;font-size:13px;font-weight:500">
-        🗺️ View on Google Maps →
-      </a>`;
-    }
-  } else if (b.address_en) {
-    const q = encodeURIComponent(b.address_en + ' Madinah Saudi Arabia');
-    if (key) {
-      mapHtml = `<div style="border-radius:14px;overflow:hidden;margin-bottom:0.85rem;height:160px">
-        <iframe width="100%" height="160" style="border:none" loading="lazy" allowfullscreen
-          src="https://www.google.com/maps/embed/v1/search?key=${key}&q=${q}">
-        </iframe>
-      </div>`;
-    } else {
-      mapHtml = `<a href="https://www.google.com/maps/search/${q}" target="_blank"
-        style="display:flex;align-items:center;gap:8px;background:#E6F1FB;border-radius:12px;padding:10px 14px;margin-bottom:0.85rem;text-decoration:none;color:#0C447C;font-size:13px;font-weight:500">
-        🗺️ View location on Google Maps →
-      </a>`;
-    }
-  }
-
-  // ── get directions link ─────────────────────────────────────────────────────
-  const directionsUrl = b.latitude && b.longitude
-    ? `https://www.google.com/maps/dir/?api=1&destination=${b.latitude},${b.longitude}`
-    : `https://www.google.com/maps/search/${encodeURIComponent((b.name_en||'')+ ' ' +(b.address_en||'')+ ' Madinah')}`;
-
-  modal.innerHTML = `
-    ${photoCarousel}
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:18px;font-weight:700;color:#1a1a1a">${b.name_en}</div>
-        ${b.name_ar?`<div style="font-size:14px;color:#888;direction:rtl;text-align:right">${b.name_ar}</div>`:''}
-      </div>
+function openModal(p){
+  const lang=curLang;const rtl=lang==='ar'||lang==='ur';
+  const name=(rtl&&p.nameAr)?p.nameAr:p.nameEn;
+  const desc=(lang==='ar'&&p.descAr)?p.descAr:p.descEn;
+  const mapsUrl=`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
+  document.getElementById('placeModalContent').innerHTML=`
+    <div style="font-size:52px;text-align:center;margin-bottom:0.85rem">${p.icon}</div>
+    <div style="font-size:19px;font-weight:700;color:#1a1a1a;margin-bottom:3px">${p.nameEn}</div>
+    ${p.nameAr?`<div style="font-size:14px;color:#888;direction:rtl;text-align:right;margin-bottom:0.75rem">${p.nameAr}</div>`:''}
+    <div style="display:flex;gap:8px;margin-bottom:0.85rem">
+      <span style="font-size:13px;color:#0F6E56;font-weight:600">${p.cost}</span>
+      <span style="font-size:13px;color:#BA7517;font-weight:600">★ ${p.rating}</span>
     </div>
-    ${b.description_en?`<p style="font-size:14px;color:#555;line-height:1.6;margin-bottom:0.75rem">${b.description_en}</p>`:''}
-    ${b.description_ar?`<p style="font-size:14px;color:#555;line-height:1.6;margin-bottom:0.75rem;direction:rtl;text-align:right">${b.description_ar}</p>`:''}
-    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:0.85rem">
-      ${b.rating?`<div style="font-size:13px;color:#BA7517;font-weight:500">★ ${b.rating} · ${b.review_count} review${b.review_count!==1?'s':''}</div>`:'<div style="font-size:12px;color:#aaa">No reviews yet — be the first!</div>'}
-      ${b.address_en?`<div style="font-size:13px;color:#888">📍 ${b.address_en}</div>`:''}
-      ${b.opening_hours?`<div style="font-size:13px;color:#888">🕐 ${b.opening_hours}</div>`:''}
-      ${b.phone?`<div style="font-size:13px;color:#888">📞 ${b.phone}</div>`:''}
-      ${b.instagram?`<div style="font-size:13px;color:#534AB7;font-weight:500">📸 @${b.instagram}</div>`:''}
-    </div>
-    ${mapHtml}
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem">
-      ${b.phone?`<button onclick="window.location.href='tel:${b.phone}'" style="width:100%;padding:13px;background:#085041;color:#fff;border:none;border-radius:13px;font-size:15px;font-weight:600;cursor:pointer">📞 Call ${b.name_en}</button>`:''}
-      <button onclick="window.open('${directionsUrl}','_blank')" style="width:100%;padding:13px;background:#E6F1FB;color:#0C447C;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">🗺️ Get directions</button>
-      ${b.whatsapp?`<button onclick="window.open('https://wa.me/${b.whatsapp.replace(/[^0-9]/g,'')}?text=Hello, I found you on Madinah Guide app')" style="width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">💬 WhatsApp</button>`:''}
-      ${b.instagram?`<button onclick="window.open('https://instagram.com/${b.instagram}')" style="width:100%;padding:13px;background:#EEEDFE;color:#534AB7;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">📸 Follow on Instagram</button>`:''}
-    </div>
-    <div id="reviewsSection">
-      <div style="font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:0.65rem">Visitor reviews</div>
-      <div id="reviewsList" style="display:flex;flex-direction:column;gap:8px">
-        <div style="font-size:13px;color:#aaa;text-align:center;padding:1rem">Loading reviews…</div>
-      </div>
-      <div style="margin-top:0.85rem;background:#f9f9f9;border-radius:14px;padding:0.85rem">
-        <div style="font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:0.5rem">Leave a review</div>
-        <div id="starPicker" style="display:flex;gap:4px;margin-bottom:8px;font-size:24px">
-          ${[1,2,3,4,5].map(n=>`<span onclick="pickStar(${n},'${b.id}')" style="cursor:pointer;color:#ddd" id="rstar-${n}">★</span>`).join('')}
-        </div>
-        <input id="reviewerName" placeholder="Your name" style="width:100%;padding:8px 10px;font-size:13px;border:1px solid #ddd;border-radius:9px;margin-bottom:6px;background:#fff;outline:none"/>
-        <textarea id="reviewComment" placeholder="Share your experience…" style="width:100%;padding:8px 10px;font-size:13px;border:1px solid #ddd;border-radius:9px;resize:none;height:60px;background:#fff;outline:none;font-family:inherit;margin-bottom:8px"></textarea>
-        <button onclick="submitReview('${b.id}')" style="width:100%;padding:10px;background:#085041;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">Submit review</button>
-      </div>
+    <p style="font-size:14px;color:#555;line-height:1.65;margin-bottom:1rem">${desc}</p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <a href="${mapsUrl}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#085041;color:#fff;border-radius:13px;font-size:15px;font-weight:600;text-decoration:none">🗺️ Get directions</a>
+      <button onclick="askPlace('${p.nameEn}')" style="width:100%;padding:13px;background:#E1F5EE;color:#085041;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">🔍 Ask AI about this place</button>
     </div>`;
-
-  document.getElementById('bizModal').classList.add('open');
-  loadReviews(b.id);
-  currentPhotoIdx = 0;
-  totalPhotos = photos.length;
+  document.getElementById('placeModal').classList.add('open');
 }
 
-// ── Photo carousel controls ───────────────────────────────────────────────────
-let currentPhotoIdx = 0;
-let totalPhotos = 0;
-
-function slidePhoto(dir) {
-  currentPhotoIdx = (currentPhotoIdx + dir + totalPhotos) % totalPhotos;
-  const c = document.getElementById('photoCarousel');
-  if(c) c.style.transform = `translateX(-${currentPhotoIdx * 100}%)`;
-  document.querySelectorAll('.photo-dot').forEach((d,i) => {
-    d.style.background = i === currentPhotoIdx ? '#fff' : 'rgba(255,255,255,0.5)';
-  });
+function askPlace(name){
+  document.getElementById('placeModal').classList.remove('open');
+  document.getElementById('userInput').value=`Tell me about ${name} — what to expect, visitor tips, and how long to spend there.`;
+  showTab('plan');sendMessage();
 }
 
-// ── Reviews ───────────────────────────────────────────────────────────────────
-let selectedStar = 0;
+document.getElementById('placeModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+function goToCall(){window.location.href=CALL_URL;}
 
-function pickStar(n, bizId) {
-  selectedStar = n;
-  [1,2,3,4,5].forEach(i => {
-    const el = document.getElementById('rstar-'+i);
-    if(el) el.style.color = i <= n ? '#BA7517' : '#ddd';
-  });
-}
-
-async function loadReviews(bizId) {
-  try {
-    const r = await fetch(BACKEND + '/businesses/' + bizId + '/reviews');
-    const d = await r.json();
-    const list = document.getElementById('reviewsList');
-    if(!list) return;
-    const reviews = d.reviews || [];
-    if(!reviews.length) { list.innerHTML='<div style="font-size:12px;color:#aaa;text-align:center;padding:0.5rem">No reviews yet — be the first!</div>'; return; }
-    list.innerHTML = reviews.map(rv => `
-      <div style="background:#fff;border-radius:12px;padding:0.75rem;border:1px solid #eee">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-          <div style="font-size:13px;font-weight:600;color:#1a1a1a">${rv.visitor_name}${rv.nationality?' · '+rv.nationality:''}</div>
-          <div style="font-size:12px;color:#BA7517">${'★'.repeat(rv.stars)}${'☆'.repeat(5-rv.stars)}</div>
-        </div>
-        ${rv.comment?`<div style="font-size:13px;color:#555;line-height:1.5">${rv.comment}</div>`:''}
-        <div style="font-size:10px;color:#aaa;margin-top:4px">${new Date(rv.created_at).toLocaleDateString()}</div>
-      </div>`).join('');
-  } catch(e) { console.error('Reviews load error', e); }
-}
-
-async function submitReview(bizId) {
-  const name    = document.getElementById('reviewerName')?.value.trim();
-  const comment = document.getElementById('reviewComment')?.value.trim();
-  if(!name || !selectedStar) { alert('Please enter your name and select a star rating.'); return; }
-  try {
-    const r = await fetch(BACKEND + '/businesses/' + bizId + '/reviews', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ visitor_name: name, stars: selectedStar, comment, language: curLang })
-    });
-    const d = await r.json();
-    if(d.success) {
-      document.getElementById('reviewerName').value = '';
-      document.getElementById('reviewComment').value = '';
-      selectedStar = 0;
-      [1,2,3,4,5].forEach(i => { const el=document.getElementById('rstar-'+i); if(el) el.style.color='#ddd'; });
-      loadReviews(bizId);
-      // refresh businesses to update rating
-      loadBusinesses();
-    }
-  } catch(e) { alert('Could not submit review. Please try again.'); }
-}
-
-document.getElementById('bizModal').addEventListener('click',function(e){
-  if(e.target===this)this.classList.remove('open');
-});
-
-function goToVoiceCall(){ window.location.href=VOICE_URL; }
-
-// ── Boot ──────────────────────────────────────────────────────────────────────
-const savedLang=localStorage.getItem('madinah_lang');
-if(savedLang){
-  chooseLang(savedLang);
-}
-// Otherwise show language selection screen (default)
+const saved=localStorage.getItem('mg_lang');
+if(saved)chooseLang(saved);
 </script>
 </body>
 </html>
