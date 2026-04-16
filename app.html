@@ -674,37 +674,188 @@ function renderBusinesses(list){
   });
 }
 
-function openBizModal(b){
-  const icon=CAT_ICONS[b.category]||'📦';
-  const photos=b.photos&&b.photos.length?b.photos.filter(p=>p):[];
-  const photosHtml=photos.length
-    ?`<div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:1rem">${photos.map(p=>`<img src="${p}" style="height:100px;width:130px;object-fit:cover;border-radius:10px;flex-shrink:0" loading="lazy" onerror="this.style.display='none'">`).join('')}</div>`
-    :`<div style="height:120px;background:#E1F5EE;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:48px;margin-bottom:1rem">${icon}</div>`;
+let mapsKey = null;
 
-  document.getElementById('bizModalContent').innerHTML=`
+async function loadMapsKey() {
+  if (mapsKey) return mapsKey;
+  try {
+    const r = await fetch(BACKEND + '/config/maps-key');
+    const d = await r.json();
+    mapsKey = d.key || null;
+  } catch(e) { mapsKey = null; }
+  return mapsKey;
+}
+
+async function openBizModal(b) {
+  const icon = CAT_ICONS[b.category] || '📦';
+  const photos = (b.photos || []).filter(p => p);
+  const modal = document.getElementById('bizModalContent');
+
+  // ── photo carousel ──────────────────────────────────────────────────────────
+  const photoCarousel = photos.length
+    ? `<div style="position:relative;margin:-1rem -1.25rem 1rem;height:220px;overflow:hidden;background:#E1F5EE">
+        <div id="photoCarousel" style="display:flex;height:100%;transition:transform 0.3s ease;will-change:transform">
+          ${photos.map(p=>`<img src="${p}" style="min-width:100%;height:220px;object-fit:cover;flex-shrink:0" loading="lazy" onerror="this.parentElement.parentElement.style.display='none'">`).join('')}
+        </div>
+        ${photos.length>1?`
+        <button onclick="slidePhoto(-1)" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.4);color:#fff;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
+        <button onclick="slidePhoto(1)"  style="position:absolute;right:8px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.4);color:#fff;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">›</button>
+        <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px">
+          ${photos.map((_,i)=>`<div class="photo-dot" id="dot-${i}" style="width:6px;height:6px;border-radius:50%;background:${i===0?'#fff':'rgba(255,255,255,0.5)'}"></div>`).join('')}
+        </div>`:''}
+        ${b.featured?'<div style="position:absolute;top:10px;right:10px;background:#FAEEDA;color:#633806;font-size:11px;font-weight:700;padding:4px 10px;border-radius:10px">⭐ Featured</div>':''}
+      </div>`
+    : `<div style="height:160px;background:#E1F5EE;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:1rem">${icon}</div>`;
+
+  // ── Google Maps embed ───────────────────────────────────────────────────────
+  const key = await loadMapsKey();
+  let mapHtml = '';
+  if (b.latitude && b.longitude) {
+    if (key) {
+      mapHtml = `<div style="border-radius:14px;overflow:hidden;margin-bottom:0.85rem;height:160px">
+        <iframe width="100%" height="160" style="border:none" loading="lazy" allowfullscreen
+          src="https://www.google.com/maps/embed/v1/place?key=${key}&q=${b.latitude},${b.longitude}&zoom=17">
+        </iframe>
+      </div>`;
+    } else {
+      // fallback — directions link only (no embed without key)
+      mapHtml = `<a href="https://www.google.com/maps?q=${b.latitude},${b.longitude}" target="_blank"
+        style="display:flex;align-items:center;gap:8px;background:#E6F1FB;border-radius:12px;padding:10px 14px;margin-bottom:0.85rem;text-decoration:none;color:#0C447C;font-size:13px;font-weight:500">
+        🗺️ View on Google Maps →
+      </a>`;
+    }
+  } else if (b.address_en) {
+    const q = encodeURIComponent(b.address_en + ' Madinah Saudi Arabia');
+    if (key) {
+      mapHtml = `<div style="border-radius:14px;overflow:hidden;margin-bottom:0.85rem;height:160px">
+        <iframe width="100%" height="160" style="border:none" loading="lazy" allowfullscreen
+          src="https://www.google.com/maps/embed/v1/search?key=${key}&q=${q}">
+        </iframe>
+      </div>`;
+    } else {
+      mapHtml = `<a href="https://www.google.com/maps/search/${q}" target="_blank"
+        style="display:flex;align-items:center;gap:8px;background:#E6F1FB;border-radius:12px;padding:10px 14px;margin-bottom:0.85rem;text-decoration:none;color:#0C447C;font-size:13px;font-weight:500">
+        🗺️ View location on Google Maps →
+      </a>`;
+    }
+  }
+
+  // ── get directions link ─────────────────────────────────────────────────────
+  const directionsUrl = b.latitude && b.longitude
+    ? `https://www.google.com/maps/dir/?api=1&destination=${b.latitude},${b.longitude}`
+    : `https://www.google.com/maps/search/${encodeURIComponent((b.name_en||'')+ ' ' +(b.address_en||'')+ ' Madinah')}`;
+
+  modal.innerHTML = `
+    ${photoCarousel}
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">
-      <div>
+      <div style="flex:1;min-width:0">
         <div style="font-size:18px;font-weight:700;color:#1a1a1a">${b.name_en}</div>
-        ${b.name_ar?`<div style="font-size:15px;color:#888;direction:rtl">${b.name_ar}</div>`:''}
+        ${b.name_ar?`<div style="font-size:14px;color:#888;direction:rtl;text-align:right">${b.name_ar}</div>`:''}
       </div>
-      ${b.featured?'<span style="background:#FAEEDA;color:#633806;font-size:11px;padding:4px 10px;border-radius:10px;font-weight:600">⭐ Featured</span>':''}
     </div>
-    ${photosHtml}
     ${b.description_en?`<p style="font-size:14px;color:#555;line-height:1.6;margin-bottom:0.75rem">${b.description_en}</p>`:''}
     ${b.description_ar?`<p style="font-size:14px;color:#555;line-height:1.6;margin-bottom:0.75rem;direction:rtl;text-align:right">${b.description_ar}</p>`:''}
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem">
+    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:0.85rem">
+      ${b.rating?`<div style="font-size:13px;color:#BA7517;font-weight:500">★ ${b.rating} · ${b.review_count} review${b.review_count!==1?'s':''}</div>`:'<div style="font-size:12px;color:#aaa">No reviews yet — be the first!</div>'}
       ${b.address_en?`<div style="font-size:13px;color:#888">📍 ${b.address_en}</div>`:''}
       ${b.opening_hours?`<div style="font-size:13px;color:#888">🕐 ${b.opening_hours}</div>`:''}
       ${b.phone?`<div style="font-size:13px;color:#888">📞 ${b.phone}</div>`:''}
-      ${b.rating?`<div style="font-size:13px;color:#BA7517">★ ${b.rating} rating · ${b.review_count} reviews</div>`:''}
-      ${b.instagram?`<div style="font-size:13px;color:#534AB7">📸 @${b.instagram}</div>`:''}
+      ${b.instagram?`<div style="font-size:13px;color:#534AB7;font-weight:500">📸 @${b.instagram}</div>`:''}
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px">
+    ${mapHtml}
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem">
       ${b.phone?`<button onclick="window.location.href='tel:${b.phone}'" style="width:100%;padding:13px;background:#085041;color:#fff;border:none;border-radius:13px;font-size:15px;font-weight:600;cursor:pointer">📞 Call ${b.name_en}</button>`:''}
-      ${b.whatsapp?`<button onclick="window.open('https://wa.me/${b.whatsapp.replace(/[^0-9]/g,'')}?text=Hello, I found you on Madinah Guide')" style="width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:13px;font-size:15px;font-weight:600;cursor:pointer">💬 WhatsApp</button>`:''}
-      ${b.instagram?`<button onclick="window.open('https://instagram.com/${b.instagram}')" style="width:100%;padding:13px;background:#EEEDFE;color:#534AB7;border:none;border-radius:13px;font-size:15px;font-weight:600;cursor:pointer">📸 Follow on Instagram</button>`:''}
+      <button onclick="window.open('${directionsUrl}','_blank')" style="width:100%;padding:13px;background:#E6F1FB;color:#0C447C;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">🗺️ Get directions</button>
+      ${b.whatsapp?`<button onclick="window.open('https://wa.me/${b.whatsapp.replace(/[^0-9]/g,'')}?text=Hello, I found you on Madinah Guide app')" style="width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">💬 WhatsApp</button>`:''}
+      ${b.instagram?`<button onclick="window.open('https://instagram.com/${b.instagram}')" style="width:100%;padding:13px;background:#EEEDFE;color:#534AB7;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">📸 Follow on Instagram</button>`:''}
+    </div>
+    <div id="reviewsSection">
+      <div style="font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:0.65rem">Visitor reviews</div>
+      <div id="reviewsList" style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:13px;color:#aaa;text-align:center;padding:1rem">Loading reviews…</div>
+      </div>
+      <div style="margin-top:0.85rem;background:#f9f9f9;border-radius:14px;padding:0.85rem">
+        <div style="font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:0.5rem">Leave a review</div>
+        <div id="starPicker" style="display:flex;gap:4px;margin-bottom:8px;font-size:24px">
+          ${[1,2,3,4,5].map(n=>`<span onclick="pickStar(${n},'${b.id}')" style="cursor:pointer;color:#ddd" id="rstar-${n}">★</span>`).join('')}
+        </div>
+        <input id="reviewerName" placeholder="Your name" style="width:100%;padding:8px 10px;font-size:13px;border:1px solid #ddd;border-radius:9px;margin-bottom:6px;background:#fff;outline:none"/>
+        <textarea id="reviewComment" placeholder="Share your experience…" style="width:100%;padding:8px 10px;font-size:13px;border:1px solid #ddd;border-radius:9px;resize:none;height:60px;background:#fff;outline:none;font-family:inherit;margin-bottom:8px"></textarea>
+        <button onclick="submitReview('${b.id}')" style="width:100%;padding:10px;background:#085041;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">Submit review</button>
+      </div>
     </div>`;
+
   document.getElementById('bizModal').classList.add('open');
+  loadReviews(b.id);
+  currentPhotoIdx = 0;
+  totalPhotos = photos.length;
+}
+
+// ── Photo carousel controls ───────────────────────────────────────────────────
+let currentPhotoIdx = 0;
+let totalPhotos = 0;
+
+function slidePhoto(dir) {
+  currentPhotoIdx = (currentPhotoIdx + dir + totalPhotos) % totalPhotos;
+  const c = document.getElementById('photoCarousel');
+  if(c) c.style.transform = `translateX(-${currentPhotoIdx * 100}%)`;
+  document.querySelectorAll('.photo-dot').forEach((d,i) => {
+    d.style.background = i === currentPhotoIdx ? '#fff' : 'rgba(255,255,255,0.5)';
+  });
+}
+
+// ── Reviews ───────────────────────────────────────────────────────────────────
+let selectedStar = 0;
+
+function pickStar(n, bizId) {
+  selectedStar = n;
+  [1,2,3,4,5].forEach(i => {
+    const el = document.getElementById('rstar-'+i);
+    if(el) el.style.color = i <= n ? '#BA7517' : '#ddd';
+  });
+}
+
+async function loadReviews(bizId) {
+  try {
+    const r = await fetch(BACKEND + '/businesses/' + bizId + '/reviews');
+    const d = await r.json();
+    const list = document.getElementById('reviewsList');
+    if(!list) return;
+    const reviews = d.reviews || [];
+    if(!reviews.length) { list.innerHTML='<div style="font-size:12px;color:#aaa;text-align:center;padding:0.5rem">No reviews yet — be the first!</div>'; return; }
+    list.innerHTML = reviews.map(rv => `
+      <div style="background:#fff;border-radius:12px;padding:0.75rem;border:1px solid #eee">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="font-size:13px;font-weight:600;color:#1a1a1a">${rv.visitor_name}${rv.nationality?' · '+rv.nationality:''}</div>
+          <div style="font-size:12px;color:#BA7517">${'★'.repeat(rv.stars)}${'☆'.repeat(5-rv.stars)}</div>
+        </div>
+        ${rv.comment?`<div style="font-size:13px;color:#555;line-height:1.5">${rv.comment}</div>`:''}
+        <div style="font-size:10px;color:#aaa;margin-top:4px">${new Date(rv.created_at).toLocaleDateString()}</div>
+      </div>`).join('');
+  } catch(e) { console.error('Reviews load error', e); }
+}
+
+async function submitReview(bizId) {
+  const name    = document.getElementById('reviewerName')?.value.trim();
+  const comment = document.getElementById('reviewComment')?.value.trim();
+  if(!name || !selectedStar) { alert('Please enter your name and select a star rating.'); return; }
+  try {
+    const r = await fetch(BACKEND + '/businesses/' + bizId + '/reviews', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ visitor_name: name, stars: selectedStar, comment, language: curLang })
+    });
+    const d = await r.json();
+    if(d.success) {
+      document.getElementById('reviewerName').value = '';
+      document.getElementById('reviewComment').value = '';
+      selectedStar = 0;
+      [1,2,3,4,5].forEach(i => { const el=document.getElementById('rstar-'+i); if(el) el.style.color='#ddd'; });
+      loadReviews(bizId);
+      // refresh businesses to update rating
+      loadBusinesses();
+    }
+  } catch(e) { alert('Could not submit review. Please try again.'); }
 }
 
 document.getElementById('bizModal').addEventListener('click',function(e){
