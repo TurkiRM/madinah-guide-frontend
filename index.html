@@ -187,6 +187,7 @@
           <div class="cat-pill on" onclick="filterPlaces(this,'all')">⭐ All</div>
           <div class="cat-pill" onclick="filterPlaces(this,'mosque')">🕌 Mosques</div>
           <div class="cat-pill" onclick="filterPlaces(this,'historic')">🏛️ Historic</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'museum')">🏺 Museums</div>
           <div class="cat-pill" onclick="filterPlaces(this,'hotel')">🏨 Hotels</div>
           <div class="cat-pill" onclick="filterPlaces(this,'restaurant')">🍽️ Food</div>
           <div class="cat-pill" onclick="filterPlaces(this,'shop')">🛍️ Shops</div>
@@ -249,192 +250,23 @@ const T = {
 
 const PLACES = [
   // --- CORE RELIGIOUS SITES ---
-  {
-    id: 1,
-    cat: 'mosque',
-    nameEn: 'Al-Masjid an-Nabawi',
-    nameAr: 'المسجد النبوي',
-    cost: 'Free',
-    rating: 5.0,
-    instagram: 'mnabawy',
-    descEn: 'The Prophet\'s Mosque — one of the holiest sites in Islam, built by Prophet Muhammad ﷺ.',
-    descAr: 'المسجد النبوي الشريف — أحد أقدس المساجد في الإسلام.',
-    lat: 24.4672,
-    lng: 39.6111,
-    images: ['Feature_ProphetsMosque.jpg'] // Upload your 5 images here
-  },
-  {
-    id: 2,
-    cat: 'mosque',
-    nameEn: 'Quba Mosque',
-    nameAr: 'مسجد قباء',
-    cost: 'Free',
-    rating: 4.9,
-    instagram: 'quba_mosque',
-    descEn: 'The first mosque ever built in Islam, founded by Prophet Muhammad ﷺ.',
-    descAr: 'أول مسجد بُني في الإسلام.',
-    lat: 24.4401,
-    lng: 39.6174,
-    images: ['', '', '', '', '']
-  },
-  {
-    id: 3,
-    cat: 'mosque',
-    nameEn: 'Masjid al-Qiblatayn',
-    nameAr: 'مسجد القبلتين',
-    cost: 'Free',
-    rating: 4.8,
-    instagram: null,
-    descEn: 'The Mosque of the Two Qiblas — where the direction of prayer changed to Makkah.',
-    descAr: 'مسجد القبلتين — حيث تحولت القبلة من القدس إلى مكة.',
-    lat: 24.4745,
-    lng: 39.5921,
-    images: ['', '', '', '', '']
-  },
-  {
-    id: 4,
-    cat: 'mosque',
-    nameEn: 'Seven Mosques',
-    nameAr: 'المساجد السبعة',
-    cost: 'Free',
-    rating: 4.7,
-    instagram: null,
-    descEn: 'Historic cluster of mosques built on the site of the Battle of the Trench.',
-    descAr: 'مجموعة مساجد تاريخية بُنيت على موقع غزوة الخندق.',
-    lat: 24.4798,
-    lng: 39.5894,
-    images: ['', '', '', '', '']
-  },
-  {
-    id: 5,
-    cat: 'mosque',
-    nameEn: 'Al-Ghamamah Mosque',
-    nameAr: 'مسجد الغمامة',
-    cost: 'Free',
-    rating: 4.6,
-    instagram: null,
-    descEn: 'Located near the Prophet\'s Mosque; it is where the Prophet ﷺ performed Eid prayers.',
-    descAr: 'يقع بالقرب من المسجد النبوي؛ وهو المكان الذي صلى فيه النبي ﷺ صلاة العيد.',
-    lat: 24.4661,
-    lng: 39.6083,
-    images: ['', '', '', '', '']
-  },
+  {id:1,icon:'🕌',cat:'mosque',nameEn:'Al-Masjid an-Nabawi',nameAr:'المسجد النبوي',cost:'Free',rating:5.0,instagram:'mnabawy',img:'photos/nabawi.jpg',descEn:"The Prophet's Mosque — one of the holiest sites in Islam, built by Prophet Muhammad ﷺ.",descAr:'المسجد النبوي الشريف — أحد أقدس المساجد في الإسلام.',lat:24.4672,lng:39.6111},
+  {id:2,icon:'🕍',cat:'mosque',nameEn:'Quba Mosque',nameAr:'مسجد قباء',cost:'Free',rating:4.9,instagram:'quba_mosque',img:'photos/quba.jpg',descEn:"The first mosque ever built in Islam, founded by Prophet Muhammad ﷺ.",descAr:'أول مسجد بُني في الإسلام.',lat:24.4401,lng:39.6174},
+  {id:3,icon:'🕌',cat:'mosque',nameEn:'Masjid al-Qiblatayn',nameAr:'مسجد القبلتين',cost:'Free',rating:4.8,instagram:null,img:'photos/qiblatayn.jpg',descEn:"The Mosque of the Two Qiblas — where the direction of prayer changed to Makkah.",descAr:'مسجد القبلتين — حيث تحولت القبلة من القدس إلى مكة.',lat:24.4745,lng:39.5921},
+  {id:4,icon:'🕌',cat:'mosque',nameEn:'Seven Mosques',nameAr:'المساجد السبعة',cost:'Free',rating:4.7,instagram:null,img:'photos/seven-mosques.jpg',descEn:"Historic cluster of mosques built on the site of the Battle of the Trench.",descAr:'مجموعة مساجد تاريخية بُنيت على موقع غزوة الخندق.',lat:24.4798,lng:39.5894},
+  {id:5,icon:'🕌',cat:'mosque',nameEn:'Al-Ghamamah Mosque',nameAr:'مسجد الغمامة',cost:'Free',rating:4.6,instagram:null,img:'photos/ghamamah.jpg',descEn:"Located near the Prophet's Mosque; it is where the Prophet ﷺ performed Eid prayers.",descAr:'يقع بالقرب من المسجد النبوي؛ وهو المكان الذي صلى فيه النبي ﷺ صلاة العيد.',lat:24.4661,lng:39.6083},
 
   // --- HISTORIC LANDMARKS ---
-  {
-    id: 6,
-    cat: 'historic',
-    nameEn: 'Mount Uhud',
-    nameAr: 'جبل أحد',
-    cost: 'Free',
-    rating: 4.7,
-    instagram: 'visitsaudi',
-    descEn: 'Historic mountain where the Battle of Uhud took place. A deeply meaningful site.',
-    descAr: 'الجبل التاريخي الذي شهد غزوة أحد.',
-    lat: 24.5052,
-    lng: 39.6148,
-    images: ['', '', '', '', '']
-  },
-  {
-    id: 7,
-    cat: 'historic',
-    nameEn: 'Al-Baqi Cemetery',
-    nameAr: 'البقيع',
-    cost: 'Free',
-    rating: 4.6,
-    instagram: null,
-    descEn: 'Ancient cemetery where many companions of the Prophet ﷺ and his family are buried.',
-    descAr: 'المقبرة التي تضم قبور الصحابة وآل البيت.',
-    lat: 24.4665,
-    lng: 39.6144,
-    images: ['', '', '', '', '']
-  },
-  {
-    id: 8,
-    cat: 'historic',
-    nameEn: 'Wadi Al-Aqiq',
-    nameAr: 'وادي العقيق',
-    cost: 'Free',
-    rating: 4.5,
-    instagram: null,
-    descEn: 'The "Blessed Valley" of Medina, featuring a beautiful modern walking trail.',
-    descAr: '"الوادي المبارك" في المدينة، يتميز بممشى حديث وجميل.',
-    lat: 24.4782,
-    lng: 39.5492,
-    images: ['', '', '', '', '']
-  },
-  {
-    id: 9,
-    cat: 'historic',
-    nameEn: 'Mount Ayr',
-    nameAr: 'جبل عير',
-    cost: 'Free',
-    rating: 4.2,
-    instagram: null,
-    descEn: 'The southern boundary of Medina’s sacred sanctuary.',
-    descAr: 'الحد الجنوبي لحرم المدينة المنورة.',
-    lat: 24.4074,
-    lng: 39.5639,
-    images: ['', '', '', '', '']
-  },
+  {id:6,icon:'🏔️',cat:'historic',nameEn:'Mount Uhud',nameAr:'جبل أحد',cost:'Free',rating:4.7,instagram:'visitsaudi',img:'photos/uhud.jpg',descEn:"Historic mountain where the Battle of Uhud took place. A deeply meaningful site.",descAr:'الجبل التاريخي الذي شهد غزوة أحد.',lat:24.5052,lng:39.6148},
+  {id:7,icon:'🪦',cat:'historic',nameEn:'Al-Baqi Cemetery',nameAr:'البقيع',cost:'Free',rating:4.6,instagram:null,img:'photos/baqi.jpg',descEn:"Ancient cemetery where many companions of the Prophet ﷺ and his family are buried.",descAr:'المقبرة التي تضم قبور الصحابة وآل البيت.',lat:24.4665,lng:39.6144},
+  {id:8,icon:'🏞️',cat:'historic',nameEn:'Wadi Al-Aqiq',nameAr:'وادي العقيق',cost:'Free',rating:4.5,instagram:null,img:'photos/aqiq.jpg',descEn:'The "Blessed Valley" of Medina, featuring a beautiful modern walking trail.',descAr:'"الوادي المبارك" في المدينة، يتميز بممشى حديث وجميل.',lat:24.4782,lng:39.5492},
+  {id:9,icon:'⛰️',cat:'historic',nameEn:'Mount Ayr',nameAr:'جبل عير',cost:'Free',rating:4.2,instagram:null,img:'photos/ayr.jpg',descEn:"The southern boundary of Medina's sacred sanctuary.",descAr:'الحد الجنوبي لحرم المدينة المنورة.',lat:24.4074,lng:39.5639},
 
   // --- MUSEUMS & EXHIBITIONS ---
-  {
-    id: 10,
-    cat: 'museum',
-    nameEn: 'Dar Al Madinah Museum',
-    nameAr: 'متحف دار المدينة',
-    cost: '20 SAR',
-    rating: 4.5,
-    instagram: 'daralmadina_museum',
-    descEn: 'Fascinating museum showcasing the history and heritage of Madinah through artifacts.',
-    descAr: 'متحف رائع يعرض تاريخ وتراث المدينة.',
-    lat: 24.4633,
-    lng: 39.6078,
-    images: ['', '', '', '', '']
-  },
-  {
-    id: 11,
-    cat: 'museum',
-    nameEn: 'King Fahd Quran Complex',
-    nameAr: 'مجمع الملك فهد لطباعة المصحف',
-    cost: 'Free',
-    rating: 4.9,
-    instagram: null,
-    descEn: 'The world’s largest Quran printing facility. A must-visit for its craftsmanship.',
-    descAr: 'أكبر مطبعة للمصحف الشريف في العالم.',
-    lat: 24.5020,
-    lng: 39.5445,
-    images: ['', '', '', '', '']
-  },
-  {
-    id: 12,
-    cat: 'museum',
-    nameEn: 'International Prophet\'s Biography Museum',
-    nameAr: 'متحف السيرة النبوية',
-    cost: '40 SAR',
-    rating: 4.9,
-    instagram: 'salam_museum',
-    descEn: 'High-tech museum using VR and holograms to present the life of the Prophet ﷺ.',
-    descAr: 'متحف تقني يعرض سيرة النبي ﷺ باستخدام الواقع الافتراضي والهولوجرام.',
-    lat: 24.4682,
-    lng: 39.6125,
-    images: ['', '', '', '', '']
-  },
-  {
-    id: 13,
-    cat: 'museum',
-    nameEn: 'Hijaz Railway Museum',
-    nameAr: 'متحف سكة الحديد الحجازية',
-    cost: 'Free',
-    rating: 4.3,
-    instagram: null,
-    descEn: 'Historic railway station turned museum — part of the Damascus-Madinah line.',
-    descAr: 'محطة تاريخية تحولت إلى متحف يروي قصة الخط الحجازي.',
-    lat: 24.4689,
-    lng: 39.6012,
-    images: ['', '', '', '', '']
-  }
+  {id:10,icon:'🏛️',cat:'museum',nameEn:'Dar Al Madinah Museum',nameAr:'متحف دار المدينة',cost:'20 SAR',rating:4.5,instagram:'daralmadina_museum',img:'photos/dar-museum.jpg',descEn:"Fascinating museum showcasing the history and heritage of Madinah through artifacts.",descAr:'متحف رائع يعرض تاريخ وتراث المدينة.',lat:24.4633,lng:39.6078},
+  {id:11,icon:'📖',cat:'museum',nameEn:'King Fahd Quran Complex',nameAr:'مجمع الملك فهد لطباعة المصحف',cost:'Free',rating:4.9,instagram:null,img:'photos/quran-complex.jpg',descEn:"The world's largest Quran printing facility. A must-visit for its craftsmanship.",descAr:'أكبر مطبعة للمصحف الشريف في العالم.',lat:24.5020,lng:39.5445},
+  {id:12,icon:'✨',cat:'museum',nameEn:"International Prophet's Biography Museum",nameAr:'متحف السيرة النبوية',cost:'40 SAR',rating:4.9,instagram:'salam_museum',img:'photos/seerah-museum.jpg',descEn:"High-tech museum using VR and holograms to present the life of the Prophet ﷺ.",descAr:'متحف تقني يعرض سيرة النبي ﷺ باستخدام الواقع الافتراضي والهولوجرام.',lat:24.4682,lng:39.6125},
+  {id:13,icon:'🚂',cat:'museum',nameEn:'Hijaz Railway Museum',nameAr:'متحف سكة الحديد الحجازية',cost:'Free',rating:4.3,instagram:null,img:'photos/railway.jpg',descEn:"Historic railway station turned museum — part of the Damascus-Madinah line.",descAr:'محطة تاريخية تحولت إلى متحف يروي قصة الخط الحجازي.',lat:24.4689,lng:39.6012},
 ];
 
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null;
@@ -570,7 +402,10 @@ function renderPlaces(){
     const nameAlt=(rtl)?p.nameEn:p.nameAr;
     const desc=(lang==='ar'&&p.descAr)?p.descAr:p.descEn;
     const div=document.createElement('div');div.className='place-card';div.onclick=()=>openModal(p);
-    div.innerHTML=`<div class="place-img">${p.icon}</div><div class="place-body"><div class="place-name">${name}</div>${nameAlt?`<div class="place-name-ar">${nameAlt}</div>`:''}<div class="place-meta"><span class="place-cost">${p.cost}</span><span class="place-rating">★ ${p.rating}</span>${p.instagram?`<span style="font-size:11px;color:#534AB7">📸 @${p.instagram}</span>`:''}</div><div class="place-desc">${desc}</div></div>`;
+    const imgHtml = p.img
+      ? `<div class="place-img" style="padding:0;background:#e0e0e0"><img src="${p.img}" alt="${p.nameEn}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.innerHTML='<span style=\\'font-size:44px;display:flex;align-items:center;justify-content:center;height:100%\\'>${p.icon}</span>'"/></div>`
+      : `<div class="place-img">${p.icon}</div>`;
+    div.innerHTML=`${imgHtml}<div class="place-body"><div class="place-name">${name}</div>${nameAlt?`<div class="place-name-ar">${nameAlt}</div>`:''}<div class="place-meta"><span class="place-cost">${p.cost}</span><span class="place-rating">★ ${p.rating}</span>${p.instagram?`<span style="font-size:11px;color:#534AB7">📸 @${p.instagram}</span>`:''}</div><div class="place-desc">${desc}</div></div>`;
     list.appendChild(div);
   });
 }
@@ -583,8 +418,12 @@ function openModal(p){
   const mapsSearch=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nameEn+' Madinah Saudi Arabia')}`;
   const directionsUrl = p.lat&&p.lng ? mapsUrl : mapsSearch;
 
+  const heroImg = p.img
+    ? `<div style="margin:-1rem -1.25rem 1rem;height:200px;overflow:hidden;border-radius:14px 14px 0 0"><img src="${p.img}" alt="${p.nameEn}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=\\'height:200px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:64px\\'>${p.icon}</div>'"/></div>`
+    : `<div style="height:160px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:64px;margin:-1rem -1.25rem 1rem;border-radius:14px 14px 0 0">${p.icon}</div>`;
+
   document.getElementById('placeModalContent').innerHTML=`
-    <div style="font-size:52px;text-align:center;margin-bottom:0.85rem">${p.icon}</div>
+    ${heroImg}
     <div style="font-size:19px;font-weight:700;color:#1a1a1a;margin-bottom:3px">${p.nameEn}</div>
     ${p.nameAr?`<div style="font-size:14px;color:#888;direction:rtl;text-align:right;margin-bottom:0.75rem">${p.nameAr}</div>`:''}
     <div style="display:flex;gap:8px;margin-bottom:0.85rem;flex-wrap:wrap">
