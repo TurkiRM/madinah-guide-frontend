@@ -142,7 +142,7 @@
   <div class="tab-content">
 
     <!-- PLAN -->
-    <div class="pane" id="pane-plan">
+    <div class="pane hidden" id="pane-plan">
       <div class="messages" id="messages">
         <div class="welcome" id="welcomeScreen">
           <div style="font-size:44px;text-align:center;margin-top:0.5rem">🕌</div>
@@ -177,7 +177,7 @@
     </div>
 
     <!-- PLACES -->
-    <div class="pane hidden" id="pane-places">
+    <div class="pane" id="pane-places">
       <div class="places-wrap">
         <div>
           <div style="font-size:18px;font-weight:700;color:#1a1a1a" id="placesTitle">Madinah Places</div>
@@ -216,8 +216,8 @@
   </div>
 
   <div class="bottom-nav">
-    <button class="bn on" id="bn-plan" onclick="showTab('plan')"><span class="bn-icon">🔍</span><span class="bn-lbl" id="bnl-plan">Plan</span></button>
-    <button class="bn" id="bn-places" onclick="showTab('places')"><span class="bn-icon">🕌</span><span class="bn-lbl" id="bnl-places">Places</span></button>
+    <button class="bn" id="bn-plan" onclick="showTab('plan')"><span class="bn-icon">🔍</span><span class="bn-lbl" id="bnl-plan">Plan</span></button>
+    <button class="bn on" id="bn-places" onclick="showTab('places')"><span class="bn-icon">🕌</span><span class="bn-lbl" id="bnl-places">Places</span></button>
     <button class="bn" id="bn-call" onclick="showTab('call')"><span class="bn-icon">📞</span><span class="bn-lbl" id="bnl-call">Call guide</span></button>
   </div>
 </div>
@@ -333,7 +333,38 @@ async function sendMessage(){
   addMsg('user',text);detectType(text);
   chatHistory.push({role:'user',content:text});
   showTyping();
-  const bizContext='\n\nOUR MADINAH PLACES (recommend by exact name):\n'+PLACES.map(p=>`- ${p.nameEn} (${p.nameAr}): ${p.cat}, ${p.cost}, ★${p.rating}`).join('\n');
+  const mosques    = PLACES.filter(p=>p.cat==='mosque').map(p=>`• ${p.nameEn} (${p.nameAr}) — Free, ★${p.rating} — ${p.descEn}`).join('\n');
+  const historic   = PLACES.filter(p=>p.cat==='historic').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ★${p.rating} — ${p.descEn}`).join('\n');
+  const hotels     = PLACES.filter(p=>p.cat==='hotel').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ★${p.rating} — ${p.descEn}`).join('\n');
+  const restaurants= PLACES.filter(p=>p.cat==='restaurant').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ★${p.rating} — ${p.descEn}`).join('\n');
+  const shops      = PLACES.filter(p=>p.cat==='shop').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ★${p.rating} — ${p.descEn}`).join('\n');
+  const bizContext = `
+
+MADINAH GUIDE — OUR VERIFIED PLACES DATABASE:
+Always recommend from this list first. Use the exact English names shown.
+
+🕌 MOSQUES & PRAYER SITES:
+${mosques}
+
+🏛️ HISTORIC SITES:
+${historic}
+
+🏨 HOTELS (near Prophet's Mosque):
+${hotels}
+
+🍽️ RESTAURANTS & FOOD:
+${restaurants}
+
+🛍️ SHOPS & MARKETS:
+${shops}
+
+RULES FOR AI PLANNER:
+- Build all itineraries using ONLY places from this list
+- When visitor asks for a day plan, pick from above by category
+- Always mention the cost in SAR and star rating
+- For pilgrim visitors: prioritise mosques → historic sites → shops (dates/attar)
+- For tourist visitors: prioritise historic sites → mosques → restaurants → shops
+- Never recommend places outside this list unless visitor specifically asks`;
   try{
     const r=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.slice(-10),language:curLang,visitorType:detectedType,bizContext})});
     const d=await r.json();
