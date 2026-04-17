@@ -53,6 +53,8 @@
     .bubble{padding:10px 13px;border-radius:18px;max-width:82%;font-size:14px;line-height:1.6;word-break:break-word;white-space:pre-wrap}
     .msg.ai .bubble{background:#fff;color:#1a1a1a;border:1px solid #eee;border-bottom-left-radius:4px}
     .msg.user .bubble{background:#085041;color:#fff;border-bottom-right-radius:4px}
+    .msg.ai .bubble a{color:#085041;font-weight:600;text-decoration:none;border-bottom:1.5px solid #1D9E75;white-space:nowrap}
+    .msg.ai .bubble a:active{opacity:0.7}
     .typing{display:flex;gap:4px;align-items:center;padding:12px 14px;background:#fff;border:1px solid #eee;border-radius:18px;border-bottom-left-radius:4px;width:58px}
     .typing span{width:7px;height:7px;border-radius:50%;background:#1D9E75;animation:bn 1.2s ease-in-out infinite}
     .typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
@@ -320,7 +322,10 @@ function addMsg(role,text){
   const msgs=document.getElementById('messages');
   const av=role==='user'?(curLang==='ar'?'أنا':curLang==='ur'?'میں':'Me'):'🕌';
   const div=document.createElement('div'); div.className='msg '+(role==='user'?'user':'ai');
-  div.innerHTML=`<div class="msg-av">${av}</div><div class="bubble">${text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
+  const bubbleContent = role==='user'
+    ? text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    : renderReply(text);
+  div.innerHTML=`<div class="msg-av">${av}</div><div class="bubble">${bubbleContent}</div>`;
   msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
 }
 function showTyping(){hideWelcome();const div=document.createElement('div');div.className='msg ai';div.id='typ';div.innerHTML='<div class="msg-av">🕌</div><div class="typing"><span></span><span></span><span></span></div>';const m=document.getElementById('messages');m.appendChild(div);m.scrollTop=m.scrollHeight;}
@@ -386,6 +391,42 @@ RULES FOR AI PLANNER:
     removeTyping();addMsg('ai',reply);detectType(reply);
   }catch(e){removeTyping();addMsg('ai','Sorry, I could not connect. Please try again or call a local guide.');}
   isTyping=false;document.getElementById('sendBtn').disabled=false;
+}
+
+// ── Convert place names in AI reply to tappable Google Maps links ─────────────
+function linkifyPlaces(text) {
+  let result = text;
+  // sort by name length descending so longer names match first
+  const sorted = [...PLACES].sort((a,b) => b.nameEn.length - a.nameEn.length);
+  sorted.forEach(p => {
+    if(!p.lat || !p.lng) return;
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&destination_place_name=${encodeURIComponent(p.nameEn)}`;
+    // match English name
+    const enRegex = new RegExp(p.nameEn.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
+    result = result.replace(enRegex, `[[MAPS:${p.nameEn}|${mapsUrl}]]`);
+    // match Arabic name
+    if(p.nameAr) {
+      const arRegex = new RegExp(p.nameAr.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
+      result = result.replace(arRegex, `[[MAPS:${p.nameAr}|${mapsUrl}]]`);
+    }
+  });
+  return result;
+}
+
+function renderReply(text) {
+  // first linkify places
+  const linked = linkifyPlaces(text);
+  // escape HTML
+  const escaped = linked
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // convert [[MAPS:label|url]] to styled links
+  const withLinks = escaped.replace(/\[\[MAPS:([^|]+)\|([^\]]+)\]\]/g,
+    (_, label, url) =>
+      `<a href="${url}" target="_blank" style="color:#085041;font-weight:600;text-decoration:none;border-bottom:1px solid #085041;">📍 ${label}</a>`
+  );
+  // convert markdown-style **bold**
+  const withBold = withLinks.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  return withBold;
 }
 
 function quickSend(key){
