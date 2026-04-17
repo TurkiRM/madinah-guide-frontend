@@ -248,23 +248,23 @@ const T = {
 };
 
 const PLACES = [
-  {id:1,icon:'🕌',cat:'mosque',nameEn:'Al-Masjid an-Nabawi',nameAr:'المسجد النبوي',cost:'Free',rating:5.0,descEn:'The Prophet\'s Mosque — one of the holiest sites in Islam, built by Prophet Muhammad ﷺ. Open 24 hours.',descAr:'المسجد النبوي الشريف — أحد أقدس المساجد في الإسلام. مفتوح على مدار الساعة.',lat:24.4672,lng:39.6111},
-  {id:2,icon:'🕍',cat:'mosque',nameEn:'Quba Mosque',nameAr:'مسجد قباء',cost:'Free',rating:4.9,descEn:'The first mosque ever built in Islam, founded by Prophet Muhammad ﷺ.',descAr:'أول مسجد بُني في الإسلام.',lat:24.4401,lng:39.6174},
-  {id:3,icon:'🕌',cat:'mosque',nameEn:'Masjid al-Qiblatayn',nameAr:'مسجد القبلتين',cost:'Free',rating:4.8,descEn:'The Mosque of the Two Qiblas — where the direction of prayer changed from Jerusalem to Makkah.',descAr:'مسجد القبلتين — حيث تحولت القبلة من القدس إلى مكة.',lat:24.4745,lng:39.5921},
-  {id:4,icon:'🕌',cat:'mosque',nameEn:'Seven Mosques',nameAr:'المساجد السبعة',cost:'Free',rating:4.7,descEn:'Historic cluster of mosques built on the site of the Battle of the Trench.',descAr:'مجموعة مساجد تاريخية بُنيت على موقع غزوة الخندق.',lat:24.4798,lng:39.5894},
-  {id:5,icon:'🏔️',cat:'historic',nameEn:'Mount Uhud',nameAr:'جبل أحد',cost:'Free',rating:4.7,descEn:'Historic mountain where the Battle of Uhud took place. A deeply meaningful site.',descAr:'الجبل التاريخي الذي شهد غزوة أحد.',lat:24.5052,lng:39.6148},
-  {id:6,icon:'🪦',cat:'historic',nameEn:'Al-Baqi Cemetery',nameAr:'البقيع',cost:'Free',rating:4.6,descEn:'Ancient cemetery where many companions of the Prophet ﷺ and his family are buried.',descAr:'المقبرة التي تضم قبور الصحابة وآل البيت.',lat:24.4665,lng:39.6144},
-  {id:7,icon:'🏛️',cat:'historic',nameEn:'Dar Al Madinah Museum',nameAr:'متحف دار المدينة',cost:'20 SAR',rating:4.5,descEn:'Fascinating museum showcasing the history and heritage of Madinah through artifacts.',descAr:'متحف رائع يعرض تاريخ وتراث المدينة.',lat:24.4633,lng:39.6078},
-  {id:8,icon:'🚂',cat:'historic',nameEn:'Hijaz Railway Museum',nameAr:'متحف سكة الحديد الحجازية',cost:'Free',rating:4.3,descEn:'Historic railway station turned museum — the famous Hijaz Railway from Damascus to Madinah.',descAr:'محطة تاريخية تحولت إلى متحف يروي قصة الخط الحجازي.',lat:24.4689,lng:39.6012},
-  {id:9,icon:'🏨',cat:'hotel',nameEn:'Anwar Al Madinah Mövenpick',nameAr:'أنوار المدينة موفنبيك',cost:'400–800 SAR/night',rating:4.7,descEn:'5-star hotel connected directly to the Prophet\'s Mosque. Best location in Madinah.',descAr:'فندق 5 نجوم متصل مباشرة بالمسجد النبوي.',lat:24.4680,lng:39.6105},
-  {id:10,icon:'🏨',cat:'hotel',nameEn:'Oberoi Madinah',nameAr:'أوبروي المدينة',cost:'600–1200 SAR/night',rating:4.8,descEn:'Luxury hotel with stunning views of Al-Masjid an-Nabawi.',descAr:'فندق فاخر بإطلالة رائعة على المسجد النبوي.',lat:24.4675,lng:39.6098},
-  {id:11,icon:'🏨',cat:'hotel',nameEn:'Pullman Zamzam Madinah',nameAr:'بولمان زمزم المدينة',cost:'300–600 SAR/night',rating:4.6,descEn:'4-star hotel directly overlooking Al-Masjid an-Nabawi. Great value.',descAr:'فندق 4 نجوم يطل مباشرة على المسجد النبوي.',lat:24.4677,lng:39.6108},
-  {id:12,icon:'🍽️',cat:'restaurant',nameEn:'Al-Baik Restaurant',nameAr:'مطعم البيك',cost:'15–40 SAR',rating:4.8,descEn:'Iconic Saudi fast food loved by pilgrims. Famous for crispy chicken and garlic sauce.',descAr:'سلسلة مطاعم سعودية شهيرة يحبها الحجاج.',lat:24.4678,lng:39.6090},
-  {id:13,icon:'🍽️',cat:'restaurant',nameEn:'Bab Al Hara',nameAr:'مطعم باب الحارة',cost:'30–80 SAR',rating:4.5,descEn:'Traditional Syrian and Saudi cuisine, popular with families.',descAr:'مطبخ سوري وسعودي تقليدي محبوب لدى العائلات.',lat:24.4660,lng:39.6120},
-  {id:14,icon:'🍽️',cat:'restaurant',nameEn:'Herfy Burgers',nameAr:'هرفي',cost:'20–50 SAR',rating:4.3,descEn:'Popular Saudi burger chain. Clean, fast and affordable near the mosque.',descAr:'سلسلة برغر سعودية شعبية. سريعة وبأسعار معقولة.',lat:24.4665,lng:39.6095},
-  {id:15,icon:'🌴',cat:'shop',nameEn:'Al-Anbariyya Souq',nameAr:'سوق العنبرية',cost:'Free entry',rating:4.4,descEn:'Traditional market — best for Ajwa dates, miswak, attar and Islamic gifts.',descAr:'السوق التقليدي — أفضل مكان للتمر والمسواك والعطور.',lat:24.4678,lng:39.6098},
-  {id:16,icon:'🌴',cat:'shop',nameEn:'Tamr Al-Madinah',nameAr:'تمر المدينة',cost:'50–500 SAR',rating:4.9,descEn:'Premium Ajwa, Medjool and Sukkari dates with gift packaging.',descAr:'تمر عجوة ومجدول وسكري فاخر مع تغليف هدايا.',lat:24.4670,lng:39.6100},
-  {id:17,icon:'🌸',cat:'shop',nameEn:'Medina Perfumes',nameAr:'عطور المدينة',cost:'30–300 SAR',rating:4.6,descEn:'Authentic Arabian attar, oud and miswak. Family business since 1985.',descAr:'عطور عربية أصيلة وعود ومسواك. عمل عائلي منذ 1985.',lat:24.4672,lng:39.6102},
+  {id:1,icon:'🕌',cat:'mosque',nameEn:'Al-Masjid an-Nabawi',nameAr:'المسجد النبوي',cost:'Free',rating:5.0,instagram:'mnabawy',descEn:'The Prophet\'s Mosque — one of the holiest sites in Islam, built by Prophet Muhammad ﷺ. Open 24 hours.',descAr:'المسجد النبوي الشريف — أحد أقدس المساجد في الإسلام. مفتوح على مدار الساعة.',lat:24.4672,lng:39.6111},
+  {id:2,icon:'🕍',cat:'mosque',nameEn:'Quba Mosque',nameAr:'مسجد قباء',cost:'Free',rating:4.9,instagram:'quba_mosque',descEn:'The first mosque ever built in Islam, founded by Prophet Muhammad ﷺ.',descAr:'أول مسجد بُني في الإسلام.',lat:24.4401,lng:39.6174},
+  {id:3,icon:'🕌',cat:'mosque',nameEn:'Masjid al-Qiblatayn',nameAr:'مسجد القبلتين',cost:'Free',rating:4.8,instagram:null,descEn:'The Mosque of the Two Qiblas — where the direction of prayer changed from Jerusalem to Makkah.',descAr:'مسجد القبلتين — حيث تحولت القبلة من القدس إلى مكة.',lat:24.4745,lng:39.5921},
+  {id:4,icon:'🕌',cat:'mosque',nameEn:'Seven Mosques',nameAr:'المساجد السبعة',cost:'Free',rating:4.7,instagram:null,descEn:'Historic cluster of mosques built on the site of the Battle of the Trench.',descAr:'مجموعة مساجد تاريخية بُنيت على موقع غزوة الخندق.',lat:24.4798,lng:39.5894},
+  {id:5,icon:'🏔️',cat:'historic',nameEn:'Mount Uhud',nameAr:'جبل أحد',cost:'Free',rating:4.7,instagram:'visitsaudi',descEn:'Historic mountain where the Battle of Uhud took place. A deeply meaningful site.',descAr:'الجبل التاريخي الذي شهد غزوة أحد.',lat:24.5052,lng:39.6148},
+  {id:6,icon:'🪦',cat:'historic',nameEn:'Al-Baqi Cemetery',nameAr:'البقيع',cost:'Free',rating:4.6,instagram:null,descEn:'Ancient cemetery where many companions of the Prophet ﷺ and his family are buried.',descAr:'المقبرة التي تضم قبور الصحابة وآل البيت.',lat:24.4665,lng:39.6144},
+  {id:7,icon:'🏛️',cat:'historic',nameEn:'Dar Al Madinah Museum',nameAr:'متحف دار المدينة',cost:'20 SAR',rating:4.5,instagram:'daralmadina_museum',descEn:'Fascinating museum showcasing the history and heritage of Madinah through artifacts.',descAr:'متحف رائع يعرض تاريخ وتراث المدينة.',lat:24.4633,lng:39.6078},
+  {id:8,icon:'🚂',cat:'historic',nameEn:'Hijaz Railway Museum',nameAr:'متحف سكة الحديد الحجازية',cost:'Free',rating:4.3,instagram:null,descEn:'Historic railway station turned museum — the famous Hijaz Railway from Damascus to Madinah.',descAr:'محطة تاريخية تحولت إلى متحف يروي قصة الخط الحجازي.',lat:24.4689,lng:39.6012},
+  {id:9,icon:'🏨',cat:'hotel',nameEn:'Anwar Al Madinah Mövenpick',nameAr:'أنوار المدينة موفنبيك',cost:'400–800 SAR/night',rating:4.7,instagram:'movenpick_madinah',descEn:'5-star hotel connected directly to the Prophet\'s Mosque. Best location in Madinah.',descAr:'فندق 5 نجوم متصل مباشرة بالمسجد النبوي.',lat:24.4680,lng:39.6105},
+  {id:10,icon:'🏨',cat:'hotel',nameEn:'Oberoi Madinah',nameAr:'أوبروي المدينة',cost:'600–1200 SAR/night',rating:4.8,instagram:'oberoihotels',descEn:'Luxury hotel with stunning views of Al-Masjid an-Nabawi.',descAr:'فندق فاخر بإطلالة رائعة على المسجد النبوي.',lat:24.4675,lng:39.6098},
+  {id:11,icon:'🏨',cat:'hotel',nameEn:'Pullman Zamzam Madinah',nameAr:'بولمان زمزم المدينة',cost:'300–600 SAR/night',rating:4.6,instagram:'pullmanhotels',descEn:'4-star hotel directly overlooking Al-Masjid an-Nabawi. Great value.',descAr:'فندق 4 نجوم يطل مباشرة على المسجد النبوي.',lat:24.4677,lng:39.6108},
+  {id:12,icon:'🍽️',cat:'restaurant',nameEn:'Al-Baik Restaurant',nameAr:'مطعم البيك',cost:'15–40 SAR',rating:4.8,instagram:'albaik_ksa',descEn:'Iconic Saudi fast food loved by pilgrims. Famous for crispy chicken and garlic sauce.',descAr:'سلسلة مطاعم سعودية شهيرة يحبها الحجاج.',lat:24.4678,lng:39.6090},
+  {id:13,icon:'🍽️',cat:'restaurant',nameEn:'Bab Al Hara',nameAr:'مطعم باب الحارة',cost:'30–80 SAR',rating:4.5,instagram:'babalhararest',descEn:'Traditional Syrian and Saudi cuisine, popular with families.',descAr:'مطبخ سوري وسعودي تقليدي محبوب لدى العائلات.',lat:24.4660,lng:39.6120},
+  {id:14,icon:'🍽️',cat:'restaurant',nameEn:'Herfy Burgers',nameAr:'هرفي',cost:'20–50 SAR',rating:4.3,instagram:'herfyofficial',descEn:'Popular Saudi burger chain. Clean, fast and affordable near the mosque.',descAr:'سلسلة برغر سعودية شعبية. سريعة وبأسعار معقولة.',lat:24.4665,lng:39.6095},
+  {id:15,icon:'🌴',cat:'shop',nameEn:'Al-Anbariyya Souq',nameAr:'سوق العنبرية',cost:'Free entry',rating:4.4,instagram:null,descEn:'Traditional market — best for Ajwa dates, miswak, attar and Islamic gifts.',descAr:'السوق التقليدي — أفضل مكان للتمر والمسواك والعطور.',lat:24.4678,lng:39.6098},
+  {id:16,icon:'🌴',cat:'shop',nameEn:'Tamr Al-Madinah',nameAr:'تمر المدينة',cost:'50–500 SAR',rating:4.9,instagram:'tamralmadinah',descEn:'Premium Ajwa, Medjool and Sukkari dates with gift packaging.',descAr:'تمر عجوة ومجدول وسكري فاخر مع تغليف هدايا.',lat:24.4670,lng:39.6100},
+  {id:17,icon:'🌸',cat:'shop',nameEn:'Medina Perfumes',nameAr:'عطور المدينة',cost:'30–300 SAR',rating:4.6,instagram:'medinaperfumes',descEn:'Authentic Arabian attar, oud and miswak. Family business since 1985.',descAr:'عطور عربية أصيلة وعود ومسواك. عمل عائلي منذ 1985.',lat:24.4672,lng:39.6102},
 ];
 
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null;
@@ -369,7 +369,7 @@ function renderPlaces(){
     const nameAlt=(rtl)?p.nameEn:p.nameAr;
     const desc=(lang==='ar'&&p.descAr)?p.descAr:p.descEn;
     const div=document.createElement('div');div.className='place-card';div.onclick=()=>openModal(p);
-    div.innerHTML=`<div class="place-img">${p.icon}</div><div class="place-body"><div class="place-name">${name}</div>${nameAlt?`<div class="place-name-ar">${nameAlt}</div>`:''}<div class="place-meta"><span class="place-cost">${p.cost}</span><span class="place-rating">★ ${p.rating}</span></div><div class="place-desc">${desc}</div></div>`;
+    div.innerHTML=`<div class="place-img">${p.icon}</div><div class="place-body"><div class="place-name">${name}</div>${nameAlt?`<div class="place-name-ar">${nameAlt}</div>`:''}<div class="place-meta"><span class="place-cost">${p.cost}</span><span class="place-rating">★ ${p.rating}</span>${p.instagram?`<span style="font-size:11px;color:#534AB7">📸 @${p.instagram}</span>`:''}</div><div class="place-desc">${desc}</div></div>`;
     list.appendChild(div);
   });
 }
@@ -378,19 +378,34 @@ function openModal(p){
   const lang=curLang;const rtl=lang==='ar'||lang==='ur';
   const name=(rtl&&p.nameAr)?p.nameAr:p.nameEn;
   const desc=(lang==='ar'&&p.descAr)?p.descAr:p.descEn;
-  const mapsUrl=`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
+  const mapsUrl=`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&destination_place_name=${encodeURIComponent(p.nameEn)}`;
+  const mapsSearch=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nameEn+' Madinah Saudi Arabia')}`;
+  const directionsUrl = p.lat&&p.lng ? mapsUrl : mapsSearch;
+
   document.getElementById('placeModalContent').innerHTML=`
     <div style="font-size:52px;text-align:center;margin-bottom:0.85rem">${p.icon}</div>
     <div style="font-size:19px;font-weight:700;color:#1a1a1a;margin-bottom:3px">${p.nameEn}</div>
     ${p.nameAr?`<div style="font-size:14px;color:#888;direction:rtl;text-align:right;margin-bottom:0.75rem">${p.nameAr}</div>`:''}
-    <div style="display:flex;gap:8px;margin-bottom:0.85rem">
+    <div style="display:flex;gap:8px;margin-bottom:0.85rem;flex-wrap:wrap">
       <span style="font-size:13px;color:#0F6E56;font-weight:600">${p.cost}</span>
       <span style="font-size:13px;color:#BA7517;font-weight:600">★ ${p.rating}</span>
+      ${p.instagram?`<span style="font-size:13px;color:#534AB7">📸 @${p.instagram}</span>`:''}
     </div>
     <p style="font-size:14px;color:#555;line-height:1.65;margin-bottom:1rem">${desc}</p>
     <div style="display:flex;flex-direction:column;gap:8px">
-      <a href="${mapsUrl}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#085041;color:#fff;border-radius:13px;font-size:15px;font-weight:600;text-decoration:none">🗺️ Get directions</a>
-      <button onclick="askPlace('${p.nameEn}')" style="width:100%;padding:13px;background:#E1F5EE;color:#085041;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">🔍 Ask AI about this place</button>
+      <a href="${directionsUrl}" target="_blank"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#085041;color:#fff;border-radius:13px;font-size:15px;font-weight:600;text-decoration:none">
+        🗺️ Get directions
+      </a>
+      ${p.instagram?`
+      <a href="https://instagram.com/${p.instagram}" target="_blank"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#EEEDFE;color:#534AB7;border-radius:13px;font-size:14px;font-weight:600;text-decoration:none">
+        📸 Follow on Instagram
+      </a>`:''}
+      <button onclick="askPlace('${p.nameEn}')"
+        style="width:100%;padding:13px;background:#E1F5EE;color:#085041;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">
+        🔍 Ask AI about this place
+      </button>
     </div>`;
   document.getElementById('placeModal').classList.add('open');
 }
