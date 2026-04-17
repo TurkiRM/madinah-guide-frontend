@@ -269,9 +269,19 @@ const PLACES = [
   {id:13,icon:'🚂',cat:'museum',nameEn:'Hijaz Railway Museum',nameAr:'متحف سكة الحديد الحجازية',cost:'Free',rating:4.3,instagram:null,img:'photos/railway.jpg',descEn:"Historic railway station turned museum — part of the Damascus-Madinah line.",descAr:'محطة تاريخية تحولت إلى متحف يروي قصة الخط الحجازي.',lat:24.4689,lng:39.6012},
 ];
 
-let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null;
+let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// Request visitor location silently — used to give accurate distances in AI answers
+function requestLocation(){
+  if(!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    pos => { userLat=pos.coords.latitude; userLng=pos.coords.longitude; console.log('Location obtained ✓'); },
+    ()  => { console.log('Location not shared — using Madinah centre as default'); },
+    { timeout: 8000, maximumAge: 300000 }
+  );
+}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;setTimeout(()=>{document.getElementById('installBanner').style.display='flex';},4000);});
 document.getElementById('installBtn').onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBanner').style.display='none';};
 
@@ -291,6 +301,7 @@ function chooseLang(lang){
   document.getElementById('langScreen').classList.add('gone');
   document.getElementById('app').classList.add('visible');
   renderPlaces();
+  requestLocation();
 }
 
 function showTab(tab){
@@ -367,7 +378,7 @@ RULES FOR AI PLANNER:
 - For tourist visitors: prioritise historic sites → mosques → restaurants → shops
 - Never recommend places outside this list unless visitor specifically asks`;
   try{
-    const r=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.slice(-10),language:curLang,visitorType:detectedType,bizContext})});
+    const r=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.slice(-10),language:curLang,visitorType:detectedType,bizContext,userLat,userLng})});
     const d=await r.json();
     if(!d.success)throw new Error(d.detail||d.error);
     const reply=d.reply||'Sorry, please try again.';
