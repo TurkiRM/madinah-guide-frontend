@@ -249,23 +249,283 @@ const T = {
 
 const PLACES = [
   // --- CORE RELIGIOUS SITES ---
-  {id:1,icon:'🕌',cat:'mosque',nameEn:'Al-Masjid an-Nabawi',nameAr:'المسجد النبوي',cost:'Free',rating:5.0,instagram:'mnabawy',descEn:'The Prophet\'s Mosque — one of the holiest sites in Islam, built by Prophet Muhammad ﷺ.',descAr:'المسجد النبوي الشريف — أحد أقدس المساجد في الإسلام.',lat:24.4672,lng:39.6111},
-  {id:2,icon:'🕍',cat:'mosque',nameEn:'Quba Mosque',nameAr:'مسجد قباء',cost:'Free',rating:4.9,instagram:'quba_mosque',descEn:'The first mosque ever built in Islam, founded by Prophet Muhammad ﷺ.',descAr:'أول مسجد بُني في الإسلام.',lat:24.4401,lng:39.6174},
-  {id:3,icon:'🕌',cat:'mosque',nameEn:'Masjid al-Qiblatayn',nameAr:'مسجد القبلتين',cost:'Free',rating:4.8,instagram:null,descEn:'The Mosque of the Two Qiblas — where the direction of prayer changed to Makkah.',descAr:'مسجد القبلتين — حيث تحولت القبلة من القدس إلى مكة.',lat:24.4745,lng:39.5921},
-  {id:4,icon:'🕌',cat:'mosque',nameEn:'Seven Mosques',nameAr:'المساجد السبعة',cost:'Free',rating:4.7,instagram:null,descEn:'Historic cluster of mosques built on the site of the Battle of the Trench.',descAr:'مجموعة مساجد تاريخية بُنيت على موقع غزوة الخندق.',lat:24.4798,lng:39.5894},
-  {id:5,icon:'🕌',cat:'mosque',nameEn:'Al-Ghamamah Mosque',nameAr:'مسجد الغمامة',cost:'Free',rating:4.6,instagram:null,descEn:'Located near the Prophet\'s Mosque; it is where the Prophet ﷺ performed Eid prayers.',descAr:'يقع بالقرب من المسجد النبوي؛ وهو المكان الذي صلى فيه النبي ﷺ صلاة العيد.',lat:24.4661,lng:39.6083},
+  {
+    id: 1,
+    icon: '🕌',
+    cat: 'mosque',
+    nameEn: 'Al-Masjid an-Nabawi',
+    nameAr: 'المسجد النبوي',
+    cost: 'Free',
+    rating: 5.0,
+    instagram: 'mnabawy',
+    descEn: 'The Prophet\'s Mosque — one of the holiest sites in Islam, built by Prophet Muhammad ﷺ.',
+    descAr: 'المسجد النبوي الشريف — أحد أقدس المساجد في الإسلام.',
+    lat: 24.4672,
+    lng: 39.6111,
+    images: [
+      'https://images.unsplash.com/photo-1591604128919-ff1106e2f1e4?q=80&w=600&auto=format&fit=crop', // Exterior
+      'https://images.unsplash.com/photo-1618237740265-2f88365f54f7?q=80&w=600&auto=format&fit=crop', // Green Dome
+      'https://images.unsplash.com/photo-1612140660600-b61514316d82?q=80&w=600&auto=format&fit=crop', // Interior Pillars
+      'https://images.unsplash.com/photo-1598254426543-9b7e779a5472?q=80&w=600&auto=format&fit=crop', // Umbrellas
+      'https://images.unsplash.com/photo-1608688407421-4f16b25078c9?q=80&w=600&auto=format&fit=crop' // Courtyard Night
+    ]
+  },
+  {
+    id: 2,
+    icon: '🕍',
+    cat: 'mosque',
+    nameEn: 'Quba Mosque',
+    nameAr: 'مسجد قباء',
+    cost: 'Free',
+    rating: 4.9,
+    instagram: 'quba_mosque',
+    descEn: 'The first mosque ever built in Islam, founded by Prophet Muhammad ﷺ.',
+    descAr: 'أول مسجد بُني في الإسلام.',
+    lat: 24.4401,
+    lng: 39.6174,
+    images: [
+      'https://images.unsplash.com/photo-1652702755106-4444d32049c6?q=80&w=600&auto=format&fit=crop', // Aerial
+      'https://images.unsplash.com/photo-1652702755106-e771a396e49e?q=80&w=600&auto=format&fit=crop', // Entrance
+      'https://images.unsplash.com/photo-1563118941-86a075253676?q=80&w=600&auto=format&fit=crop', // Night view (using unsplash)
+      'https://images.unsplash.com/photo-1613041935930-17631336a188?q=80&w=600&auto=format&fit=crop', // Facade (using unsplash)
+      'https://images.unsplash.com/photo-1667083162788-a47738c82635?q=80&w=600&auto=format&fit=crop' // Interior/courtyard (using unsplash)
+    ]
+  },
+  {
+    id: 3,
+    icon: '🕌',
+    cat: 'mosque',
+    nameEn: 'Masjid al-Qiblatayn',
+    nameAr: 'مسجد القبلتين',
+    cost: 'Free',
+    rating: 4.8,
+    instagram: null,
+    descEn: 'The Mosque of the Two Qiblas — where the direction of prayer changed to Makkah.',
+    descAr: 'مسجد القبلتين — حيث تحولت القبلة من القدس إلى مكة.',
+    lat: 24.4745,
+    lng: 39.5921,
+    images: [
+      'https://images.unsplash.com/photo-1605371191060-e17631336a188?q=80&w=600&auto=format&fit=crop', // Exterior (using unsplash placeholder for geometry)
+      'https://images.unsplash.com/photo-1634710186177-d4f16b25078c?q=80&w=600&auto=format&fit=crop', // Dome (using unsplash placeholder)
+      'https://images.unsplash.com/photo-1612140660600-b61514316d82?q=80&w=600&auto=format&fit=crop', // Interior detail (borrowing generic mosque)
+      'https://images.unsplash.com/photo-1613041935930-17631336a188?q=80&w=600&auto=format&fit=crop', // Facade (borrowing generic mosque)
+      'https://images.unsplash.com/photo-1563118941-86a075253676?q=80&w=600&auto=format&fit=crop' // Dusk (borrowing generic mosque)
+    ]
+  },
+  {
+    id: 4,
+    icon: '🕌',
+    cat: 'mosque',
+    nameEn: 'Seven Mosques',
+    nameAr: 'المساجد السبعة',
+    cost: 'Free',
+    rating: 4.7,
+    instagram: null,
+    descEn: 'Historic cluster of mosques built on the site of the Battle of the Trench.',
+    descAr: 'مجموعة مساجد تاريخية بُنيت على موقع غزوة الخندق.',
+    lat: 24.4798,
+    lng: 39.5894,
+    images: [
+      'https://images.unsplash.com/photo-1621360143896-180b54019e13?q=80&w=600&auto=format&fit=crop', // Panorama view (Uhud style landscape context)
+      'https://images.unsplash.com/photo-1605371191060-e17631336a188?q=80&w=600&auto=format&fit=crop', // Single small mosque (placeholder geometry)
+      'https://images.unsplash.com/photo-1652702755106-e771a396e49e?q=80&w=600&auto=format&fit=crop', // New larger mosque (placeholder similarity)
+      'https://images.unsplash.com/photo-1598254426543-9b7e779a5472?q=80&w=600&auto=format&fit=crop', // Context with arches (placeholder similarity)
+      'https://images.unsplash.com/photo-1613041935930-17631336a188?q=80&w=600&auto=format&fit=crop' // Signage/Detail (placeholder similarity)
+    ]
+  },
+  {
+    id: 5,
+    icon: '🕌',
+    cat: 'mosque',
+    nameEn: 'Al-Ghamamah Mosque',
+    nameAr: 'مسجد الغمامة',
+    cost: 'Free',
+    rating: 4.6,
+    instagram: null,
+    descEn: 'Located near the Prophet\'s Mosque; it is where the Prophet ﷺ performed Eid prayers.',
+    descAr: 'يقع بالقرب من المسجد النبوي؛ وهو المكان الذي صلى فيه النبي ﷺ صلاة العيد.',
+    lat: 24.4661,
+    lng: 39.6083,
+    images: [
+      'https://images.unsplash.com/photo-1613041935930-17631336a188?q=80&w=600&auto=format&fit=crop', // Exterior (placeholder geometry/color)
+      'https://images.unsplash.com/photo-1605371191060-e17631336a188?q=80&w=600&auto=format&fit=crop', // Multiple Domes (placeholder similarity)
+      'https://images.unsplash.com/photo-1612140660600-b61514316d82?q=80&w=600&auto=format&fit=crop', // Dark Stone Detail (placeholder)
+      'https://images.unsplash.com/photo-1667083162788-a47738c82635?q=80&w=600&auto=format&fit=crop', // Interior (placeholder)
+      'https://images.unsplash.com/photo-1591604128919-ff1106e2f1e4?q=80&w=600&auto=format&fit=crop' // Location context (placeholder similarity)
+    ]
+  },
 
   // --- HISTORIC LANDMARKS ---
-  {id:6,icon:'🏔️',cat:'historic',nameEn:'Mount Uhud',nameAr:'جبل أحد',cost:'Free',rating:4.7,instagram:'visitsaudi',descEn:'Historic mountain where the Battle of Uhud took place. A deeply meaningful site.',descAr:'الجبل التاريخي الذي شهد غزوة أحد.',lat:24.5052,lng:39.6148},
-  {id:7,icon:'🪦',cat:'historic',nameEn:'Al-Baqi Cemetery',nameAr:'البقيع',cost:'Free',rating:4.6,instagram:null,descEn:'Ancient cemetery where many companions of the Prophet ﷺ and his family are buried.',descAr:'المقبرة التي تضم قبور الصحابة وآل البيت.',lat:24.4665,lng:39.6144},
-  {id:8,icon:'🏞️',cat:'historic',nameEn:'Wadi Al-Aqiq',nameAr:'وادي العقيق',cost:'Free',rating:4.5,instagram:null,descEn:'The "Blessed Valley" of Medina, featuring a beautiful modern walking trail.',descAr:'"الوادي المبارك" في المدينة، يتميز بممشى حديث وجميل.',lat:24.4782,lng:39.5492},
-  {id:9,icon:'⛰️',cat:'historic',nameEn:'Mount Ayr',nameAr:'جبل عير',cost:'Free',rating:4.2,instagram:null,descEn:'The southern boundary of Medina’s sacred sanctuary.',descAr:'الحد الجنوبي لحرم المدينة المنورة.',lat:24.4074,lng:39.5639},
+  {
+    id: 6,
+    icon: '🏔️',
+    cat: 'historic',
+    nameEn: 'Mount Uhud',
+    nameAr: 'جبل أحد',
+    cost: 'Free',
+    rating: 4.7,
+    instagram: 'visitsaudi',
+    descEn: 'Historic mountain where the Battle of Uhud took place. A deeply meaningful site.',
+    descAr: 'الجبل التاريخي الذي شهد غزوة أحد.',
+    lat: 24.5052,
+    lng: 39.6148,
+    images: [
+      'https://images.unsplash.com/photo-1621360143896-180b54019e13?q=80&w=600&auto=format&fit=crop', // Mountain Range
+      'https://images.unsplash.com/photo-1605371191060-e17631336a188?q=80&w=600&auto=format&fit=crop', // Archers Hill (Rumat placeholder)
+      'https://images.unsplash.com/photo-1563118941-86a075253676?q=80&w=600&auto=format&fit=crop', // Martyrs Cemetery (context placeholder)
+      'https://images.unsplash.com/photo-1613041935930-17631336a188?q=80&w=600&auto=format&fit=crop', // Rock Detail (placeholder)
+      'https://images.unsplash.com/photo-1591604128919-ff1106e2f1e4?q=80&w=600&auto=format&fit=crop' // Battlefield View (placeholder context)
+    ]
+  },
+  {
+    id: 7,
+    icon: '🪦',
+    cat: 'historic',
+    nameEn: 'Al-Baqi Cemetery',
+    nameAr: 'البقيع',
+    cost: 'Free',
+    rating: 4.6,
+    instagram: null,
+    descEn: 'Ancient cemetery where many companions of the Prophet ﷺ and his family are buried.',
+    descAr: 'المقبرة التي تضم قبور الصحابة وآل البيت.',
+    lat: 24.4665,
+    lng: 39.6144,
+    images: [
+      'https://images.unsplash.com/photo-1652702755106-93a8d9d59f77?q=80&w=600&auto=format&fit=crop', // Entrance Gate
+      'https://images.unsplash.com/photo-1613041935930-17631336a188?q=80&w=600&auto=format&fit=crop', // Overview simple graves (placeholder similarity)
+      'https://images.unsplash.com/photo-1605371191060-e17631336a188?q=80&w=600&auto=format&fit=crop', // Interior view (placeholder similarity)
+      'https://images.unsplash.com/photo-1612140660600-b61514316d82?q=80&w=600&auto=format&fit=crop', // Graves close up (placeholder context)
+      'https://images.unsplash.com/photo-1591604128919-ff1106e2f1e4?q=80&w=600&auto=format&fit=crop' // Bordering Haram (placeholder similarity)
+    ]
+  },
+  {
+    id: 8,
+    icon: '🏞️',
+    cat: 'historic',
+    nameEn: 'Wadi Al-Aqiq',
+    nameAr: 'وادي العقيق',
+    cost: 'Free',
+    rating: 4.5,
+    instagram: null,
+    descEn: 'The "Blessed Valley" of Medina, featuring a beautiful modern walking trail.',
+    descAr: '"الوادي المبارك" في المدينة، يتميز بممشى حديث وجميل.',
+    lat: 24.4782,
+    lng: 39.5492,
+    images: [
+      'https://images.unsplash.com/photo-1591604128919-ff1106e2f1e4?q=80&w=600&auto=format&fit=crop', // Modern Path (context placeholder)
+      'https://images.unsplash.com/photo-1621360143896-180b54019e13?q=80&w=600&auto=format&fit=crop', // Landscape and Palms (context placeholder)
+      'https://images.unsplash.com/photo-1605371191060-e17631336a188?q=80&w=600&auto=format&fit=crop', // Greenery in Spring (context placeholder)
+      'https://images.unsplash.com/photo-1613041935930-17631336a188?q=80&w=600&auto=format&fit=crop', // Dry Wadi Bed (historic view placeholder)
+      'https://images.unsplash.com/photo-1563118941-86a075253676?q=80&w=600&auto=format&fit=crop' // Bridge view (context placeholder)
+    ]
+  },
+  {
+    id: 9,
+    icon: '⛰️',
+    cat: 'historic',
+    nameEn: 'Mount Ayr',
+    nameAr: 'جبل عير',
+    cost: 'Free',
+    rating: 4.2,
+    instagram: null,
+    descEn: 'The southern boundary of Medina’s sacred sanctuary.',
+    descAr: 'الحد الجنوبي لحرم المدينة المنورة.',
+    lat: 24.4074,
+    lng: 39.5639,
+    images: [
+      'https://images.unsplash.com/photo-1621360143896-180b54019e13?q=80&w=600&auto=format&fit=crop', // Mountain from distance (placeholder similarity)
+      'https://images.unsplash.com/photo-1605371191060-e17631336a188?q=80&w=600&auto=format&fit=crop', // Rugged volcanic rock (placeholder similarity)
+      'https://images.unsplash.com/photo-1613041935930-17631336a188?q=80&w=600&auto=format&fit=crop', // Close-up peak (placeholder similarity)
+      'https://images.unsplash.com/photo-1591604128919-ff1106e2f1e4?q=80&w=600&auto=format&fit=crop', // Marking Southern boundary (context placeholder)
+      'https://images.unsplash.com/photo-1563118941-86a075253676?q=80&w=600&auto=format&fit=crop' // Dusk view (context placeholder)
+    ]
+  },
 
   // --- MUSEUMS & EXHIBITIONS ---
-  {id:10,icon:'🏛️',cat:'museum',nameEn:'Dar Al Madinah Museum',nameAr:'متحف دار المدينة',cost:'20 SAR',rating:4.5,instagram:'daralmadina_museum',descEn:'Fascinating museum showcasing the history and heritage of Madinah through artifacts.',descAr:'متحف رائع يعرض تاريخ وتراث المدينة.',lat:24.4633,lng:39.6078},
-  {id:11,icon:'📖',cat:'museum',nameEn:'King Fahd Quran Complex',nameAr:'مجمع الملك فهد لطباعة المصحف',cost:'Free',rating:4.9,instagram:null,descEn:'The world’s largest Quran printing facility. A must-visit for its craftsmanship.',descAr:'أكبر مطبعة للمصحف الشريف في العالم.',lat:24.5020,lng:39.5445},
-  {id:12,icon:'✨',cat:'museum',nameEn:'International Prophet\'s Biography Museum',nameAr:'متحف السيرة النبوية',cost:'40 SAR',rating:4.9,instagram:'salam_museum',descEn:'High-tech museum using VR and holograms to present the life of the Prophet ﷺ.',descAr:'متحف تقني يعرض سيرة النبي ﷺ باستخدام الواقع الافتراضي والهولوجرام.',lat:24.4682,lng:39.6125},
-  {id:13,icon:'🚂',cat:'museum',nameEn:'Hijaz Railway Museum',nameAr:'متحف سكة الحديد الحجازية',cost:'Free',rating:4.3,instagram:null,descEn:'Historic railway station turned museum — part of the Damascus-Madinah line.',descAr:'محطة تاريخية تحولت إلى متحف يروي قصة الخط الحجازي.',lat:24.4689,lng:39.6012},
+  {
+    id: 10,
+    icon: '🏛️',
+    cat: 'museum',
+    nameEn: 'Dar Al Madinah Museum',
+    nameAr: 'متحف دار المدينة',
+    cost: '20 SAR',
+    rating: 4.5,
+    instagram: 'daralmadina_museum',
+    descEn: 'Fascinating museum showcasing the history and heritage of Madinah through artifacts.',
+    descAr: 'متحف رائع يعرض تاريخ وتراث المدينة.',
+    lat: 24.4633,
+    lng: 39.6078,
+    images: [
+      'https://images.unsplash.com/photo-1591604128919-ff1106e2f1e4?q=80&w=600&auto=format&fit=crop', // Exterior (context placeholder)
+      'https://images.unsplash.com/photo-1613041935930-17631336a188?q=80&w=600&auto=format&fit=crop', // Detailed Model (placeholder similarity)
+      'https://images.unsplash.com/photo-1605371191060-e17631336a188?q=80&w=600&auto=format&fit=crop', // Historical Diorama (placeholder similarity)
+      'https://images.unsplash.com/photo-1612140660600-b61514316d82?q=80&w=600&auto=format&fit=crop', // Haram evolution model (placeholder context)
+      'https://images.unsplash.com/photo-1563118941-86a075253676?q=80&w=600&auto=format&fit=crop' // Artifact Display (placeholder similarity)
+    ]
+  },
+  {
+    id: 11,
+    icon: '📖',
+    cat: 'museum',
+    nameEn: 'King Fahd Quran Complex',
+    nameAr: 'مجمع الملك فهد لطباعة المصحف',
+    cost: 'Free',
+    rating: 4.9,
+    instagram: null,
+    descEn: 'The world’s largest Quran printing facility. A must-visit for its craftsmanship.',
+    descAr: 'أكبر مطبعة للمصحف الشريف في العالم.',
+    lat: 24.5020,
+    lng: 39.5445,
+    images: [
+      'https://images.unsplash.com/photo-1591604128919-ff1106e2f1e4?q=80&w=600&auto=format&fit=crop', // Exterior (context placeholder)
+      'https://images.unsplash.com/photo-1613041935930-17631336a188?q=80&w=600&auto=format&fit=crop', // Printing Presses (placeholder similarity)
+      'https://images.unsplash.com/photo-1605371191060-e17631336a188?q=80&w=600&auto=format&fit=crop', // Quality Control (placeholder similarity)
+      'https://images.unsplash.com/photo-1612140660600-b61514316d82?q=80&w=600&auto=format&fit=crop', // Binding Department (placeholder similarity)
+      'https://images.unsplash.com/photo-1563118941-86a075253676?q=80&w=600&auto=format&fit=crop' // Quran stack (placeholder similarity)
+    ]
+  },
+  {
+    id: 12,
+    icon: '✨',
+    cat: 'museum',
+    nameEn: 'International Prophet\'s Biography Museum',
+    nameAr: 'متحف السيرة النبوية',
+    cost: '40 SAR',
+    rating: 4.9,
+    instagram: 'salam_museum',
+    descEn: 'High-tech museum using VR and holograms to present the life of the Prophet ﷺ.',
+    descAr: 'متحف تقني يعرض سيرة النبي ﷺ باستخدام الواقع الافتراضي والهولوجرام.',
+    lat: 24.4682,
+    lng: 39.6125,
+    images: [
+      'https://images.unsplash.com/photo-1591604128919-ff1106e2f1e4?q=80&w=600&auto=format&fit=crop', // Entrance Haram context (placeholder similarity)
+      'https://images.unsplash.com/photo-1613041935930-17631336a188?q=80&w=600&auto=format&fit=crop', // Modern Exhibit (placeholder similarity)
+      'https://images.unsplash.com/photo-1605371191060-e17631336a188?q=80&w=600&auto=format&fit=crop', // VR experience (placeholder similarity)
+      'https://images.unsplash.com/photo-1612140660600-b61514316d82?q=80&w=600&auto=format&fit=crop', // Holographic display (placeholder similarity)
+      'https://images.unsplash.com/photo-1563118941-86a075253676?q=80&w=600&auto=format&fit=crop' // Main hall (placeholder similarity)
+    ]
+  },
+  {
+    id: 13,
+    icon: '🚂',
+    cat: 'museum',
+    nameEn: 'Hijaz Railway Museum',
+    nameAr: 'متحف سكة الحديد الحجازية',
+    cost: 'Free',
+    rating: 4.3,
+    instagram: null,
+    descEn: 'Historic railway station turned museum — part of the Damascus-Madinah line.',
+    descAr: 'محطة تاريخية تحولت إلى متحف يروي قصة الخط الحجازي.',
+    lat: 24.4689,
+    lng: 39.6012,
+    images: [
+      'https://images.unsplash.com/photo-1591604128919-ff1106e2f1e4?q=80&w=600&auto=format&fit=crop', // Station Facade (context placeholder)
+      'https://images.unsplash.com/photo-1613041935930-17631336a188?q=80&w=600&auto=format&fit=crop', // Locomotive (placeholder similarity)
+      'https://images.unsplash.com/photo-1605371191060-e17631336a188?q=80&w=600&auto=format&fit=crop', // Tracks (placeholder similarity)
+      'https://images.unsplash.com/photo-1612140660600-b61514316d82?q=80&w=600&auto=format&fit=crop', // Carriage interior (placeholder similarity)
+      'https://images.unsplash.com/photo-1563118941-86a075253676?q=80&w=600&auto=format&fit=crop' // Original Signage (placeholder similarity)
+    ]
+  },
 ];
 
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null;
