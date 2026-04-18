@@ -113,6 +113,9 @@
     .ib-text{flex:1;font-size:13px;color:#fff;line-height:1.4}
     .ib-btn{background:#1D9E75;color:#fff;border:none;border-radius:9px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
     .ib-x{background:none;border:none;color:#9FE1CB;font-size:18px;cursor:pointer}
+    .lang-picker-opt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0.85rem;border-radius:14px;border:2px solid #eee;cursor:pointer;background:#fff;text-align:center;transition:all 0.15s}
+    .lang-picker-opt:active{background:#E1F5EE;border-color:#1D9E75}
+    .lang-picker-opt.active-lang{border-color:#085041;background:#E1F5EE}
   </style>
 </head>
 <body>
@@ -141,6 +144,7 @@
       <span class="cb-sub" id="bannerSub">Real humans · Free call</span>
     </div>
     <button class="call-now-btn" onclick="showTab('call')" id="callNowBtn">📞 Call now</button>
+    <button onclick="openLangPicker()" style="background:rgba(255,255,255,0.15);border:none;border-radius:20px;padding:7px 10px;font-size:14px;cursor:pointer;flex-shrink:0" id="langPickerBtn" title="Change language">🌐</button>
   </div>
 
   <div class="tab-content">
@@ -227,6 +231,23 @@
     <button class="bn" id="bn-plan" onclick="showTab('plan')"><span class="bn-icon">🔍</span><span class="bn-lbl" id="bnl-plan">Plan</span></button>
     <button class="bn on" id="bn-places" onclick="showTab('places')"><span class="bn-icon">🕌</span><span class="bn-lbl" id="bnl-places">Places</span></button>
     <button class="bn" id="bn-call" onclick="showTab('call')"><span class="bn-icon">📞</span><span class="bn-lbl" id="bnl-call">Call guide</span></button>
+  </div>
+</div>
+
+<!-- Language picker modal -->
+<div class="modal-bg" id="langModal">
+  <div class="modal-sheet" style="padding-bottom:calc(2rem + env(safe-area-inset-bottom))">
+    <div class="modal-handle"></div>
+    <div style="font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:1rem;text-align:center">Choose language · اختر لغتك</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.65rem">
+      <div onclick="switchLang('ar')" class="lang-picker-opt" id="lpo-ar"><span style="font-size:22px">🇸🇦</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">عربي</div><div style="font-size:11px;color:#888">Arabic</div></div>
+      <div onclick="switchLang('en')" class="lang-picker-opt" id="lpo-en"><span style="font-size:22px">🇬🇧</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">English</div><div style="font-size:11px;color:#888">English</div></div>
+      <div onclick="switchLang('ur')" class="lang-picker-opt" id="lpo-ur"><span style="font-size:22px">🇵🇰</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">اردو</div><div style="font-size:11px;color:#888">Urdu</div></div>
+      <div onclick="switchLang('fr')" class="lang-picker-opt" id="lpo-fr"><span style="font-size:22px">🇫🇷</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">Français</div><div style="font-size:11px;color:#888">French</div></div>
+      <div onclick="switchLang('id')" class="lang-picker-opt" id="lpo-id"><span style="font-size:22px">🇮🇩</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">Indonesia</div><div style="font-size:11px;color:#888">Indonesian</div></div>
+      <div onclick="switchLang('tr')" class="lang-picker-opt" id="lpo-tr"><span style="font-size:22px">🇹🇷</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">Türkçe</div><div style="font-size:11px;color:#888">Turkish</div></div>
+      <div onclick="switchLang('ru')" class="lang-picker-opt" style="grid-column:1/-1" id="lpo-ru"><span style="font-size:22px">🇷🇺</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">Русский</div><div style="font-size:11px;color:#888">Russian</div></div>
+    </div>
   </div>
 </div>
 
@@ -522,6 +543,33 @@ function askPlace(name){
 }
 
 document.getElementById('placeModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+document.getElementById('langModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+
+function openLangPicker(){
+  // highlight current language
+  document.querySelectorAll('.lang-picker-opt').forEach(el=>el.classList.remove('active-lang'));
+  const cur=document.getElementById('lpo-'+curLang);
+  if(cur)cur.classList.add('active-lang');
+  document.getElementById('langModal').classList.add('open');
+}
+
+function switchLang(lang){
+  document.getElementById('langModal').classList.remove('open');
+  // reuse chooseLang but don't hide langScreen (already hidden)
+  curLang=lang; localStorage.setItem('mg_lang',lang);
+  const t=T[lang]||T.en; const rtl=lang==='ar'||lang==='ur';
+  document.documentElement.dir=rtl?'rtl':'ltr'; document.documentElement.lang=lang;
+  ['bannerTitle','bannerSub','wlcTitle','wlcSub','placesTitle','placesSub','callTitle','callSub','callBtnLbl','callFree','bnl-plan','bnl-places','bnl-call'].forEach(id=>{
+    const map={bannerTitle:t.banner,bannerSub:t.bannerSub,wlcTitle:t.wlcTitle,wlcSub:t.wlcSub,placesTitle:t.placesTitle,placesSub:t.placesSub,callTitle:t.callTitle,callSub:t.callSub,callBtnLbl:t.callBtn,callFree:t.callFree,'bnl-plan':t.bnPlan,'bnl-places':t.bnPlaces,'bnl-call':t.bnCall};
+    const el=document.getElementById(id); if(el) el.textContent=map[id]||'';
+  });
+  document.getElementById('callNowBtn').textContent=t.callNow;
+  document.getElementById('userInput').placeholder=t.placeholder;
+  document.getElementById('userInput').dir=rtl?'rtl':'ltr';
+  t.fc.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'t');if(e)e.textContent=v;});
+  t.fd.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'d');if(e)e.textContent=v;});
+  renderPlaces();
+}
 function goToCall(){window.location.href=CALL_URL;}
 
 const saved=localStorage.getItem('mg_lang');
