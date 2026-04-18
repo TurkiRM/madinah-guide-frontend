@@ -354,7 +354,6 @@ const PLACES = [
   {id:21,icon:'☕',cat:'coffee',nameEn:'Coffeematics',nameAr:'كوفيماتكس',cost:'20 SAR',rating:4.4,instagram:'coffeematics_sa',img:'photos/coffeematics.jpg',descEn:"Friendly neighborhood vibe known for consistent quality and great cookies.",descAr:'يتميز بأجواء ودية وجودة ثابتة، ويشتهر بالكوكيز اللذيذ.',lat:24.4752,lng:39.5531},
   {id:22,icon:'☕',cat:'coffee',nameEn:'Mathna Cafe',nameAr:'مثنى كافيه',cost:'28 SAR',rating:4.3,instagram:'mathna_cafe',img:'photos/mathna.jpg',descEn:"Artistic space combining local culture with modern coffee brewing techniques.",descAr:'مساحة فنية تدمج الثقافة المحلية مع تقنيات تحضير القهوة الحديثة.',lat:24.4512,lng:39.6189},
   {id:23,icon:'☕',cat:'coffee',nameEn:'Osar Roastery',nameAr:'محمصة أُصر',cost:'32 SAR',rating:4.8,instagram:'osar.sa',img:'photos/osar.jpg',descEn:"Professional roastery providing specialized training and high-grade beans.",descAr:'محمصة احترافية تقدم تدريباً متخصصاً وحبوب قهوة عالية الجودة.',lat:24.4921,lng:39.6015},
-  {id:24,icon:'🌴',cat:'dates',nameEn:'Central Dates Market',nameAr:'سوق التمور المركزي',cost:'Free',rating:4.8,instagram:null,img:'photos/dates-market.jpg',descEn:"The biggest dates market in Medina, offering hundreds of varieties directly from farms.",descAr:'أكبر سوق للتمور في المدينة، يضم مئات الأنواع مباشرة من المزارع.',lat:24.4601,lng:39.6195},
 ];
 
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
@@ -588,8 +587,19 @@ function openModal(p){
         style="width:100%;padding:13px;background:#E1F5EE;color:#085041;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">
         🔍 Ask AI about this place
       </button>
+    </div>
+
+    <!-- REVIEWS SECTION -->
+    <div style="margin-top:1.25rem">
+      <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:0.75rem">⭐ Reviews</div>
+      <div id="reviewsList" style="display:flex;flex-direction:column;gap:0.65rem">
+        <div style="color:#aaa;font-size:13px">Loading reviews…</div>
+      </div>
+      <div id="reviewFormWrap" style="margin-top:1rem"></div>
     </div>`;
+
   document.getElementById('placeModal').classList.add('open');
+  loadReviews(p.id);
 }
 
 function askPlace(name){
@@ -600,6 +610,148 @@ function askPlace(name){
 
 document.getElementById('placeModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 document.getElementById('langModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+
+// ── REVIEWS ───────────────────────────────────────────────────────────────────
+const REVIEWED_KEY = 'mg_reviewed'; // localStorage key
+
+function getReviewed(){
+  try{ return JSON.parse(localStorage.getItem(REVIEWED_KEY)||'{}'); }
+  catch(e){ return {}; }
+}
+function markReviewed(placeId){
+  const r=getReviewed(); r['place_'+placeId]=true;
+  localStorage.setItem(REVIEWED_KEY, JSON.stringify(r));
+}
+function hasReviewed(placeId){ return !!getReviewed()['place_'+placeId]; }
+
+async function loadReviews(placeId){
+  const list = document.getElementById('reviewsList');
+  if(!list) return;
+  try{
+    const r = await fetch(`${BACKEND}/app/places/${placeId}/reviews`);
+    const d = await r.json();
+    if(!d.success) throw new Error(d.error);
+
+    const t = T[curLang]||T.en;
+    const reviews = d.reviews || [];
+
+    if(reviews.length === 0){
+      list.innerHTML = `<div style="color:#aaa;font-size:13px;padding:0.5rem 0">${curLang==='ar'?'لا توجد تقييمات بعد':'No reviews yet — be the first!'}</div>`;
+    } else {
+      list.innerHTML = reviews.slice(0,8).map(rv => {
+        const stars = '★'.repeat(rv.stars) + '☆'.repeat(5-rv.stars);
+        const isAr  = curLang==='ar'||curLang==='ur';
+        const comment = (isAr && rv.comment_ar) ? rv.comment_ar : rv.comment;
+        const badge = rv.is_seeded
+          ? `<span style="font-size:10px;background:#E1F5EE;color:#085041;padding:2px 7px;border-radius:8px;font-weight:600">${curLang==='ar'?'موثق':'Verified'}</span>`
+          : '';
+        const date = new Date(rv.created_at).toLocaleDateString(curLang==='ar'?'ar-SA':'en-US',{month:'short',year:'numeric'});
+        return `<div style="background:#f9f9f9;border-radius:12px;padding:0.75rem;border:1px solid #eee">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+            <span style="font-size:13px;font-weight:600;color:#1a1a1a">${rv.visitor_name}</span>
+            ${rv.nationality?`<span style="font-size:11px;color:#aaa">${rv.nationality}</span>`:''}
+            ${badge}
+            <span style="margin-left:auto;font-size:11px;color:#aaa">${date}</span>
+          </div>
+          <div style="color:#BA7517;font-size:13px;margin-bottom:4px">${stars}</div>
+          ${comment?`<div style="font-size:13px;color:#555;line-height:1.5">${comment}</div>`:''}
+        </div>`;
+      }).join('');
+    }
+
+    // Show rating summary if any reviews
+    if(d.count > 0){
+      const summary = document.createElement('div');
+      summary.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:0.75rem';
+      summary.innerHTML = `<span style="font-size:24px;font-weight:700;color:#1a1a1a">${d.rating}</span><span style="color:#BA7517;font-size:18px">${'★'.repeat(Math.round(d.rating))}${'☆'.repeat(5-Math.round(d.rating))}</span><span style="font-size:12px;color:#888">(${d.count} ${curLang==='ar'?'تقييم':curLang==='tr'?'yorum':curLang==='ru'?'отзывов':'reviews'})</span>`;
+      list.insertBefore(summary, list.firstChild);
+    }
+
+    // Review form
+    renderReviewForm(placeId);
+
+  } catch(e){
+    list.innerHTML = `<div style="color:#aaa;font-size:13px">Could not load reviews</div>`;
+    renderReviewForm(placeId);
+  }
+}
+
+function renderReviewForm(placeId){
+  const wrap = document.getElementById('reviewFormWrap');
+  if(!wrap) return;
+
+  if(hasReviewed(placeId)){
+    wrap.innerHTML = `<div style="text-align:center;font-size:13px;color:#888;padding:0.75rem;background:#f5f5f0;border-radius:12px">${curLang==='ar'?'✅ لقد أضفت تقييمك لهذا المكان':'✅ You already reviewed this place'}</div>`;
+    return;
+  }
+
+  const t = T[curLang]||T.en;
+  const labels = {
+    en:{title:'Leave a review',name:'Your name',nationality:'Country (optional)',comment:'Your comment (optional)',submit:'Submit review',placeholder:'Share your experience…'},
+    ar:{title:'أضف تقييمك',name:'اسمك',nationality:'الدولة (اختياري)',comment:'تعليقك (اختياري)',submit:'إرسال التقييم',placeholder:'شاركنا تجربتك…'},
+    ur:{title:'تبصرہ لکھیں',name:'آپ کا نام',nationality:'ملک (اختیاری)',comment:'تبصرہ (اختیاری)',submit:'تبصرہ جمع کریں',placeholder:'اپنا تجربہ لکھیں…'},
+    fr:{title:'Laisser un avis',name:'Votre nom',nationality:'Pays (optionnel)',comment:'Commentaire (optionnel)',submit:'Soumettre',placeholder:'Partagez votre expérience…'},
+    id:{title:'Tulis ulasan',name:'Nama Anda',nationality:'Negara (opsional)',comment:'Komentar (opsional)',submit:'Kirim ulasan',placeholder:'Bagikan pengalaman Anda…'},
+    tr:{title:'Yorum yaz',name:'Adınız',nationality:'Ülke (isteğe bağlı)',comment:'Yorum (isteğe bağlı)',submit:'Yorum gönder',placeholder:'Deneyiminizi paylaşın…'},
+    ru:{title:'Оставить отзыв',name:'Ваше имя',nationality:'Страна (необязательно)',comment:'Комментарий (необязательно)',submit:'Отправить отзыв',placeholder:'Поделитесь впечатлениями…'},
+  };
+  const L = labels[curLang]||labels.en;
+  const rtl = curLang==='ar'||curLang==='ur';
+
+  wrap.innerHTML = `
+    <div style="border-top:1px solid #eee;padding-top:1rem;margin-top:0.5rem" dir="${rtl?'rtl':'ltr'}">
+      <div style="font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:0.75rem">${L.title}</div>
+      <!-- Stars -->
+      <div style="display:flex;gap:8px;margin-bottom:0.85rem" id="starPicker">
+        ${[1,2,3,4,5].map(i=>`<span onclick="setStars(${i})" data-star="${i}" style="font-size:28px;cursor:pointer;color:#ddd;transition:color 0.1s">★</span>`).join('')}
+      </div>
+      <input id="rvName" placeholder="${L.name}" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;margin-bottom:8px;font-family:inherit;outline:none" dir="${rtl?'rtl':'ltr'}"/>
+      <input id="rvNationality" placeholder="${L.nationality}" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;margin-bottom:8px;font-family:inherit;outline:none" dir="${rtl?'rtl':'ltr'}"/>
+      <textarea id="rvComment" placeholder="${L.placeholder}" rows="3" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit;resize:none;outline:none;margin-bottom:10px" dir="${rtl?'rtl':'ltr'}"></textarea>
+      <button onclick="submitReview(${placeId})" style="width:100%;padding:12px;background:#085041;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer" id="rvSubmitBtn">${L.submit}</button>
+      <div id="rvMsg" style="margin-top:8px;font-size:13px;text-align:center"></div>
+    </div>`;
+}
+
+let selectedStars = 0;
+function setStars(n){
+  selectedStars = n;
+  document.querySelectorAll('#starPicker [data-star]').forEach(el=>{
+    el.style.color = parseInt(el.dataset.star) <= n ? '#BA7517' : '#ddd';
+  });
+}
+
+async function submitReview(placeId){
+  const name    = document.getElementById('rvName')?.value.trim();
+  const nat     = document.getElementById('rvNationality')?.value.trim();
+  const comment = document.getElementById('rvComment')?.value.trim();
+  const msg     = document.getElementById('rvMsg');
+  const btn     = document.getElementById('rvSubmitBtn');
+
+  const errLabels = {en:'Please enter your name and select a star rating',ar:'الرجاء إدخال اسمك واختيار تقييم',ur:'براہ کرم نام اور ریٹنگ درج کریں',fr:'Veuillez entrer votre nom et noter',id:'Masukkan nama dan pilih bintang',tr:'Lütfen adınızı girin ve puan seçin',ru:'Введите имя и выберите оценку'};
+  if(!name || !selectedStars){
+    msg.style.color='#A32D2D'; msg.textContent=errLabels[curLang]||errLabels.en; return;
+  }
+
+  btn.disabled=true; btn.textContent='…';
+  try{
+    const r = await fetch(`${BACKEND}/app/places/${placeId}/reviews`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({visitor_name:name, nationality:nat||null, stars:selectedStars, comment:comment||null, language:curLang})
+    });
+    const d = await r.json();
+    if(!d.success) throw new Error(d.error);
+
+    markReviewed(placeId);
+    const ok={en:'Thank you for your review! 🙏',ar:'شكراً لتقييمك! 🙏',ur:'آپ کے تبصرے کا شکریہ! 🙏',fr:'Merci pour votre avis! 🙏',id:'Terima kasih atas ulasan Anda! 🙏',tr:'Yorumunuz için teşekkürler! 🙏',ru:'Спасибо за отзыв! 🙏'};
+    msg.style.color='#0F6E56'; msg.textContent=ok[curLang]||ok.en;
+    // reload reviews to show the new one
+    setTimeout(()=>loadReviews(placeId), 800);
+  } catch(e){
+    btn.disabled=false; btn.textContent=document.getElementById('rvSubmitBtn')?.dataset.label||'Submit';
+    msg.style.color='#A32D2D'; msg.textContent='Could not submit. Please try again.';
+  }
+}
 
 // ══ PRAYER TIMES ENGINE ═══════════════════════════════════════════════════════
 // Umm al-Qura method — used in Saudi Arabia
