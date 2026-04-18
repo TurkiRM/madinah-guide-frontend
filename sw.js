@@ -1,9 +1,11 @@
-const CACHE = 'madinah-guide-v1';
+const CACHE = 'madinah-guide-v3';
 const STATIC = [
-  'app.html',
+  './',
+  'index.html',
   'manifest.json',
   'icon-192.png',
   'icon-512.png',
+  'logo-app.png',
 ];
 
 self.addEventListener('install', e => {
@@ -21,10 +23,11 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // network first for API calls
-  if (e.request.url.includes('onrender.com') || e.request.url.includes('anthropic')) {
+  // always network first for API calls
+  if (e.request.url.includes('onrender.com') || e.request.url.includes('anthropic') || e.request.url.includes('googleapis')) {
     return;
   }
+  // network first, cache fallback
   e.respondWith(
     fetch(e.request).catch(() => caches.match(e.request))
   );
