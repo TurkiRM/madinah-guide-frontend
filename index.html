@@ -309,7 +309,6 @@ const PLACES = [
   {id:23,icon:'☕',cat:'coffee',nameEn:'Osar Roastery',nameAr:'محمصة أُصر',cost:'32 SAR',rating:4.8,instagram:'osar.sa',img:'photos/osar.jpg',descEn:"Professional roastery providing specialized training and high-grade beans.",descAr:'محمصة احترافية تقدم تدريباً متخصصاً وحبوب قهوة عالية الجودة.',lat:24.4921,lng:39.6015},
 ];
 
-
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
