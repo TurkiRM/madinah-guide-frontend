@@ -668,13 +668,31 @@ function julianDate(y,m,d){
 }
 function fixAngle(a){return a-360*Math.floor(a/360);}
 
-function decimalToTime(dec){
+function decimalToTime(dec, name){
   dec = fixHour(dec);
-  const h=Math.floor(dec);
-  const m=Math.floor((dec-h)*60);
-  const ampm = h>=12?'PM':'AM';
-  const h12  = h>12?h-12:(h===0?12:h);
-  return {h,m,str12:`${h12}:${String(m).padStart(2,'0')} ${ampm}`,str24:`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`};
+  const h   = Math.floor(dec);
+  let   m   = Math.floor((dec - h) * 60);
+  const sec = Math.round(((dec - h) * 60 - m) * 60);
+
+  // Fajr: truncate (floor) — never show early
+  // All others: if there are any seconds, round UP by 1 minute
+  if(name !== 'Fajr' && sec > 0) {
+    m = m + 1;
+  }
+
+  // Handle minute overflow
+  const totalH = h + Math.floor(m / 60);
+  const finalM = m % 60;
+  const finalH = fixHour(totalH);
+
+  const ampm = finalH >= 12 ? 'PM' : 'AM';
+  const h12  = finalH > 12 ? finalH - 12 : (finalH === 0 ? 12 : finalH);
+  return {
+    h: finalH,
+    m: finalM,
+    str12: `${h12}:${String(finalM).padStart(2,'0')} ${ampm}`,
+    str24: `${String(Math.floor(finalH)).padStart(2,'0')}:${String(finalM).padStart(2,'0')}`,
+  };
 }
 
 let prayerInterval = null;
@@ -686,7 +704,7 @@ function loadPrayer(){
   raw.Isha = calcIshaUmmAlQura(raw.Maghrib);
 
   const prayers = ['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
-  const times = prayers.map(name=>({name, dec:raw[name], ...decimalToTime(raw[name])}));
+  const times = prayers.map(name=>({name, dec:raw[name], ...decimalToTime(raw[name], name)}));
 
   // current Madinah time in decimal hours
   const madNow = now.getUTCHours() + MADINAH_TZ + now.getUTCMinutes()/60 + now.getUTCSeconds()/3600;
