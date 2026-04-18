@@ -674,9 +674,10 @@ function decimalToTime(dec, name){
   let   m   = Math.floor((dec - h) * 60);
   const sec = Math.round(((dec - h) * 60 - m) * 60);
 
-  // Fajr: truncate (floor) — never show early
-  // All others: if there are any seconds, round UP by 1 minute
-  if(name !== 'Fajr' && sec > 0) {
+  // Fajr, Sunrise, Dhuhr — exact, never round up
+  // Asr, Maghrib, Isha — add 1 minute if any seconds remain (Umm al-Qura conservative)
+  const roundUp = ['Asr','Maghrib','Isha'];
+  if(roundUp.includes(name) && sec > 0) {
     m = m + 1;
   }
 
