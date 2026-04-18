@@ -116,6 +116,19 @@
     .lang-picker-opt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0.85rem;border-radius:14px;border:2px solid #eee;cursor:pointer;background:#fff;text-align:center;transition:all 0.15s}
     .lang-picker-opt:active{background:#E1F5EE;border-color:#1D9E75}
     .lang-picker-opt.active-lang{border-color:#085041;background:#E1F5EE}
+    .prayer-row{display:flex;align-items:center;background:#fff;border-radius:14px;border:1px solid #eee;padding:0.85rem 1rem;transition:all 0.2s}
+    .prayer-row.next-prayer{border-color:#1D9E75;background:#E1F5EE}
+    .prayer-row.current-prayer{border-color:#085041;background:#085041}
+    .prayer-icon{font-size:22px;margin-right:12px;flex-shrink:0}
+    .prayer-name{font-size:15px;font-weight:600;color:#1a1a1a;flex:1}
+    .prayer-row.current-prayer .prayer-name{color:#fff}
+    .prayer-row.next-prayer .prayer-name{color:#085041}
+    .prayer-time{font-size:16px;font-weight:700;color:#085041}
+    .prayer-row.current-prayer .prayer-time{color:#9FE1CB}
+    .prayer-row.next-prayer .prayer-time{color:#085041}
+    .prayer-badge{font-size:10px;padding:3px 8px;border-radius:8px;margin-left:8px;font-weight:600}
+    .badge-now{background:#fff;color:#085041}
+    .badge-next{background:#085041;color:#fff}
   </style>
 </head>
 <body>
@@ -205,6 +218,43 @@
       </div>
     </div>
 
+    <!-- PRAYER TIMES -->
+    <div class="pane hidden" id="pane-prayer">
+      <div style="padding:1rem;display:flex;flex-direction:column;gap:0.85rem">
+
+        <!-- Header -->
+        <div style="background:#085041;border-radius:16px;padding:1.25rem;color:#fff;text-align:center">
+          <div style="font-size:13px;color:#9FE1CB;margin-bottom:4px" id="prayerDateLbl"></div>
+          <div style="font-size:22px;font-weight:700" id="prayerCityLbl">Madinah Al-Munawwarah</div>
+          <div style="font-size:13px;color:#9FE1CB;margin-top:2px">المدينة المنورة</div>
+          <!-- Countdown to next prayer -->
+          <div style="margin-top:1rem;background:rgba(255,255,255,0.12);border-radius:12px;padding:0.75rem">
+            <div style="font-size:11px;color:#9FE1CB;margin-bottom:4px" id="nextPrayerLbl">Next prayer</div>
+            <div style="font-size:20px;font-weight:700" id="nextPrayerName">—</div>
+            <div style="font-size:15px;color:#9FE1CB;margin-top:2px" id="nextPrayerCountdown">—</div>
+          </div>
+        </div>
+
+        <!-- Prayer times cards -->
+        <div id="prayerList" style="display:flex;flex-direction:column;gap:0.5rem"></div>
+
+        <!-- Source note -->
+        <div style="font-size:11px;color:#aaa;text-align:center" id="prayerSourceLbl">
+          Times calculated for Madinah · Umm al-Qura method
+        </div>
+
+        <!-- Qibla direction -->
+        <div style="background:#fff;border-radius:14px;border:1px solid #eee;padding:1rem;display:flex;align-items:center;gap:12px">
+          <div style="font-size:36px">🧭</div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#1a1a1a" id="qiblaTitle">Qibla Direction</div>
+            <div style="font-size:13px;color:#888" id="qiblaDesc">From Madinah: 157° South-Southeast toward Makkah</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- CALL -->
     <div class="pane hidden" id="pane-call">
       <div class="call-wrap">
@@ -230,6 +280,7 @@
   <div class="bottom-nav">
     <button class="bn" id="bn-plan" onclick="showTab('plan')"><span class="bn-icon">🔍</span><span class="bn-lbl" id="bnl-plan">Plan</span></button>
     <button class="bn on" id="bn-places" onclick="showTab('places')"><span class="bn-icon">🕌</span><span class="bn-lbl" id="bnl-places">Places</span></button>
+    <button class="bn" id="bn-prayer" onclick="showTab('prayer')"><span class="bn-icon">🕐</span><span class="bn-lbl" id="bnl-prayer">Prayer</span></button>
     <button class="bn" id="bn-call" onclick="showTab('call')"><span class="bn-icon">📞</span><span class="bn-lbl" id="bnl-call">Call guide</span></button>
   </div>
 </div>
@@ -329,6 +380,9 @@ function chooseLang(lang){
     const map={bannerTitle:t.banner,bannerSub:t.bannerSub,wlcTitle:t.wlcTitle,wlcSub:t.wlcSub,placesTitle:t.placesTitle,placesSub:t.placesSub,callTitle:t.callTitle,callSub:t.callSub,callBtnLbl:t.callBtn,callFree:t.callFree,'bnl-plan':t.bnPlan,'bnl-places':t.bnPlaces,'bnl-call':t.bnCall};
     const el=document.getElementById(id); if(el) el.textContent=map[id]||'';
   });
+  // Prayer tab label per language
+  const prayerLabels={en:'Prayer',ar:'الصلاة',ur:'نماز',fr:'Prière',id:'Sholat',tr:'Namaz',ru:'Намаз'};
+  const pEl=document.getElementById('bnl-prayer'); if(pEl) pEl.textContent=prayerLabels[lang]||'Prayer';
   document.getElementById('callNowBtn').textContent=t.callNow;
   document.getElementById('userInput').placeholder=t.placeholder;
   document.getElementById('userInput').dir=rtl?'rtl':'ltr';
@@ -345,6 +399,7 @@ function showTab(tab){
   document.querySelectorAll('.bn').forEach(b=>b.classList.remove('on'));
   document.getElementById('pane-'+tab).classList.remove('hidden');
   document.getElementById('bn-'+tab).classList.add('on');
+  if(tab==='prayer') loadPrayer();
 }
 
 function hideWelcome(){
@@ -545,6 +600,159 @@ function askPlace(name){
 document.getElementById('placeModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 document.getElementById('langModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 
+// ══ PRAYER TIMES ENGINE ═══════════════════════════════════════════════════════
+// Umm al-Qura method — used in Saudi Arabia
+// Madinah coordinates: 24.4672°N, 39.6111°E  UTC+3
+const MADINAH_LAT  = 24.4672;
+const MADINAH_LNG  = 39.6111;
+const MADINAH_TZ   = 3; // UTC+3
+
+const PRAYER_NAMES = {
+  en: {Fajr:'Fajr',Sunrise:'Sunrise',Dhuhr:'Dhuhr',Asr:'Asr',Maghrib:'Maghrib',Isha:'Isha'},
+  ar: {Fajr:'الفجر',Sunrise:'الشروق',Dhuhr:'الظهر',Asr:'العصر',Maghrib:'المغرب',Isha:'العشاء'},
+  ur: {Fajr:'فجر',Sunrise:'طلوع آفتاب',Dhuhr:'ظہر',Asr:'عصر',Maghrib:'مغرب',Isha:'عشاء'},
+  fr: {Fajr:'Fajr',Sunrise:'Lever du soleil',Dhuhr:'Dhuhr',Asr:'Asr',Maghrib:'Maghrib',Isha:'Isha'},
+  id: {Fajr:'Subuh',Sunrise:'Syuruq',Dhuhr:'Dzuhur',Asr:'Ashar',Maghrib:'Maghrib',Isha:'Isya'},
+  tr: {Fajr:'Sabah',Sunrise:'Güneş',Dhuhr:'Öğle',Asr:'İkindi',Maghrib:'Akşam',Isha:'Yatsı'},
+  ru: {Fajr:'Фаджр',Sunrise:'Восход',Dhuhr:'Зухр',Asr:'Аср',Maghrib:'Магриб',Isha:'Иша'},
+};
+const PRAYER_ICONS = {Fajr:'🌙',Sunrise:'🌅',Dhuhr:'☀️',Asr:'🌤️',Maghrib:'🌇',Isha:'🌃'};
+
+function toRad(d){return d*Math.PI/180;}
+function toDeg(r){return r*180/Math.PI;}
+function fixHour(h){return h-24*Math.floor(h/24);}
+
+function calcPrayerTimes(date, lat, lng, tz) {
+  const JD = julianDate(date.getFullYear(), date.getMonth()+1, date.getDate());
+  const D  = JD - 2451545.0;
+  const g  = fixAngle(357.529 + 0.98560028*D);
+  const q  = fixAngle(280.459 + 0.98564736*D);
+  const L  = fixAngle(q + 1.9915*Math.sin(toRad(g)) + 0.02*Math.sin(toRad(2*g)));
+  const e  = 23.439 - 0.00000036*D;
+  const RA = toDeg(Math.atan2(Math.cos(toRad(e))*Math.sin(toRad(L)), Math.cos(toRad(L))))/15;
+  const EqT= q/15 - fixHour(RA);
+  const decl = toDeg(Math.asin(Math.sin(toRad(e))*Math.sin(toRad(L))));
+  const noon = 12 - lng/15 - EqT + tz;
+
+  function sunAngleTime(angle, afterNoon){
+    const val = -Math.sin(toRad(angle)) - Math.sin(toRad(lat))*Math.sin(toRad(decl));
+    const div = Math.cos(toRad(lat))*Math.cos(toRad(decl));
+    const t = toDeg(Math.acos(val/div))/15;
+    return afterNoon ? noon+t : noon-t;
+  }
+
+  // Asr shadow factor = 1 (Shafi/standard)
+  function asrTime(factor){
+    const target = toDeg(Math.atan(1/(factor + Math.tan(toRad(Math.abs(lat-decl))))));
+    return sunAngleTime(-target, true);
+  }
+
+  return {
+    Fajr:    sunAngleTime(18.5, false),  // Umm al-Qura: 18.5° below horizon
+    Sunrise: sunAngleTime(0.833, false),
+    Dhuhr:   noon + 0.017,               // slight offset
+    Asr:     asrTime(1),
+    Maghrib: sunAngleTime(0.833, true),
+    Isha:    sunAngleTime(90, true),      // Umm al-Qura: 90 min after Maghrib
+  };
+}
+
+// Isha special: Umm al-Qura = Maghrib + 90 min
+function calcIshaUmmAlQura(maghrib){ return maghrib + 1.5; }
+
+function julianDate(y,m,d){
+  if(m<=2){y--;m+=12;}
+  const A=Math.floor(y/100);
+  const B=2-A+Math.floor(A/4);
+  return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5;
+}
+function fixAngle(a){return a-360*Math.floor(a/360);}
+
+function decimalToTime(dec){
+  dec = fixHour(dec);
+  const h=Math.floor(dec);
+  const m=Math.floor((dec-h)*60);
+  const ampm = h>=12?'PM':'AM';
+  const h12  = h>12?h-12:(h===0?12:h);
+  return {h,m,str12:`${h12}:${String(m).padStart(2,'0')} ${ampm}`,str24:`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`};
+}
+
+let prayerInterval = null;
+
+function loadPrayer(){
+  const now  = new Date();
+  const raw  = calcPrayerTimes(now, MADINAH_LAT, MADINAH_LNG, MADINAH_TZ);
+  // Override Isha with Umm al-Qura 90min rule
+  raw.Isha = calcIshaUmmAlQura(raw.Maghrib);
+
+  const prayers = ['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
+  const times = prayers.map(name=>({name, dec:raw[name], ...decimalToTime(raw[name])}));
+
+  // current Madinah time in decimal hours
+  const madNow = now.getUTCHours() + MADINAH_TZ + now.getUTCMinutes()/60 + now.getUTCSeconds()/3600;
+  const madNowFixed = fixHour(madNow);
+
+  // find current and next prayer
+  let currentIdx=-1, nextIdx=0;
+  for(let i=0;i<times.length;i++){
+    if(times[i].dec<=madNowFixed) currentIdx=i;
+  }
+  nextIdx = (currentIdx+1) % times.length;
+  if(currentIdx===times.length-1) nextIdx=0;
+
+  // Date label
+  const t = T[curLang]||T.en;
+  const dateStr = now.toLocaleDateString(curLang==='ar'?'ar-SA':curLang==='tr'?'tr-TR':curLang==='ru'?'ru-RU':'en-US',
+    {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const pNames = PRAYER_NAMES[curLang]||PRAYER_NAMES.en;
+
+  document.getElementById('prayerDateLbl').textContent = dateStr;
+
+  // Render prayer rows
+  const list = document.getElementById('prayerList');
+  list.innerHTML = '';
+  times.forEach((p,i)=>{
+    const isCurrent = i===currentIdx;
+    const isNext    = i===nextIdx;
+    const div = document.createElement('div');
+    div.className = 'prayer-row'+(isCurrent?' current-prayer':isNext?' next-prayer':'');
+    div.innerHTML = `
+      <span class="prayer-icon">${PRAYER_ICONS[p.name]}</span>
+      <span class="prayer-name">${pNames[p.name]||p.name}</span>
+      ${isCurrent?`<span class="prayer-badge badge-now">${curLang==='ar'?'الآن':'Now'}</span>`:''}
+      ${isNext?`<span class="prayer-badge badge-next">${curLang==='ar'?'التالية':'Next'}</span>`:''}
+      <span class="prayer-time">${p.str12}</span>`;
+    list.appendChild(div);
+  });
+
+  // Countdown to next prayer
+  const next = times[nextIdx];
+  let diff = next.dec - madNowFixed;
+  if(diff<0) diff+=24;
+  const diffMins = Math.floor(diff*60);
+  const hh = Math.floor(diffMins/60);
+  const mm = diffMins%60;
+  const countdownStr = hh>0?`${hh}h ${mm}m`:mm===0?`< 1 min`:`${mm} min`;
+
+  document.getElementById('nextPrayerName').textContent = pNames[next.name]||next.name;
+  document.getElementById('nextPrayerCountdown').textContent =
+    (curLang==='ar'?'في ':'In ')+countdownStr+(curLang==='ar'?' · '+next.str12:' · '+next.str12);
+
+  // Source note
+  const sourceMap={en:'Times for Madinah · Umm al-Qura method',ar:'أوقات الصلاة · طريقة أم القرى',ur:'مدینہ کے اوقات · ام القریٰ طریقہ',fr:'Horaires pour Médine · Méthode Oumm al-Qoura',id:'Waktu untuk Madinah · Metode Umm al-Qura',tr:"Medine için vakitler · Ümmü'l-Kurâ metodu",ru:'Время для Медины · Метод Умм аль-Кура'};
+  document.getElementById('prayerSourceLbl').textContent = sourceMap[curLang]||sourceMap.en;
+
+  // Qibla
+  const qiblaMap={en:'From Madinah: 157° → toward Makkah al-Mukarramah',ar:'من المدينة: ١٥٧° ← اتجاه مكة المكرمة',ur:'مدینہ سے: ١٥٧° ← مکہ مکرمہ کی طرف',fr:'Depuis Médine: 157° → vers La Mecque',id:'Dari Madinah: 157° → menuju Makkah',tr:"Medine'den: 157° → Mekke yönü",ru:'Из Медины: 157° → направление Мекки'};
+  const qiblaTitleMap={en:'Qibla Direction',ar:'اتجاه القبلة',ur:'قبلہ سمت',fr:'Direction de la Qibla',id:'Arah Kiblat',tr:'Kıble Yönü',ru:'Направление Киблы'};
+  document.getElementById('qiblaTitle').textContent = qiblaTitleMap[curLang]||qiblaTitleMap.en;
+  document.getElementById('qiblaDesc').textContent  = qiblaMap[curLang]||qiblaMap.en;
+
+  // Countdown ticks every 30s
+  if(prayerInterval) clearInterval(prayerInterval);
+  prayerInterval = setInterval(loadPrayer, 30000);
+}
+
 function openLangPicker(){
   // highlight current language
   document.querySelectorAll('.lang-picker-opt').forEach(el=>el.classList.remove('active-lang'));
@@ -568,7 +776,10 @@ function switchLang(lang){
   document.getElementById('userInput').dir=rtl?'rtl':'ltr';
   t.fc.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'t');if(e)e.textContent=v;});
   t.fd.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'d');if(e)e.textContent=v;});
+  const prayerLabels={en:'Prayer',ar:'الصلاة',ur:'نماز',fr:'Prière',id:'Sholat',tr:'Namaz',ru:'Намаз'};
+  const pEl=document.getElementById('bnl-prayer'); if(pEl) pEl.textContent=prayerLabels[lang]||'Prayer';
   renderPlaces();
+  if(!document.getElementById('pane-prayer').classList.contains('hidden')) loadPrayer();
 }
 function goToCall(){window.location.href=CALL_URL;}
 
