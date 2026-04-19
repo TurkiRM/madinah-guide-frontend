@@ -420,6 +420,7 @@ const PLACES = [
 ];
 
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
+const ratingsCache = {}; // placeId -> {rating, count} fetched from backend
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 
@@ -455,7 +456,7 @@ function chooseLang(lang){
   t.fd.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'d');if(e)e.textContent=v;});
   document.getElementById('langScreen').classList.add('gone');
   document.getElementById('app').classList.add('visible');
-  renderPlaces();
+  fetchAllRatings().then(renderPlaces);
   requestLocation();
 }
 
@@ -609,11 +610,12 @@ async function sendMessage(){
   addMsg('user',text);detectType(text);
   chatHistory.push({role:'user',content:text});
   showTyping();
-  const mosques    = PLACES.filter(p=>p.cat==='mosque').map(p=>`• ${p.nameEn} (${p.nameAr}) — Free, ★${p.rating} — ${p.descEn}`).join('\n');
-  const historic   = PLACES.filter(p=>p.cat==='historic').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ★${p.rating} — ${p.descEn}`).join('\n');
-  const hotels     = PLACES.filter(p=>p.cat==='hotel').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ★${p.rating} — ${p.descEn}`).join('\n');
-  const restaurants= PLACES.filter(p=>p.cat==='restaurant').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ★${p.rating} — ${p.descEn}`).join('\n');
-  const shops      = PLACES.filter(p=>p.cat==='shop').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ★${p.rating} — ${p.descEn}`).join('\n');
+  const ratingStr = (p) => { const rv=ratingsCache[p.id]; return rv&&rv.count>0?`★${rv.rating}(${rv.count} reviews)`:'no ratings yet'; };
+  const mosques    = PLACES.filter(p=>p.cat==='mosque').map(p=>`• ${p.nameEn} (${p.nameAr}) — Free, ${ratingStr(p)} — ${p.descEn}`).join('\n');
+  const historic   = PLACES.filter(p=>p.cat==='historic').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ${ratingStr(p)} — ${p.descEn}`).join('\n');
+  const hotels     = PLACES.filter(p=>p.cat==='hotel').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ${ratingStr(p)} — ${p.descEn}`).join('\n');
+  const restaurants= PLACES.filter(p=>p.cat==='restaurant').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ${ratingStr(p)} — ${p.descEn}`).join('\n');
+  const shops      = PLACES.filter(p=>p.cat==='shop').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ${ratingStr(p)} — ${p.descEn}`).join('\n');
   const bizContext = `
 
 MADINAH GUIDE — OUR VERIFIED PLACES DATABASE:
@@ -696,6 +698,20 @@ function quickSend(key){
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
 
+// ── Live ratings from visitor reviews ─────────────────────────────────────────
+async function fetchAllRatings(){
+  try{
+    // Fetch ratings for all places in parallel
+    const results = await Promise.allSettled(
+      PLACES.map(p =>
+        fetch(`${BACKEND}/app/places/${p.id}/reviews`)
+          .then(r=>r.json())
+          .then(d=>{ if(d.success && d.count > 0) ratingsCache[p.id]={rating:d.rating, count:d.count}; })
+      )
+    );
+  } catch(e){ console.warn('Ratings fetch error:', e); }
+}
+
 function filterPlaces(el,cat){
   curCat=cat;
   document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('on'));
@@ -716,7 +732,11 @@ function renderPlaces(){
     const imgHtml = p.img
       ? `<div class="place-img" style="padding:0;background:#e0e0e0"><img src="${p.img}" alt="${p.nameEn}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.innerHTML='<span style=\\'font-size:44px;display:flex;align-items:center;justify-content:center;height:100%\\'>${p.icon}</span>'"/></div>`
       : `<div class="place-img">${p.icon}</div>`;
-    div.innerHTML=`${imgHtml}<div class="place-body"><div class="place-name">${name}</div>${nameAlt?`<div class="place-name-ar">${nameAlt}</div>`:''}<div class="place-meta"><span class="place-cost">${p.cost}</span><span class="place-rating">★ ${p.rating}</span>${p.instagram?`<span style="font-size:11px;color:#534AB7">📸 @${p.instagram}</span>`:''}</div><div class="place-desc">${desc}</div></div>`;
+    const rv = ratingsCache[p.id];
+    const ratingHtml = rv && rv.count > 0
+      ? `<span class="place-rating">★ ${rv.rating} <span style="font-weight:400;color:#aaa">(${rv.count})</span></span>`
+      : '';
+    div.innerHTML=`${imgHtml}<div class="place-body"><div class="place-name">${name}</div>${nameAlt?`<div class="place-name-ar">${nameAlt}</div>`:''}<div class="place-meta"><span class="place-cost">${p.cost}</span>${ratingHtml}${p.instagram?`<span style="font-size:11px;color:#534AB7">📸 @${p.instagram}</span>`:''}</div><div class="place-desc">${desc}</div></div>`;
     list.appendChild(div);
   });
 }
@@ -739,7 +759,7 @@ function openModal(p){
     ${p.nameAr?`<div style="font-size:14px;color:#888;direction:rtl;text-align:right;margin-bottom:0.75rem">${p.nameAr}</div>`:''}
     <div style="display:flex;gap:8px;margin-bottom:0.85rem;flex-wrap:wrap">
       <span style="font-size:13px;color:#0F6E56;font-weight:600">${p.cost}</span>
-      <span style="font-size:13px;color:#BA7517;font-weight:600">★ ${p.rating}</span>
+      ${(()=>{const rv=ratingsCache[p.id];return rv&&rv.count>0?`<span style="font-size:13px;color:#BA7517;font-weight:600">★ ${rv.rating} <span style="font-weight:400;color:#aaa;font-size:12px">(${rv.count} ${curLang==='ar'?'تقييم':curLang==='tr'?'yorum':curLang==='ru'?'отзывов':'reviews'})</span></span>`:'';})()}
       ${p.instagram?`<span style="font-size:13px;color:#534AB7">📸 @${p.instagram}</span>`:''}
     </div>
     <p style="font-size:14px;color:#555;line-height:1.65;margin-bottom:1rem">${desc}</p>
@@ -915,8 +935,8 @@ async function submitReview(placeId){
     markReviewed(placeId);
     const ok={en:'Thank you for your review! 🙏',ar:'شكراً لتقييمك! 🙏',ur:'آپ کے تبصرے کا شکریہ! 🙏',fr:'Merci pour votre avis! 🙏',id:'Terima kasih atas ulasan Anda! 🙏',tr:'Yorumunuz için teşekkürler! 🙏',ru:'Спасибо за отзыв! 🙏'};
     msg.style.color='#0F6E56'; msg.textContent=ok[curLang]||ok.en;
-    // reload reviews to show the new one
-    setTimeout(()=>loadReviews(placeId), 800);
+    // reload reviews and refresh ratings on cards
+    setTimeout(()=>{ loadReviews(placeId); fetchAllRatings().then(renderPlaces); }, 800);
   } catch(e){
     btn.disabled=false; btn.textContent=document.getElementById('rvSubmitBtn')?.dataset.label||'Submit';
     msg.style.color='#A32D2D'; msg.textContent='Could not submit. Please try again.';
