@@ -209,10 +209,9 @@
           <div class="cat-pill" onclick="filterPlaces(this,'mosque')">🕌 Mosques</div>
           <div class="cat-pill" onclick="filterPlaces(this,'historic')">🏛️ Historic</div>
           <div class="cat-pill" onclick="filterPlaces(this,'museum')">🏺 Museums</div>
-          <div class="cat-pill" onclick="filterPlaces(this,'hotel')">🏨 Hotels</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'market')">🌴 Markets</div>
           <div class="cat-pill" onclick="filterPlaces(this,'coffee')">☕ Coffee</div>
           <div class="cat-pill" onclick="filterPlaces(this,'restaurant')">🍽️ Food</div>
-          <div class="cat-pill" onclick="filterPlaces(this,'shop')">🛍️ Shops</div>
         </div>
         <div id="placesList" style="display:flex;flex-direction:column;gap:0.75rem"></div>
       </div>
@@ -338,30 +337,40 @@ const PLACES = [
   {id:5,icon:'🕌',cat:'mosque',nameEn:'Al-Ghamamah Mosque',nameAr:'مسجد الغمامة',cost:'Free',instagram:null,img:'photos/ghamamah.jpg',descEn:"Located near the Prophet's Mosque; it is where the Prophet ﷺ performed Eid prayers.",descAr:'يقع بالقرب من المسجد النبوي؛ وهو المكان الذي صلى فيه النبي ﷺ صلاة العيد.',lat:24.4658,lng:39.6070},
   {id:24,icon:'🕌',cat:'mosque',nameEn:'Al-Jumuah Mosque',nameAr:'مسجد الجمعة',cost:'Free',instagram:null,img:'photos/jumuah.jpg',descEn:"Where the Prophet ﷺ performed the first Friday prayer after migrating to Medina.",descAr:'المكان الذي صلى فيه النبي ﷺ أول صلاة جمعة بعد الهجرة.',lat:24.4455,lng:39.6153},
   {id:25,icon:'🕌',cat:'mosque',nameEn:'Al-Ijabah Mosque',nameAr:'مسجد الإجابة',cost:'Free',instagram:null,img:'photos/ijabah.jpg',descEn:"Also known as Bani Muawiyah Mosque; where the Prophet ﷺ made three specific supplications.",descAr:'يعرف بمسجد بني معاوية؛ وهو المكان الذي دعا فيه النبي ﷺ بثلاث دعوات استُجيب له في ثنتين.',lat:24.4719,lng:39.6183},
-  {id:26,icon:'🕌',cat:'mosque',nameEn:'Al-Dir Mosque',nameAr:'مسجد الدرع',cost:'Free',instagram:null,img:'photos/dir.jpg',descEn:"Where the Prophet ﷺ stopped to wear his armor on the way to the Battle of Uhud.",descAr:'المكان الذي توقف فيه النبي ﷺ لارتداء درعه في طريقه لغزوة أحد.',lat:24.489498251729355,lng:39.60889541040852},
+  {id:26,icon:'🕌',cat:'mosque',nameEn:'Al-Dir Mosque',nameAr:'مسجد الدرع',cost:'Free',instagram:null,img:'photos/dir.jpg',descEn:"Where the Prophet ﷺ stopped to wear his armor on the way to the Battle of Uhud.",descAr:'المكان الذي توقف فيه النبي ﷺ لارتداء درعه في طريقه لغزوة أحد.',lat:24.489498,lng:39.608895},
   {id:27,icon:'🕌',cat:'mosque',nameEn:'Al-Mustarah Mosque',nameAr:'مسجد المستراح',cost:'Free',instagram:null,img:'photos/mustarah.jpg',descEn:"Where the Prophet ﷺ rested after the Battle of Uhud.",descAr:'المكان الذي استراح فيه النبي ﷺ بعد الفراغ من غزوة أحد.',lat:24.4919,lng:39.6097},
   {id:28,icon:'🕌',cat:'mosque',nameEn:'Al-Fas-h Mosque',nameAr:'مسجد الفسح',cost:'Free',instagram:null,img:'photos/fash.jpg',descEn:"A small historic mosque at the base of Mount Uhud.",descAr:'مسجد تاريخي صغير يقع عند سفح جبل أحد.',lat:24.5103,lng:39.6128},
   {id:29,icon:'🕌',cat:'mosque',nameEn:'Bani Haram Mosque',nameAr:'مسجد بني حرام',cost:'Free',instagram:null,img:'photos/baniharam.jpg',descEn:"Located near the site of the Battle of the Trench (Khandaq).",descAr:'يقع في منازل بني حرام بالقرب من موقع غزوة الخندق.',lat:24.4731,lng:39.5973},
   {id:30,icon:'🕌',cat:'mosque',nameEn:'Bani Dinar Mosque',nameAr:'مسجد بني دينار',cost:'Free',instagram:null,img:'photos/banidinar.jpg',descEn:"Also known as Masjid al-Manaratayn, located in the western Harrah.",descAr:'يعرف أيضاً بمسجد المنارتين، ويقع في الحرة الغربية.',lat:24.4556,lng:39.5936},
   {id:31,icon:'🕌',cat:'mosque',nameEn:'Al-Suqya Mosque',nameAr:'مسجد السقيا',cost:'Free',instagram:null,img:'photos/suqya.jpg',descEn:"Located within the Hijaz Railway station, where the Prophet ﷺ prayed before the Battle of Badr.",descAr:'يقع داخل محطة سكة الحديد، وهو المكان الذي صلى فيه النبي ﷺ عند خروجه لغزوة بدر.',lat:24.4614,lng:39.6006},
+
+  // --- HISTORIC LANDMARKS ---
   {id:6,icon:'🏔️',cat:'historic',nameEn:'Mount Uhud',nameAr:'جبل أحد',cost:'Free',instagram:null,img:'photos/uhud.jpg',descEn:"Historic mountain where the Battle of Uhud took place. A deeply meaningful site.",descAr:'الجبل التاريخي الذي شهد غزوة أحد.',lat:24.5037,lng:39.6111},
   {id:7,icon:'🪦',cat:'historic',nameEn:'Al-Baqi Cemetery',nameAr:'البقيع',cost:'Free',instagram:null,img:'photos/baqi.jpg',descEn:"Ancient cemetery where many companions of the Prophet ﷺ and his family are buried.",descAr:'المقبرة التي تضم قبور الصحابة وآل البيت.',lat:24.4674,lng:39.6145},
-  {id:8,icon:'🏞️',cat:'historic',nameEn:'Wadi Al-Aqiq',nameAr:'وادي العقيق',cost:'Free',instagram:null,img:'photos/aqiq.jpg',descEn:'The "Blessed Valley" of Medina, featuring a beautiful modern walking trail.',descAr:'"الوادي المبارك" في المدينة، يتميز بممشى حديث وجميل.',lat:24.48372189183132,lng:39.56880135481366},
-  {id:9,icon:'⛰️',cat:'historic',nameEn:'Mount Ayr',nameAr:'جبل عير',cost:'Free',instagram:null,img:'photos/ayr.jpg',descEn:"The southern boundary of Medina's sacred sanctuary.",descAr:'الحد الجنوبي لحرم المدينة المنورة.',lat:24.40626268772676,lng:39.56084708035882},
-  {id:10,icon:'🏛️',cat:'museum',nameEn:'Dar Al Madinah Museum',nameAr:'متحف دار المدينة',cost:'20 SAR',instagram:'daralmadina_museum',img:'photos/dar-museum.jpg',descEn:"Fascinating museum showcasing the history and heritage of Madinah through artifacts.",descAr:'متحف رائع يعرض تاريخ وتراث المدينة.',lat:24.477457575591544,lng:39.68780104765772},
+  {id:8,icon:'🏞️',cat:'historic',nameEn:'Wadi Al-Aqiq',nameAr:'وادي العقيق',cost:'Free',instagram:null,img:'photos/aqiq.jpg',descEn:'The "Blessed Valley" of Medina, featuring a beautiful modern walking trail.',descAr:'"الوادي المبارك" في المدينة، يتميز بممشى حديث وجميل.',lat:24.483722,lng:39.568801},
+  {id:9,icon:'⛰️',cat:'historic',nameEn:'Mount Ayr',nameAr:'جبل عير',cost:'Free',instagram:null,img:'photos/ayr.jpg',descEn:"The southern boundary of Medina's sacred sanctuary.",descAr:'الحد الجنوبي لحرم المدينة المنورة.',lat:24.406263,lng:39.560847},
+
+  // --- MUSEUMS ---
+  {id:10,icon:'🏛️',cat:'museum',nameEn:'Dar Al Madinah Museum',nameAr:'متحف دار المدينة',cost:'20 SAR',instagram:'daralmadina_museum',img:'photos/dar-museum.jpg',descEn:"Fascinating museum showcasing the history and heritage of Madinah through artifacts.",descAr:'متحف رائع يعرض تاريخ وتراث المدينة.',lat:24.477458,lng:39.687801},
   {id:11,icon:'📖',cat:'museum',nameEn:'King Fahd Quran Complex',nameAr:'مجمع الملك فهد لطباعة المصحف',cost:'Free',instagram:null,img:'photos/quran-complex.jpg',descEn:"The world's largest Quran printing facility. A must-visit for its craftsmanship.",descAr:'أكبر مطبعة للمصحف الشريف في العالم.',lat:24.5164,lng:39.5414},
-  {id:12,icon:'✨',cat:'museum',nameEn:"International Prophet's Biography Museum",nameAr:'متحف السيرة النبوية',cost:'40 SAR',instagram:'salam_museum',img:'photos/seerah-museum.jpg',descEn:"High-tech museum using VR and holograms to present the life of the Prophet ﷺ.",descAr:'متحف تقني يعرض سيرة النبي ﷺ باستخدام الواقع الافتراضي والهولوجرام.',lat:24.46588238574493,lng:39.60933129478338},
+  {id:12,icon:'✨',cat:'museum',nameEn:"International Prophet's Biography Museum",nameAr:'متحف السيرة النبوية',cost:'40 SAR',instagram:'salam_museum',img:'photos/seerah-museum.jpg',descEn:"High-tech museum using VR and holograms to present the life of the Prophet ﷺ.",descAr:'متحف تقني يعرض سيرة النبي ﷺ باستخدام الواقع الافتراضي والهولوجرام.',lat:24.465882,lng:39.609331},
   {id:13,icon:'🚂',cat:'museum',nameEn:'Hijaz Railway Museum',nameAr:'متحف سكة الحديد الحجازية',cost:'Free',instagram:null,img:'photos/railway.jpg',descEn:"Historic railway station turned museum — part of the Damascus-Madinah line.",descAr:'محطة تاريخية تحولت إلى متحف يروي قصة الخط الحجازي.',lat:24.4619,lng:39.6010},
-  {id:14,icon:'☕',cat:'coffee',nameEn:'Kiffa Roasters',nameAr:'محمصة كفة',cost:'30 SAR',instagram:'kiffaroasters',img:'photos/kiffa.jpg',descEn:"Specialty coffee roastery near the Haram, known for rich brews and turquoise interiors.",descAr:'محمصة قهوة مختصة بالقرب من الحرم، تشتهر بديكوراتها الفيروزية.',lat:24.473468446873902,lng:39.60896500011693},
-  {id:15,icon:'☕',cat:'coffee',nameEn:'ROW Specialty Coffee',nameAr:'رو كافيه',cost:'25 SAR',instagram:'rowcoffee.sa',img:'photos/row.jpg',descEn:"Elegant and aesthetic cafe famous for its signature Ajwa date cookies.",descAr:'كافيه أنيق ومميز يشتهر بكوكيز العجوة الفريد.',lat:24.467743288889103,lng:39.57544817791778},
-  {id:16,icon:'☕',cat:'coffee',nameEn:'8oz Coffee',nameAr:'ايت اوز كوفي',cost:'25 SAR',instagram:'8oz.sa',img:'photos/8oz.jpg',descEn:"Modern industrial vibe offering a wide range of specialty hot and cold drinks.",descAr:'يتميز بطابع عصري ويقدم مجموعة واسعة من المشروبات المختصة.',lat:24.483761939646502,lng:39.64190224722787},
-  {id:17,icon:'☕',cat:'coffee',nameEn:'Namq Cafe',nameAr:'نمق كافيه',cost:'30 SAR',instagram:'namqcafe',img:'photos/namq.jpg',descEn:"Popular 24/7 spot in Sultana Gardens, great for specialty drinks and desserts.",descAr:'وجهة شهيرة في حدائق سلطانة، يتميز بتقديم القهوة والحلويات على مدار الساعة.',lat:24.483560903903626,lng:39.57266741839158},
-  {id:18,icon:'☕',cat:'coffee',nameEn:'Tyam Cafe',nameAr:'تيام كافيه',cost:'35 SAR',instagram:'tyam.cafe',img:'photos/tyam.jpg',descEn:"Cozy local favorite named after Mount Tyam, offering high-end roasting.",descAr:'كافيه محلي دافئ سمي على اسم جبل تيام، يقدم تجربة تحميص فاخرة.',lat:24.46339666326726,lng:39.66524397606475},
-  {id:19,icon:'☕',cat:'coffee',nameEn:'Raslania',nameAr:'رسلانية',cost:'25 SAR',instagram:'raslania_sa',img:'photos/raslania.jpg',descEn:"Traditional Saudi coffee served with premium dates near the Prophet's Mosque.",descAr:'يقدم القهوة السعودية التقليدية مع التمور الفاخرة على قمة جبل عير.',lat:24.40626268772676,lng:39.56084708035882},
+
+  // --- COFFEE ---
+  {id:14,icon:'☕',cat:'coffee',nameEn:'Kiffa Roasters',nameAr:'محمصة كفة',cost:'30 SAR',instagram:'kiffaroasters',img:'photos/kiffa.jpg',descEn:"Specialty coffee roastery near the Haram, known for rich brews and turquoise interiors.",descAr:'محمصة قهوة مختصة بالقرب من الحرم، تشتهر بديكوراتها الفيروزية.',lat:24.473468,lng:39.608965},
+  {id:15,icon:'☕',cat:'coffee',nameEn:'ROW Specialty Coffee',nameAr:'رو كافيه',cost:'25 SAR',instagram:'rowcoffee.sa',img:'photos/row.jpg',descEn:"Elegant and aesthetic cafe famous for its signature Ajwa date cookies.",descAr:'كافيه أنيق ومميز يشتهر بكوكيز العجوة الفريد.',lat:24.467743,lng:39.575448},
+  {id:16,icon:'☕',cat:'coffee',nameEn:'8oz Coffee',nameAr:'ايت اوز كوفي',cost:'25 SAR',instagram:'8oz.sa',img:'photos/8oz.jpg',descEn:"Modern industrial vibe offering a wide range of specialty hot and cold drinks.",descAr:'يتميز بطابع عصري ويقدم مجموعة واسعة من المشروبات المختصة.',lat:24.483762,lng:39.641902},
+  {id:17,icon:'☕',cat:'coffee',nameEn:'Namq Cafe',nameAr:'نمق كافيه',cost:'30 SAR',instagram:'namqcafe',img:'photos/namq.jpg',descEn:"Popular 24/7 spot in Sultana Gardens, great for specialty drinks and desserts.",descAr:'وجهة شهيرة في حدائق سلطانة، يتميز بتقديم القهوة والحلويات على مدار الساعة.',lat:24.483561,lng:39.572667},
+  {id:18,icon:'☕',cat:'coffee',nameEn:'Tyam Cafe',nameAr:'تيام كافيه',cost:'35 SAR',instagram:'tyam.cafe',img:'photos/tyam.jpg',descEn:"Cozy local favorite named after Mount Tyam, offering high-end roasting.",descAr:'كافيه محلي دافئ سمي على اسم جبل تيام، يقدم تجربة تحميص فاخرة.',lat:24.463397,lng:39.665244},
+  {id:19,icon:'☕',cat:'coffee',nameEn:'Raslania',nameAr:'رسلانية',cost:'25 SAR',instagram:'raslania_sa',img:'photos/raslania.jpg',descEn:"Traditional Saudi coffee served with premium dates near the Prophet's Mosque.",descAr:'يقدم القهوة السعودية التقليدية مع التمور الفاخرة على قمة جبل عير.',lat:24.406263,lng:39.560847},
+
+  // --- MARKET ---
   {id:32,icon:'🌴',cat:'market',nameEn:'Madinah Dates Market',nameAr:'سوق التمور المركزي',cost:'Variable',instagram:null,img:'photos/dates-market.jpg',descEn:"The main hub for high-quality dates in Madinah, especially the famous Ajwa.",descAr:'المركز الرئيسي لأجود أنواع التمور في المدينة، وخاصة عجوة المدينة الشهيرة.',lat:24.4622,lng:39.5839},
+
+  // --- RESTAURANT ---
   {id:33,icon:'🍗',cat:'restaurant',nameEn:'ALBAIK',nameAr:'البيك',cost:'20-40 SAR',instagram:'albaik',img:'photos/albaik.jpg',descEn:"Iconic Saudi fast-food chain famous for its broasted chicken and sauce, located in the Northern Central Area.",descAr:'سلسلة مطاعم الوجبات السريعة السعودية الشهيرة بتقديم الدجاج البروست، يقع في المنطقة المركزية الشمالية.',lat:24.4716,lng:39.6103},
 ];
-  
+
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
