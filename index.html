@@ -129,6 +129,16 @@
     .prayer-badge{font-size:10px;padding:3px 8px;border-radius:8px;margin-left:8px;font-weight:600}
     .badge-now{background:#fff;color:#085041}
     .badge-next{background:#085041;color:#fff}
+    .event-card{background:#fff;border-radius:16px;border:1px solid #eee;overflow:hidden;cursor:pointer}
+    .event-card:active{opacity:0.85}
+    .event-img{height:140px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:50px;position:relative}
+    .event-cat-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.45);color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px}
+    .event-date-badge{position:absolute;top:10px;right:10px;background:#fff;color:#085041;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
+    .event-body{padding:0.85rem}
+    .event-title{font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px}
+    .event-title-ar{font-size:13px;color:#888;direction:rtl;margin-bottom:6px}
+    .event-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:#888}
+    .event-meta span{display:flex;align-items:center;gap:4px}
   </style>
 </head>
 <body>
@@ -254,6 +264,43 @@
       </div>
     </div>
 
+    <!-- EVENTS -->
+    <div class="pane hidden" id="pane-events">
+      <div style="padding:1rem;display:flex;flex-direction:column;gap:0.85rem">
+
+        <!-- Header -->
+        <div>
+          <div style="font-size:18px;font-weight:700;color:#1a1a1a" id="eventsTitle">Madinah Events</div>
+          <div style="font-size:13px;color:#888;margin-top:2px" id="eventsSub">Upcoming events in Al-Madinah Al-Munawwarah</div>
+        </div>
+
+        <!-- Filter pills -->
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px" id="eventsPills">
+          <div class="cat-pill on" onclick="filterEvents(this,'all')" id="epill-all">🗓️ All</div>
+          <div class="cat-pill" onclick="filterEvents(this,'sport')">🏃 Sport</div>
+          <div class="cat-pill" onclick="filterEvents(this,'culture')">🎭 Culture</div>
+          <div class="cat-pill" onclick="filterEvents(this,'forum')">🎤 Forums</div>
+          <div class="cat-pill" onclick="filterEvents(this,'heritage')">🏛️ Heritage</div>
+          <div class="cat-pill" onclick="filterEvents(this,'food')">🍽️ Food</div>
+          <div class="cat-pill" onclick="filterEvents(this,'other')">✨ Other</div>
+        </div>
+
+        <!-- Events list -->
+        <div id="eventsList">
+          <div style="text-align:center;padding:3rem 1rem;color:#aaa">
+            <div style="font-size:40px;margin-bottom:0.75rem">📅</div>
+            <div style="font-size:14px" id="eventsEmptyLbl">Loading events…</div>
+          </div>
+        </div>
+
+        <!-- Source credit -->
+        <div style="font-size:11px;color:#aaa;text-align:center;padding:0.5rem 0" id="eventsSourceLbl">
+          Source: Visit Madinah · visitmadinahsa.com
+        </div>
+
+      </div>
+    </div>
+
     <!-- CALL -->
     <div class="pane hidden" id="pane-call">
       <div class="call-wrap">
@@ -280,6 +327,7 @@
     <button class="bn" id="bn-plan" onclick="showTab('plan')"><span class="bn-icon">🔍</span><span class="bn-lbl" id="bnl-plan">Plan</span></button>
     <button class="bn on" id="bn-places" onclick="showTab('places')"><span class="bn-icon">🕌</span><span class="bn-lbl" id="bnl-places">Places</span></button>
     <button class="bn" id="bn-prayer" onclick="showTab('prayer')"><span class="bn-icon">🕐</span><span class="bn-lbl" id="bnl-prayer">Prayer</span></button>
+    <button class="bn" id="bn-events" onclick="showTab('events')"><span class="bn-icon">📅</span><span class="bn-lbl" id="bnl-events">Events</span></button>
     <button class="bn" id="bn-call" onclick="showTab('call')"><span class="bn-icon">📞</span><span class="bn-lbl" id="bnl-call">Call guide</span></button>
   </div>
 </div>
@@ -398,6 +446,8 @@ function chooseLang(lang){
   // Prayer tab label per language
   const prayerLabels={en:'Prayer',ar:'الصلاة',ur:'نماز',fr:'Prière',id:'Sholat',tr:'Namaz',ru:'Намаз'};
   const pEl=document.getElementById('bnl-prayer'); if(pEl) pEl.textContent=prayerLabels[lang]||'Prayer';
+  const eventsLabels={en:'Events',ar:'الفعاليات',ur:'تقریبات',fr:'Événements',id:'Acara',tr:'Etkinlikler',ru:'События'};
+  const eEl=document.getElementById('bnl-events'); if(eEl) eEl.textContent=eventsLabels[lang]||'Events';
   document.getElementById('callNowBtn').textContent=t.callNow;
   document.getElementById('userInput').placeholder=t.placeholder;
   document.getElementById('userInput').dir=rtl?'rtl':'ltr';
@@ -409,12 +459,117 @@ function chooseLang(lang){
   requestLocation();
 }
 
+// ══ EVENTS ════════════════════════════════════════════════════════════════════
+const EVENT_CATS = {
+  sport:   {en:'Sport',    ar:'رياضة', icon:'🏃'},
+  culture: {en:'Culture',  ar:'ثقافة', icon:'🎭'},
+  forum:   {en:'Forum',    ar:'منتدى', icon:'🎤'},
+  heritage:{en:'Heritage', ar:'تراث',  icon:'🏛️'},
+  food:    {en:'Food',     ar:'طعام',  icon:'🍽️'},
+  other:   {en:'Other',    ar:'أخرى',  icon:'✨'},
+};
+const EVENT_CAT_ICONS = {sport:'🏃',culture:'🎭',forum:'🎤',heritage:'🏛️',food:'🍽️',other:'✨'};
+let allEvents=[], curEventCat='all';
+
+async function loadEvents(){
+  const list=document.getElementById('eventsList');
+  try{
+    const r=await fetch(`${BACKEND}/events`);
+    const d=await r.json();
+    if(!d.success) throw new Error(d.error);
+    allEvents=d.events||[];
+    renderEvents();
+  }catch(e){
+    const empty={en:'No events right now — check back soon!',ar:'لا توجد فعاليات حالياً',ur:'ابھی کوئی ایونٹ نہیں',fr:'Aucun événement pour le moment',id:'Tidak ada acara saat ini',tr:'Şu an etkinlik yok',ru:'Пока нет мероприятий'};
+    list.innerHTML=`<div style="text-align:center;padding:3rem 1rem;color:#aaa"><div style="font-size:40px;margin-bottom:0.75rem">📅</div><div style="font-size:14px">${empty[curLang]||empty.en}</div></div>`;
+  }
+}
+
+function filterEvents(el,cat){
+  curEventCat=cat;
+  document.querySelectorAll('#eventsPills .cat-pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  renderEvents();
+}
+
+function renderEvents(){
+  const list=document.getElementById('eventsList');
+  const lang=curLang; const rtl=lang==='ar'||lang==='ur';
+  const now=new Date();
+  const filtered=curEventCat==='all'?allEvents:allEvents.filter(e=>e.category===curEventCat);
+  const sorted=[...filtered].sort((a,b)=>new Date(a.start_date)-new Date(b.start_date));
+
+  if(!sorted.length){
+    const empty={en:'No events in this category',ar:'لا توجد فعاليات في هذا التصنيف',ur:'اس زمرے میں کوئی ایونٹ نہیں',fr:'Aucun événement dans cette catégorie',id:'Tidak ada acara di kategori ini',tr:'Bu kategoride etkinlik yok',ru:'В этой категории нет мероприятий'};
+    list.innerHTML=`<div style="text-align:center;padding:3rem 1rem;color:#aaa"><div style="font-size:36px;margin-bottom:0.75rem">🔍</div><div style="font-size:13px">${empty[lang]||empty.en}</div></div>`;
+    return;
+  }
+  list.innerHTML='';
+  sorted.forEach(ev=>{
+    const title=(rtl&&ev.title_ar)?ev.title_ar:ev.title_en;
+    const titleAlt=rtl?ev.title_en:ev.title_ar;
+    const desc=(rtl&&ev.desc_ar)?ev.desc_ar:ev.desc_en;
+    const catInfo=EVENT_CATS[ev.category]||EVENT_CATS.other;
+    const catLabel=lang==='ar'?catInfo.ar:catInfo.en;
+    const icon=EVENT_CAT_ICONS[ev.category]||'✨';
+    const startDate=new Date(ev.start_date);
+    const endDate=ev.end_date?new Date(ev.end_date):null;
+    const isPast=endDate?endDate<now:startDate<now;
+    const isToday=startDate.toDateString()===now.toDateString();
+    const dateOpts={day:'numeric',month:'short'};
+    const locale=lang==='ar'?'ar-SA':lang==='ru'?'ru-RU':lang==='tr'?'tr-TR':'en-US';
+    const dateStr=startDate.toLocaleDateString(locale,dateOpts);
+    const endStr=endDate?' → '+endDate.toLocaleDateString(locale,dateOpts):'';
+    const todayLabel={en:'Today',ar:'اليوم',ur:'آج',fr:"Aujourd'hui",id:'Hari ini',tr:'Bugün',ru:'Сегодня'};
+    const pastLabel={en:'Ended',ar:'انتهت',ur:'ختم',fr:'Terminé',id:'Selesai',tr:'Bitti',ru:'Завершено'};
+    const dateBadge=isPast?`<div class="event-date-badge" style="background:#f0f0f0;color:#999">${pastLabel[lang]||pastLabel.en}</div>`:isToday?`<div class="event-date-badge" style="background:#1D9E75;color:#fff">${todayLabel[lang]||todayLabel.en}</div>`:`<div class="event-date-badge">${dateStr}</div>`;
+    const imgHtml=ev.img?`<div class="event-img" style="padding:0"><img src="${ev.img}" alt="${ev.title_en}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:50px\\'>${icon}</span>'"/></div>`:`<div class="event-img">${icon}</div>`;
+    const card=document.createElement('div');
+    card.className='event-card';
+    card.style.opacity=isPast?'0.6':'1';
+    card.onclick=()=>openEventModal(ev);
+    card.innerHTML=`<div style="position:relative">${imgHtml}<div class="event-cat-badge">${icon} ${catLabel}</div>${dateBadge}</div><div class="event-body"><div class="event-title">${title}</div>${titleAlt?`<div class="event-title-ar">${titleAlt}</div>`:''}<div class="event-meta"><span>📅 ${dateStr}${endStr}</span>${ev.location_en?`<span>📍 ${rtl&&ev.location_ar?ev.location_ar:ev.location_en}</span>`:''}<span style="color:${ev.cost?'#BA7517':'#0F6E56'};font-weight:600">${ev.cost||'Free'}</span></div>${desc?`<div style="font-size:12px;color:#888;margin-top:6px;line-height:1.5">${desc.slice(0,100)}${desc.length>100?'…':''}</div>`:''}</div>`;
+    list.appendChild(card);
+  });
+}
+
+function openEventModal(ev){
+  const lang=curLang; const rtl=lang==='ar'||lang==='ur';
+  const icon=EVENT_CAT_ICONS[ev.category]||'✨';
+  const catInfo=EVENT_CATS[ev.category]||EVENT_CATS.other;
+  const catLabel=lang==='ar'?catInfo.ar:catInfo.en;
+  const desc=(rtl&&ev.desc_ar)?ev.desc_ar:ev.desc_en;
+  const locale=lang==='ar'?'ar-SA':lang==='ru'?'ru-RU':lang==='tr'?'tr-TR':'en-US';
+  const dateOpts={weekday:'long',day:'numeric',month:'long',year:'numeric'};
+  const dateStr=new Date(ev.start_date).toLocaleDateString(locale,dateOpts);
+  const endStr=ev.end_date?' — '+new Date(ev.end_date).toLocaleDateString(locale,dateOpts):'';
+  const heroHtml=ev.img?`<div style="margin:-1rem -1.25rem 1rem;height:200px;overflow:hidden;border-radius:14px 14px 0 0"><img src="${ev.img}" style="width:100%;height:100%;object-fit:cover"/></div>`:`<div style="margin:-1rem -1.25rem 1rem;height:160px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:64px;border-radius:14px 14px 0 0">${icon}</div>`;
+  const mapsUrl=ev.lat&&ev.lng?`https://www.google.com/maps/dir/?api=1&destination=${ev.lat},${ev.lng}&destination_place_name=${encodeURIComponent(ev.location_en||ev.title_en)}`:ev.location_en?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((ev.location_en||ev.title_en)+' Madinah Saudi Arabia')}`:null;
+  document.getElementById('placeModalContent').innerHTML=`
+    ${heroHtml}
+    <div style="display:inline-flex;align-items:center;gap:6px;background:#E1F5EE;color:#085041;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:0.75rem">${icon} ${catLabel}</div>
+    <div style="font-size:19px;font-weight:700;color:#1a1a1a;margin-bottom:3px">${ev.title_en}</div>
+    ${ev.title_ar?`<div style="font-size:14px;color:#888;direction:rtl;margin-bottom:0.75rem">${ev.title_ar}</div>`:''}
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem">
+      <div style="font-size:13px;color:#555;display:flex;gap:8px"><span>📅</span><span>${dateStr}${endStr}</span></div>
+      ${ev.location_en?`<div style="font-size:13px;color:#555;display:flex;gap:8px"><span>📍</span><span>${rtl&&ev.location_ar?ev.location_ar:ev.location_en}</span></div>`:''}
+      <div style="font-size:13px;font-weight:600;color:${ev.cost?'#BA7517':'#0F6E56'}">${ev.cost||'✅ Free entry'}</div>
+    </div>
+    ${desc?`<p style="font-size:14px;color:#555;line-height:1.65;margin-bottom:1rem">${desc}</p>`:''}
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${ev.register_url?`<a href="${ev.register_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#1D9E75;color:#fff;border-radius:13px;font-size:14px;font-weight:600;text-decoration:none">🎟️ Register / Book</a>`:''}
+      ${mapsUrl?`<a href="${mapsUrl}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#085041;color:#fff;border-radius:13px;font-size:15px;font-weight:600;text-decoration:none">🗺️ Get directions</a>`:''}
+    </div>`;
+  document.getElementById('placeModal').classList.add('open');
+}
+
 function showTab(tab){
   document.querySelectorAll('.pane').forEach(p=>p.classList.add('hidden'));
   document.querySelectorAll('.bn').forEach(b=>b.classList.remove('on'));
   document.getElementById('pane-'+tab).classList.remove('hidden');
   document.getElementById('bn-'+tab).classList.add('on');
   if(tab==='prayer') loadPrayer();
+  if(tab==='events') loadEvents();
 }
 
 function hideWelcome(){
@@ -965,6 +1120,8 @@ function switchLang(lang){
   t.fd.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'d');if(e)e.textContent=v;});
   const prayerLabels={en:'Prayer',ar:'الصلاة',ur:'نماز',fr:'Prière',id:'Sholat',tr:'Namaz',ru:'Намаз'};
   const pEl=document.getElementById('bnl-prayer'); if(pEl) pEl.textContent=prayerLabels[lang]||'Prayer';
+  const eventsLabels={en:'Events',ar:'الفعاليات',ur:'تقریبات',fr:'Événements',id:'Acara',tr:'Etkinlikler',ru:'События'};
+  const eEl=document.getElementById('bnl-events'); if(eEl) eEl.textContent=eventsLabels[lang]||'Events';
   renderPlaces();
   if(!document.getElementById('pane-prayer').classList.contains('hidden')) loadPrayer();
 }
