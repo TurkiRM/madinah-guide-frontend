@@ -413,11 +413,21 @@ const PLACES = [
   {id:19,icon:'☕',cat:'coffee',nameEn:'Raslania',nameAr:'رسلانية',cost:'25 SAR',instagram:'raslania_sa',img:'photos/raslania.jpg',descEn:"Traditional Saudi coffee served with premium dates near the Prophet's Mosque.",descAr:'يقدم القهوة السعودية التقليدية مع التمور الفاخرة على قمة جبل عير.',lat:24.406263,lng:39.560847},
 
   // --- MARKET ---
-  {id:32,icon:'🌴',cat:'market',nameEn:'Madinah Dates Market',nameAr:'سوق التمور المركزي',cost:'Variable',instagram:null,img:'photos/dates-market.jpg',descEn:"The main hub for high-quality dates in Madinah, especially the famous Ajwa.",descAr:'المركز الرئيسي لأجود أنواع التمور في المدينة، وخاصة عجوة المدينة الشهيرة.',lat:24.4622,lng:39.5839},
+  {id:32,icon:'🌴',cat:'market',nameEn:'Madinah Dates Market',nameAr:'سوق التمور المركزي',cost:'Variable',instagram:null,img:'photos/dates-market.jpg',descEn:"The main hub for high-quality dates in Madinah, especially the famous Ajwa.",descAr:'المركز الرئيسي لأجود أنواع التمور في المدينة، وخاصة عجوة المدينة الشهيرة.',lat:24.4622,lng:39.5839,
+    branches:[
+      {nameEn:'Central Dates Market',   nameAr:'سوق التمور المركزي',  lat:24.4622,lng:39.5839},
+      {nameEn:"Near Prophet's Mosque",  nameAr:'قرب المسجد النبوي',   lat:24.4669,lng:39.6098},
+      {nameEn:'Al-Anbariyya Market',    nameAr:'سوق العنبرية',         lat:24.4675,lng:39.6092},
+    ]},
 
   // --- RESTAURANT ---
-  {id:33,icon:'🍗',cat:'restaurant',nameEn:'ALBAIK',nameAr:'البيك',cost:'20-40 SAR',instagram:'albaik',img:'photos/albaik.jpg',descEn:"Iconic Saudi fast-food chain famous for its broasted chicken and sauce, located in the Northern Central Area.",descAr:'سلسلة مطاعم الوجبات السريعة السعودية الشهيرة بتقديم الدجاج البروست، يقع في المنطقة المركزية الشمالية.',lat:24.4716,lng:39.6103},
-  {id:34,icon:'🍽️',cat:'restaurant',nameEn:'Souq Al Tabakha',nameAr:'سوق الطباخة',cost:'20-60 SAR',rating:4.2,instagram:null,img:'photos/tabakha.jpg',descEn:"A famous traditional food market known for authentic Madinah dishes like Kabli, Mandi, and local desserts.",descAr:'سوق شعبي شهير يضم مجموعة من المطاعم التي تقدم الأكلات المدينية التقليدية مثل الكابلي والمندي والسمك والمشويات والحلويات الشعبية.',lat:24.45927665649102,lng:39.61106684959041},
+  {id:33,icon:'🍗',cat:'restaurant',nameEn:'ALBAIK',nameAr:'البيك',cost:'20-40 SAR',instagram:'albaik',img:'photos/albaik.jpg',descEn:"Iconic Saudi fast-food chain famous for its broasted chicken and sauce. Multiple branches across Madinah.",descAr:'سلسلة مطاعم الوجبات السريعة السعودية الشهيرة بتقديم الدجاج البروست. فروع متعددة في المدينة.',lat:24.4716,lng:39.6103,
+    branches:[
+      {nameEn:'Northern Central Area',  nameAr:'المنطقة المركزية الشمالية', lat:24.4716,lng:39.6103},
+      {nameEn:'Near Haram',             nameAr:'بالقرب من الحرم',            lat:24.4668,lng:39.6087},
+      {nameEn:'Sultana Street',         nameAr:'شارع سلطانة',                lat:24.4821,lng:39.5802},
+      {nameEn:'Quba Road',              nameAr:'طريق قباء',                  lat:24.4512,lng:39.6180},
+    ]},
 ];
 
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
@@ -746,29 +756,59 @@ function openModal(p){
   const lang=curLang;const rtl=lang==='ar'||lang==='ur';
   const name=(rtl&&p.nameAr)?p.nameAr:p.nameEn;
   const desc=(lang==='ar'&&p.descAr)?p.descAr:p.descEn;
-  const mapsUrl=`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&destination_place_name=${encodeURIComponent(p.nameEn)}`;
-  const mapsSearch=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nameEn+' Madinah Saudi Arabia')}`;
-  const directionsUrl = p.lat&&p.lng ? mapsUrl : mapsSearch;
+
+  // Build directions section — branch picker if multiple outlets, single button otherwise
+  const dirLabel = {en:'Get directions',ar:'احصل على الاتجاهات',ur:'راستہ دیکھیں',fr:'Itinéraire',id:'Petunjuk arah',tr:'Yol tarifi',ru:'Маршрут'};
+  const branchLabel = {en:'Choose a branch',ar:'اختر الفرع',ur:'شاخ منتخب کریں',fr:'Choisir une succursale',id:'Pilih cabang',tr:'Şube seçin',ru:'Выберите филиал'};
+
+  let directionsHtml = '';
+  if(p.branches && p.branches.length > 1){
+    // Branch picker — show all branches as individual direction buttons
+    const branchBtns = p.branches.map(b => {
+      const bName = (rtl && b.nameAr) ? b.nameAr : b.nameEn;
+      const bUrl  = `https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lng}&destination_place_name=${encodeURIComponent(b.nameEn+' Madinah')}`;
+      return `<a href="${bUrl}" target="_blank"
+        style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:#f5f5f0;border-radius:11px;text-decoration:none;border:1px solid #e0e0e0">
+        <span style="font-size:18px">📍</span>
+        <span style="font-size:13px;font-weight:600;color:#1a1a1a;flex:1">${bName}</span>
+        <span style="font-size:12px;color:#085041;font-weight:600">→</span>
+      </a>`;
+    }).join('');
+    directionsHtml = `
+      <div style="font-size:13px;font-weight:600;color:#888;margin-bottom:8px">${branchLabel[lang]||branchLabel.en}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">${branchBtns}</div>`;
+  } else {
+    // Single location — one directions button
+    const mapsUrl    = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&destination_place_name=${encodeURIComponent(p.nameEn)}`;
+    const mapsSearch = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nameEn+' Madinah Saudi Arabia')}`;
+    const url = p.lat&&p.lng ? mapsUrl : mapsSearch;
+    directionsHtml = `<a href="${url}" target="_blank"
+      style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#085041;color:#fff;border-radius:13px;font-size:15px;font-weight:600;text-decoration:none">
+      🗺️ ${dirLabel[lang]||dirLabel.en}
+    </a>`;
+  }
 
   const heroImg = p.img
     ? `<div style="margin:-1rem -1.25rem 1rem;height:200px;overflow:hidden;border-radius:14px 14px 0 0"><img src="${p.img}" alt="${p.nameEn}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=\\'height:200px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:64px\\'>${p.icon}</div>'"/></div>`
     : `<div style="height:160px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:64px;margin:-1rem -1.25rem 1rem;border-radius:14px 14px 0 0">${p.icon}</div>`;
 
+  const branchCount = p.branches?.length > 1
+    ? `<span style="font-size:11px;background:#E1F5EE;color:#085041;padding:3px 9px;border-radius:10px;font-weight:600">${p.branches.length} ${lang==='ar'?'فروع':lang==='tr'?'şube':lang==='ru'?'филиала':'branches'}</span>`
+    : '';
+
   document.getElementById('placeModalContent').innerHTML=`
     ${heroImg}
     <div style="font-size:19px;font-weight:700;color:#1a1a1a;margin-bottom:3px">${p.nameEn}</div>
     ${p.nameAr?`<div style="font-size:14px;color:#888;direction:rtl;text-align:right;margin-bottom:0.75rem">${p.nameAr}</div>`:''}
-    <div style="display:flex;gap:8px;margin-bottom:0.85rem;flex-wrap:wrap">
+    <div style="display:flex;gap:8px;margin-bottom:0.85rem;flex-wrap:wrap;align-items:center">
       <span style="font-size:13px;color:#0F6E56;font-weight:600">${p.cost}</span>
       ${(()=>{const rv=ratingsCache[p.id];return rv&&rv.count>0?`<span style="font-size:13px;color:#BA7517;font-weight:600">★ ${rv.rating} <span style="font-weight:400;color:#aaa;font-size:12px">(${rv.count} ${curLang==='ar'?'تقييم':curLang==='tr'?'yorum':curLang==='ru'?'отзывов':'reviews'})</span></span>`:'';})()}
+      ${branchCount}
       ${p.instagram?`<span style="font-size:13px;color:#534AB7">📸 @${p.instagram}</span>`:''}
     </div>
     <p style="font-size:14px;color:#555;line-height:1.65;margin-bottom:1rem">${desc}</p>
     <div style="display:flex;flex-direction:column;gap:8px">
-      <a href="${directionsUrl}" target="_blank"
-        style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#085041;color:#fff;border-radius:13px;font-size:15px;font-weight:600;text-decoration:none">
-        🗺️ Get directions
-      </a>
+      ${directionsHtml}
       ${p.instagram?`
       <a href="https://instagram.com/${p.instagram}" target="_blank"
         style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#EEEDFE;color:#534AB7;border-radius:13px;font-size:14px;font-weight:600;text-decoration:none">
