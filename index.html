@@ -435,7 +435,14 @@ const PLACES = [
       {nameEn:'Aliat Mall',         nameAr:'العالية مول',                lat:24.414003035010282,lng:39.61943549593862},
       {nameEn:'Al Hijrah Walkway',              nameAr:'ممشى الهجرة',                  lat:24.424862,lng:39.594131},
     ]},
-  {id:34, icon:'🍽️', cat:'restaurant', nameEn:'Souq Al Tabakha', nameAr:'سوق الطباخة', cost:'3-100 SAR', rating:4.2, instagram:null, img:'photos/tabakha-market.jpg', descEn:"A famous traditional food destination known for authentic Madinah dishes like Kabli, Mandi, Grilled meats, fish and Magalgal.", descAr:' وجهة طعام شعبية شهيرة تضم مطاعم تقدم أكلات مدينية أصيلة مثل الكابلي والمندي والمقلقل والمشويات والسمك.', lat:24.45920, lng:39.61213},
+  {id:34, icon:'🍽️', cat:'restaurant', nameEn:'Souq Al Tabakha', nameAr:'سوق الطباخة', cost:'3-100 SAR', instagram:null, img:'photos/tabakha-market.jpg', descEn:"A famous traditional food destination known for authentic Madinah dishes like Kabli, Mandi, Grilled meats, fish and Magalgal.", descAr:' وجهة طعام شعبية شهيرة تضم مطاعم تقدم أكلات مدينية أصيلة مثل الكابلي والمندي والمقلقل والمشويات والسمك.', lat:24.45920, lng:39.61213},
+
+{id:42, icon:'🚌', cat:'transport', nameEn:'Madinah City Sightseeing Bus', nameAr:'الباص السياحي - المدينة المنورة', cost:'80-90 SAR', rating:4.5, instagram:'citysightseeingmadinah', img:'photos/bus.jpg', descEn:"A hop-on hop-off double-decker bus tour covering 12 major historic and modern landmarks with audio guides.", descAr:'جولة سياحية بالحافلة ذات الدورين تتيح لك الصعود والنزول في 12 محطة تشمل أهم المعالم التاريخية والحديثة.', lat:24.47259, lng:39.61161,
+  routes:[
+    {nameEn:'Green Route (Haram & Culture)', nameAr:'المسار الأخضر (الحرم والثقافة)', stops:['Al-Masjid an-Nabawi', 'Al-Baqi', 'Al-Manakha Square', 'Al-Salam Gate']},
+    {nameEn:'Red Route (History & Malls)', nameAr:'المسار الأحمر (التاريخ والأسواق)', stops:['Uhud Battlefield', 'Al-Noor Mall', 'Sultana Street', 'Al-Qiblatain Mosque', 'The Trench Battlefield', 'Quba Mosque', 'Hejaz Railway', 'Quba Boulevard']}
+  ]
+},
 ];
 
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
