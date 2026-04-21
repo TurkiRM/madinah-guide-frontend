@@ -1,4 +1,4 @@
-const CACHE = 'madinah-guide-v3';
+const CACHE = 'madinah-guide-v4';
 const STATIC = [
   './',
   'index.html',
