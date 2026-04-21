@@ -447,7 +447,6 @@ const PLACES = [
   ]
 },
 ];
-
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
 const ratingsCache = {}; // placeId -> {rating, count} fetched from backend
 
@@ -639,39 +638,39 @@ async function sendMessage(){
   addMsg('user',text);detectType(text);
   chatHistory.push({role:'user',content:text});
   showTyping();
-  const ratingStr = (p) => { const rv=ratingsCache[p.id]; return rv&&rv.count>0?`★${rv.rating}(${rv.count} reviews)`:'no ratings yet'; };
-  const mosques    = PLACES.filter(p=>p.cat==='mosque').map(p=>`• ${p.nameEn} (${p.nameAr}) — Free, ${ratingStr(p)} — ${p.descEn}`).join('\n');
-  const historic   = PLACES.filter(p=>p.cat==='historic').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ${ratingStr(p)} — ${p.descEn}`).join('\n');
-  const hotels     = PLACES.filter(p=>p.cat==='hotel').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ${ratingStr(p)} — ${p.descEn}`).join('\n');
-  const restaurants= PLACES.filter(p=>p.cat==='restaurant').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ${ratingStr(p)} — ${p.descEn}`).join('\n');
-  const shops      = PLACES.filter(p=>p.cat==='shop').map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}, ${ratingStr(p)} — ${p.descEn}`).join('\n');
+  const ratingStr = (p) => { const rv=ratingsCache[p.id]; return rv&&rv.count>0?`★${rv.rating}(${rv.count} reviews)`:''; };
+  const placeList = (cat) => PLACES.filter(p=>p.cat===cat).map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}${ratingStr(p)?' '+ratingStr(p):''} — ${p.descEn}`).join('\n');
   const bizContext = `
 
-MADINAH GUIDE — OUR VERIFIED PLACES DATABASE:
-Always recommend from this list first. Use the exact English names shown.
+MADINAH GUIDE — VERIFIED PLACES IN OUR APP:
+These are places we have personally verified and listed in our app. Always recommend these first and use their exact English names so they become tappable links.
 
-🕌 MOSQUES & PRAYER SITES:
-${mosques}
+🕌 MOSQUES (${PLACES.filter(p=>p.cat==='mosque').length} places):
+${placeList('mosque')}
 
 🏛️ HISTORIC SITES:
-${historic}
+${placeList('historic')}
 
-🏨 HOTELS (near Prophet's Mosque):
-${hotels}
+🏺 MUSEUMS:
+${placeList('museum')}
 
-🍽️ RESTAURANTS & FOOD:
-${restaurants}
+☕ COFFEE SHOPS:
+${placeList('coffee')}
 
-🛍️ SHOPS & MARKETS:
-${shops}
+🌴 MARKETS & DATES:
+${placeList('market')}
 
-RULES FOR AI PLANNER:
-- Build all itineraries using ONLY places from this list
-- When visitor asks for a day plan, pick from above by category
-- Always mention the cost in SAR and star rating
-- For pilgrim visitors: prioritise mosques → historic sites → shops (dates/attar)
-- For tourist visitors: prioritise historic sites → mosques → restaurants → shops
-- Never recommend places outside this list unless visitor specifically asks`;
+🍗 RESTAURANTS:
+${placeList('restaurant')}
+
+YOUR BEHAVIOUR RULES:
+1. ALWAYS recommend from our verified list above first when the category matches
+2. For hotels: we don't have hotels in our database yet — recommend well-known hotels near the Prophet's Mosque (Anwar Al Madinah Mövenpick, Dar Al Tawfiq, Al Shohada Hotel) and tell the visitor our app will have hotels soon
+3. For topics NOT in our database (transport, weather, dress code, Umrah rituals, general tips): answer freely using your knowledge — do NOT say "not in my database"
+4. NEVER say "I cannot find this in my database" or "this place is not listed" — instead either recommend from our list or answer from general knowledge
+5. For itineraries: combine our verified places with general hotel recommendations
+6. Always give costs in SAR, mention prayer times when relevant
+7. Be warm, helpful and deeply respectful of Islamic culture`;
   try{
     const r=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.slice(-10),language:curLang,visitorType:detectedType,bizContext,userLat,userLng})});
     const d=await r.json();
