@@ -1,40 +1,60 @@
 {
   "name": "Madinah Guide — دليل المدينة المنورة",
   "short_name": "Madinah Guide",
-  "description": "Your AI-powered guide to Madinah — trip planning, local businesses, and human guides",
-  "start_url": "/madinah-guide-frontend/",
-  "scope": "/madinah-guide-frontend/",
+  "description": "Your AI-powered guide to Al-Madinah Al-Munawwarah — places, prayer times, events and local guides",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "background_color": "#085041",
   "theme_color": "#085041",
   "lang": "ar",
+  "dir": "auto",
+  "categories": ["travel", "lifestyle", "navigation"],
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "categories": ["travel", "lifestyle", "navigation"],
-  "screenshots": [],
-  "shortcuts": [
-    {
-      "name": "Plan my trip",
-      "url": "/madinah-guide-frontend/#planner",
-      "description": "AI trip planner for Madinah"
+      "purpose": "any"
     },
     {
-      "name": "Call a guide",
-      "url": "/madinah-guide-frontend/#call",
-      "description": "Talk to a local Madinah guide"
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Plan my visit",
+      "short_name": "Plan",
+      "url": "/?tab=plan",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Prayer Times",
+      "short_name": "Prayer",
+      "url": "/?tab=prayer",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Call a Guide",
+      "short_name": "Call",
+      "url": "/?tab=call",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
