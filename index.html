@@ -216,6 +216,7 @@
           <div class="cat-pill" onclick="filterPlaces(this,'market')">🌴 Markets</div>
           <div class="cat-pill" onclick="filterPlaces(this,'coffee')">☕ Coffee</div>
           <div class="cat-pill" onclick="filterPlaces(this,'restaurant')">🍽️ Food</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'transport')">🚌 Transport</div>
         </div>
         <div id="placesList" style="display:flex;flex-direction:column;gap:0.75rem"></div>
       </div>
@@ -391,18 +392,19 @@ const PLACES = [
   {id:7,icon:'🪦',cat:'historic',nameEn:'Al-Baqi Cemetery',nameAr:'البقيع',cost:'Free',instagram:null,img:'photos/baqi.jpg',descEn:"Ancient cemetery where many companions of the Prophet ﷺ and his family are buried.",descAr:'المقبرة التي تضم قبور الصحابة وآل البيت.',lat:24.4674,lng:39.6145},
   {id:8,icon:'🏞️',cat:'historic',nameEn:'Wadi Al-Aqiq',nameAr:'وادي العقيق',cost:'Free',instagram:null,img:'photos/aqiq.jpg',descEn:'The "Blessed Valley" of Medina, featuring a beautiful modern walking trail.',descAr:'"الوادي المبارك" في المدينة، يتميز بممشى حديث وجميل.',lat:24.483722,lng:39.568801},
   {id:9,icon:'⛰️',cat:'historic',nameEn:'Mount Ayr',nameAr:'جبل عير',cost:'Free',instagram:null,img:'photos/ayr.jpg',descEn:"The southern boundary of Medina's sacred sanctuary.",descAr:'الحد الجنوبي لحرم المدينة المنورة.',lat:24.406263,lng:39.560847},
-  {id:36, icon:'🌳', cat:'historic', nameEn:'Al-Mustazill Garden & Adhaq Well', nameAr:'بستان المستظل وبئر عذق', cost:'Free', rating:4.4, instagram:null, img:'photos/mustazill.jpg', descEn:"The site where the people of Madinah received the Prophet ﷺ during the Hijrah.", descAr:'المكان الذي استقبل فيه أهل المدينة النبي ﷺ عند وصوله في الهجرة.', lat:24.4386, lng:39.6158},
-  {id:37, icon:'🌴', cat:'historic', nameEn:'Atra Garden', nameAr:'بستان عطرة', cost:'Free', rating:4.5, instagram:null, img:'photos/atra.jpg', descEn:"A historic farm reflecting the traditional agricultural heritage of Madinah.", descAr:'مزرعة تاريخية تعكس التراث الزراعي التقليدي للمدينة المنورة.', lat:24.4425, lng:39.6276},
-  {id:38, icon:'💧', cat:'historic', nameEn:'Gharas Well', nameAr:'بئر غرس', cost:'Free', rating:4.8, instagram:null, img:'photos/gharas.jpg', descEn:"A well dating back to the era of Prophet Muhammad ﷺ.", descAr:'بئر من عهد النبي محمد صلى الله عليه وسلم.', lat:24.4452, lng:39.6272},
-  {id:39, icon:'💧', cat:'historic', nameEn:'Bir Rumah (Othman Well)', nameAr:'بئر رومة (بئر عثمان)', cost:'Free', rating:4.7, instagram:null, img:'photos/rumah-well.jpg', descEn:"A historic well purchased by Othman bin Affan as an endowment.", descAr:'بئر تاريخي اشتراه عثمان بن عفان رضي الله عنه وجعله وقفاً للمسلمين.', lat:24.4931, lng:39.5852},
-  {id:40, icon:'🏰', cat:'historic', nameEn:'Urwah bin Al-Zubayr Palace', nameAr:'قصر عروة بن الزبير', cost:'Free', rating:4.6, instagram:null, img:'photos/urwah-palace.jpg', descEn:"A historic Umayyad palace located on the banks of Wadi Al-Aqiq, belonging to the scholar Urwah bin Al-Zubayr.", descAr:'قصر أموي تاريخي يقع على ضفاف وادي العقيق، يعود للفقيه التابعي عروة بن الزبير ويعد رمزاً للعمارة الإسلامية المبكرة.', lat:24.4505, lng:39.5817},
+  {id:36,icon:'🌳',cat:'historic',nameEn:'Al-Mustazill Garden & Adhaq Well',nameAr:'بستان المستظل وبئر عذق',cost:'Free',instagram:null,img:'photos/mustazill.jpg',descEn:"The site where the people of Madinah received the Prophet ﷺ during the Hijrah.",descAr:'المكان الذي استقبل فيه أهل المدينة النبي ﷺ عند وصوله في الهجرة.',lat:24.4386,lng:39.6158},
+  {id:37,icon:'🌴',cat:'historic',nameEn:'Atra Garden',nameAr:'بستان عطرة',cost:'Free',instagram:null,img:'photos/atra.jpg',descEn:"A historic farm reflecting the traditional agricultural heritage of Madinah.",descAr:'مزرعة تاريخية تعكس التراث الزراعي التقليدي للمدينة المنورة.',lat:24.4425,lng:39.6276},
+  {id:38,icon:'💧',cat:'historic',nameEn:'Gharas Well',nameAr:'بئر غرس',cost:'Free',instagram:null,img:'photos/gharas.jpg',descEn:"A well dating back to the era of Prophet Muhammad ﷺ.",descAr:'بئر من عهد النبي محمد صلى الله عليه وسلم.',lat:24.4452,lng:39.6272},
+  {id:39,icon:'💧',cat:'historic',nameEn:'Bir Rumah (Othman Well)',nameAr:'بئر رومة (بئر عثمان)',cost:'Free',instagram:null,img:'photos/rumah-well.jpg',descEn:"A historic well purchased by Othman bin Affan as an endowment.",descAr:'بئر تاريخي اشتراه عثمان بن عفان رضي الله عنه وجعله وقفاً للمسلمين.',lat:24.4931,lng:39.5852},
+  {id:40,icon:'🏰',cat:'historic',nameEn:'Urwah bin Al-Zubayr Palace',nameAr:'قصر عروة بن الزبير',cost:'Free',instagram:null,img:'photos/urwah-palace.jpg',descEn:"A historic Umayyad palace on the banks of Wadi Al-Aqiq, belonging to the scholar Urwah bin Al-Zubayr.",descAr:'قصر أموي تاريخي يقع على ضفاف وادي العقيق، يعود للفقيه التابعي عروة بن الزبير.',lat:24.4505,lng:39.5817},
+
   // --- MUSEUMS ---
   {id:10,icon:'🏛️',cat:'museum',nameEn:'Dar Al Madinah Museum',nameAr:'متحف دار المدينة',cost:'20 SAR',instagram:'daralmadinah',img:'photos/dar-museum.jpg',descEn:"Fascinating museum showcasing the history and heritage of Madinah through artifacts.",descAr:'متحف رائع يعرض تاريخ وتراث المدينة.',lat:24.477458,lng:39.687801},
   {id:11,icon:'📖',cat:'museum',nameEn:'King Fahd Quran Complex',nameAr:'مجمع الملك فهد لطباعة المصحف',cost:'Free',instagram:null,img:'photos/quran-complex.jpg',descEn:"The world's largest Quran printing facility. A must-visit for its craftsmanship.",descAr:'أكبر مطبعة للمصحف الشريف في العالم.',lat:24.5164,lng:39.5414},
   {id:12,icon:'✨',cat:'museum',nameEn:"International Prophet's Biography Museum",nameAr:'متحف السيرة النبوية',cost:'40 SAR',instagram:'salamforfairs',img:'photos/seerah-museum.jpg',descEn:"High-tech museum using VR and holograms to present the life of the Prophet ﷺ.",descAr:'متحف تقني يعرض سيرة النبي ﷺ باستخدام الواقع الافتراضي والهولوجرام.',lat:24.465882,lng:39.609331},
   {id:13,icon:'🚂',cat:'museum',nameEn:'Hijaz Railway Museum',nameAr:'متحف سكة الحديد الحجازية',cost:'Free',instagram:null,img:'photos/railway.jpg',descEn:"Historic railway station turned museum — part of the Damascus-Madinah line.",descAr:'محطة تاريخية تحولت إلى متحف يروي قصة الخط الحجازي.',lat:24.4619,lng:39.6010},
-  {id:41, icon:'🌳', cat:'museum', nameEn:'Al Safiyyah Museum & Park', nameAr:'متحف وبستان الصافية', cost:'Varies', rating:4.8, instagram:'alsafiyyahmp', img:'photos/safiyyah.jpg', descEn:"A cultural landmark near the Haram featuring a museum on the Story of Creation and lush gardens.", descAr:'معلم ثقافي بجوار الحرم يضم متحف "قصة الخلق" وحدائق غناء ونوافير مائية متميزة.', lat:24.46360, lng:39.61095},
-  
+  {id:41,icon:'🌳',cat:'museum',nameEn:'Al Safiyyah Museum & Park',nameAr:'متحف وبستان الصافية',cost:'Varies',instagram:'alsafiyyahmp',img:'photos/safiyyah.jpg',descEn:"A cultural landmark near the Haram featuring a museum on the Story of Creation and lush gardens.",descAr:'معلم ثقافي بجوار الحرم يضم متحف "قصة الخلق" وحدائق غناء ونوافير مائية متميزة.',lat:24.46360,lng:39.61095},
+
   // --- COFFEE ---
   {id:14,icon:'☕',cat:'coffee',nameEn:'Kiffa Roasters',nameAr:'محمصة كفة',cost:'30 SAR',instagram:'kiffaroaster',img:'photos/kiffa.jpg',descEn:"Specialty coffee roastery near the Haram, known for rich brews and turquoise interiors.",descAr:'محمصة قهوة مختصة بالقرب من الحرم، تشتهر بديكوراتها الفيروزية.',lat:24.473468,lng:39.608965},
   {id:15,icon:'☕',cat:'coffee',nameEn:'ROW Specialty Coffee',nameAr:'رو كافيه',cost:'25 SAR',instagram:'rowcafe.sa',img:'photos/row.jpg',descEn:"Elegant and aesthetic cafe famous for its signature Ajwa date cookies.",descAr:'كافيه أنيق ومميز يشتهر بكوكيز العجوة الفريد.',lat:24.467743,lng:39.575448},
@@ -412,34 +414,35 @@ const PLACES = [
   {id:19,icon:'☕',cat:'coffee',nameEn:'Raslania',nameAr:'رسلانية',cost:'25 SAR',instagram:'raslania_sa',img:'photos/raslania.jpg',descEn:"Traditional Saudi coffee served with premium dates near the Prophet's Mosque.",descAr:'يقدم القهوة السعودية التقليدية مع التمور الفاخرة على قمة جبل عير.',lat:24.406263,lng:39.560847},
 
   // --- MARKET ---
-  {id:32,icon:'🌴',cat:'market',nameEn:'Madinah Dates Market',nameAr:'سوق التمور المركزي',cost:'Variable',rating:4.4,instagram:null,img:'photos/dates-market.jpg',descEn:"The main hub for high-quality dates in Madinah, especially the famous Ajwa.",descAr:'المركز الرئيسي لأجود أنواع التمور في المدينة، وخاصة عجوة المدينة الشهيرة.',lat:24.462158332865897,lng:39.583518979919866},
-  {id:35,icon:'🌴',cat:'market',nameEn:'Central Dates Auction (Haraj)',nameAr:'حراج التمور المركزي',cost:'Variable',rating:4.5,instagram:null,img:'photos/dates-haraj.jpg',descEn:"The primary wholesale auction market for dates in Madinah, located near Aliat mall.",descAr:'سوق الحراج الرئيسي لبيع التمور بالجملة في المدينة المنورة، يقع بالقرب من العالية مول.',lat:24.42114735390935,lng:39.61821751035035},
-  {id:43, icon:'💎', cat:'market', nameEn:'Madinah International Shopping Center (Gold Market)', nameAr:'سوق المدينة الدولي (سوق الذهب)', cost:'Variable', rating:4.4, instagram:null, img:'photos/international-market.jpg', descEn:"The premier destination for gold and jewelry in Madinah, featuring a wide range of traditional and modern designs.", descAr:'الوجهة الأولى للذهب والمجوهرات في المدينة، يشتهر بتشكيلة واسعة من التصاميم التقليدية والحديثة.', lat:24.48350, lng:39.59766},
-  {id:44, icon:'📱', cat:'market', nameEn:'Mobile Market (Khalid bin Al-Waleed Rd)', nameAr:'سوق الجوالات (طريق خالد بن الوليد)', cost:'Variable', rating:4.4, instagram:null, img:'photos/mobile-market.jpg', descEn:"The primary hub for mobile phones, accessories, and maintenance in Madinah, located on Khalid bin Al-Waleed Road.", descAr:'المركز الرئيسي للهواتف المحمولة والإكسسوارات والصيانة في المدينة المنورة، يقع على طريق خالد بن الوليد.', lat:24.47793, lng:39.58632},
-  {id:45, icon:'📱', cat:'market', nameEn:'Al-Hizam Mobile Market', nameAr:'سوق الجوالات (شارع الحزام)', cost:'Variable', rating:4.2, instagram:null, img:'photos/hizam-mobile.jpg', descEn:"A major telecommunications hub on Prince Abdul Majeed Road (Al-Hizam), known for mobile sales and services.", descAr:'مركز اتصالات رئيسي يقع على طريق الأمير عبدالمجيد (الحزام)، يشتهر بمحلات بيع وصيانة الهواتف.', lat:24.47291, lng:39.63305},
-  // --- RESTAURANT ---
-  {id:33,icon:'🍗',cat:'restaurant',nameEn:'ALBAIK',nameAr:'البيك',cost:'20-40 SAR',instagram:'albaik',img:'photos/albaik.jpg',descEn:"Iconic Saudi fast-food chain famous for its broasted chicken and sauce. Multiple branches across Madinah.",descAr:'سلسلة مطاعم الوجبات السريعة السعودية الشهيرة بتقديم الدجاج البروست. فروع متعددة في المدينة.',lat:24.4716,lng:39.6103,
-    branches:[
-      {nameEn:'Northern Central Area',  nameAr:'المنطقة المركزية الشمالية', lat:24.471434,lng:39.61035},
-      {nameEn:'Al Manar Mall',             nameAr:'المنار مول',            lat:24.460837994271515,lng:39.58479100293733},
-      {nameEn:'Salam Street',         nameAr:'شارع السلام',                lat:24.485280,lng:39.533133},
-      {nameEn:'Al Hassan Mall',              nameAr:'الحسن مول',                  lat:24.49805651720019,lng:39.618709676682364},
-      {nameEn:'Noor Mall',  nameAr:'النور مول', lat:24.49624,lng:39.59514},
-      {nameEn:'High Speed Train Station',             nameAr:'محطة القطار السريع',            lat:24.473863787460672,lng:39.7002492270986},
-      {nameEn:'Prince Megran University',         nameAr:'جامعة الأمير مقرن',                lat:24.476988501839585,lng:39.710076841039694},
-      {nameEn:'Al Khaldiah dis.',              nameAr:'الخالدية',                  lat:24.44436,lng:39.65018},
-      {nameEn:'Al Muhammadiah',             nameAr:'المحمدية',            lat:24.42238,lng:39.63808},
-      {nameEn:'Aliat Mall',         nameAr:'العالية مول',                lat:24.414003035010282,lng:39.61943549593862},
-      {nameEn:'Al Hijrah Walkway',              nameAr:'ممشى الهجرة',                  lat:24.424862,lng:39.594131},
-    ]},
-  {id:34, icon:'🍽️', cat:'restaurant', nameEn:'Souq Al Tabakha', nameAr:'سوق الطباخة', cost:'3-100 SAR', instagram:null, img:'photos/tabakha-market.jpg', descEn:"A famous traditional food destination known for authentic Madinah dishes like Kabli, Mandi, Grilled meats, fish and Magalgal.", descAr:' وجهة طعام شعبية شهيرة تضم مطاعم تقدم أكلات مدينية أصيلة مثل الكابلي والمندي والمقلقل والمشويات والسمك.', lat:24.45920, lng:39.61213},
+  {id:32,icon:'🌴',cat:'market',nameEn:'Madinah Dates Market',nameAr:'سوق التمور المركزي',cost:'Variable',instagram:null,img:'photos/dates-market.jpg',descEn:"The main hub for high-quality dates in Madinah, especially the famous Ajwa.",descAr:'المركز الرئيسي لأجود أنواع التمور في المدينة، وخاصة عجوة المدينة الشهيرة.',lat:24.462158,lng:39.583519},
+  {id:35,icon:'🌴',cat:'market',nameEn:'Central Dates Auction (Haraj)',nameAr:'حراج التمور المركزي',cost:'Variable',instagram:null,img:'photos/dates-haraj.jpg',descEn:"The primary wholesale auction market for dates in Madinah, located near Aliat mall.",descAr:'سوق الحراج الرئيسي لبيع التمور بالجملة في المدينة المنورة، يقع بالقرب من العالية مول.',lat:24.421147,lng:39.618218},
+  {id:43,icon:'💎',cat:'market',nameEn:'Madinah International Shopping Center (Gold Market)',nameAr:'سوق المدينة الدولي (سوق الذهب)',cost:'Variable',instagram:null,img:'photos/international-market.jpg',descEn:"The premier destination for gold and jewelry in Madinah, featuring a wide range of traditional and modern designs.",descAr:'الوجهة الأولى للذهب والمجوهرات في المدينة، يشتهر بتشكيلة واسعة من التصاميم التقليدية والحديثة.',lat:24.48350,lng:39.59766},
+  {id:44,icon:'📱',cat:'market',nameEn:'Mobile Market (Khalid bin Al-Waleed Rd)',nameAr:'سوق الجوالات (طريق خالد بن الوليد)',cost:'Variable',instagram:null,img:'photos/mobile-market.jpg',descEn:"The primary hub for mobile phones, accessories, and maintenance in Madinah.",descAr:'المركز الرئيسي للهواتف المحمولة والإكسسوارات والصيانة في المدينة المنورة.',lat:24.47793,lng:39.58632},
+  {id:45,icon:'📱',cat:'market',nameEn:'Al-Hizam Mobile Market',nameAr:'سوق الجوالات (شارع الحزام)',cost:'Variable',instagram:null,img:'photos/hizam-mobile.jpg',descEn:"A major telecommunications hub on Prince Abdul Majeed Road (Al-Hizam), known for mobile sales and services.",descAr:'مركز اتصالات رئيسي على طريق الأمير عبدالمجيد (الحزام)، يشتهر بمحلات بيع وصيانة الهواتف.',lat:24.47291,lng:39.63305},
 
-{id:42, icon:'🚌', cat:'transport', nameEn:'Madinah City Sightseeing Bus', nameAr:'الباص السياحي - المدينة المنورة', cost:'80-90 SAR', rating:4.5, instagram:'citysightseeingmadinah', img:'photos/bus.jpg', descEn:"A hop-on hop-off double-decker bus tour covering 12 major historic and modern landmarks with audio guides.", descAr:'جولة سياحية بالحافلة ذات الدورين تتيح لك الصعود والنزول في 12 محطة تشمل أهم المعالم التاريخية والحديثة.', lat:24.47259, lng:39.61161,
-  routes:[
-    {nameEn:'Green Route (Haram & Culture)', nameAr:'المسار الأخضر (الحرم والثقافة)', stops:['Al-Masjid an-Nabawi', 'Al-Baqi', 'Al-Manakha Square', 'Al-Salam Gate']},
-    {nameEn:'Red Route (History & Malls)', nameAr:'المسار الأحمر (التاريخ والأسواق)', stops:['Uhud Battlefield', 'Al-Noor Mall', 'Sultana Street', 'Al-Qiblatain Mosque', 'The Trench Battlefield', 'Quba Mosque', 'Hejaz Railway', 'Quba Boulevard']}
-  ]
-},
+  // --- RESTAURANT ---
+  {id:33,icon:'🍗',cat:'restaurant',nameEn:'ALBAIK',nameAr:'البيك',cost:'20-40 SAR',instagram:'albaik',img:'photos/albaik.jpg',descEn:"Iconic Saudi fast-food chain famous for its broasted chicken and sauce. Multiple branches across Madinah.",descAr:'سلسلة مطاعم الوجبات السريعة السعودية الشهيرة بتقديم الدجاج البروست. فروع متعددة في المدينة.',lat:24.471434,lng:39.61035,
+    branches:[
+      {nameEn:'Northern Central Area',    nameAr:'المنطقة المركزية الشمالية', lat:24.471434,  lng:39.61035},
+      {nameEn:'Al Manar Mall',            nameAr:'المنار مول',                lat:24.460838,  lng:39.584791},
+      {nameEn:'Salam Street',             nameAr:'شارع السلام',               lat:24.485280,  lng:39.533133},
+      {nameEn:'Al Hassan Mall',           nameAr:'الحسن مول',                 lat:24.498057,  lng:39.618710},
+      {nameEn:'Noor Mall',                nameAr:'النور مول',                 lat:24.49624,   lng:39.59514},
+      {nameEn:'High Speed Train Station', nameAr:'محطة القطار السريع',        lat:24.473864,  lng:39.700249},
+      {nameEn:'Prince Megran University', nameAr:'جامعة الأمير مقرن',         lat:24.476989,  lng:39.710077},
+      {nameEn:'Al Khaldiah',              nameAr:'الخالدية',                  lat:24.44436,   lng:39.65018},
+      {nameEn:'Al Muhammadiah',           nameAr:'المحمدية',                  lat:24.42238,   lng:39.63808},
+      {nameEn:'Aliat Mall',               nameAr:'العالية مول',               lat:24.414003,  lng:39.619435},
+      {nameEn:'Al Hijrah Walkway',        nameAr:'ممشى الهجرة',               lat:24.424862,  lng:39.594131},
+    ]},
+  {id:34,icon:'🍽️',cat:'restaurant',nameEn:'Souq Al Tabakha',nameAr:'سوق الطباخة',cost:'3-100 SAR',instagram:null,img:'photos/tabakha-market.jpg',descEn:"A famous traditional food destination known for authentic Madinah dishes like Kabli, Mandi, Grilled meats, fish and Magalgal.",descAr:'وجهة طعام شعبية شهيرة تضم مطاعم تقدم أكلات مدينية أصيلة مثل الكابلي والمندي والمقلقل والمشويات والسمك.',lat:24.45920,lng:39.61213},
+
+  // --- TRANSPORT ---
+  {id:42,icon:'🚌',cat:'transport',nameEn:'Madinah City Sightseeing Bus',nameAr:'الباص السياحي - المدينة المنورة',cost:'80-90 SAR',instagram:'citysightseeingmadinah',img:'photos/bus.jpg',descEn:"A hop-on hop-off double-decker bus tour covering 12 major historic and modern landmarks with audio guides.",descAr:'جولة سياحية بالحافلة ذات الدورين تتيح لك الصعود والنزول في 12 محطة تشمل أهم المعالم التاريخية والحديثة.',lat:24.47259,lng:39.61161,
+    routes:[
+      {nameEn:'Green Route (Haram & Culture)',  nameAr:'المسار الأخضر (الحرم والثقافة)',  stops:['Al-Masjid an-Nabawi','Al-Baqi','Al-Manakha Square','Al-Salam Gate']},
+      {nameEn:'Red Route (History & Malls)',    nameAr:'المسار الأحمر (التاريخ والأسواق)', stops:['Uhud Battlefield','Al-Noor Mall','Sultana Street','Al-Qiblatain Mosque','The Trench Battlefield','Quba Mosque','Hejaz Railway','Quba Boulevard']},
+    ]},
 ];
 
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
@@ -774,7 +777,22 @@ function openModal(p){
   const branchLabel = {en:'Choose a branch',ar:'اختر الفرع',ur:'شاخ منتخب کریں',fr:'Choisir une succursale',id:'Pilih cabang',tr:'Şube seçin',ru:'Выберите филиал'};
 
   let directionsHtml = '';
-  if(p.branches && p.branches.length > 1){
+  // Transport routes display
+  if(p.routes && p.routes.length > 0){
+    const routeBtns = p.routes.map(r => {
+      const rName = (rtl && r.nameAr) ? r.nameAr : r.nameEn;
+      const stops = r.stops.join(' → ');
+      return `<div style="background:#f5f5f0;border-radius:11px;padding:11px 14px;border:1px solid #e0e0e0">
+        <div style="font-size:13px;font-weight:600;color:#085041;margin-bottom:4px">${rName}</div>
+        <div style="font-size:11px;color:#888;line-height:1.5">📍 ${stops}</div>
+      </div>`;
+    }).join('');
+    const bookUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&destination_place_name=${encodeURIComponent(p.nameEn)}`;
+    directionsHtml = `
+      <div style="font-size:13px;font-weight:600;color:#888;margin-bottom:8px">${curLang==='ar'?'المسارات':'Routes'}</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">${routeBtns}</div>
+      <a href="${bookUrl}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#085041;color:#fff;border-radius:13px;font-size:14px;font-weight:600;text-decoration:none">🗺️ ${dirLabel[lang]||dirLabel.en}</a>`;
+  } else if(p.branches && p.branches.length > 1){
     // Branch picker — show all branches as individual direction buttons
     const branchBtns = p.branches.map(b => {
       const bName = (rtl && b.nameAr) ? b.nameAr : b.nameEn;
