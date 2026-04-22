@@ -942,7 +942,7 @@ function openModal(p){
         style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#EEEDFE;color:#534AB7;border-radius:13px;font-size:14px;font-weight:600;text-decoration:none">
         📸 Follow on Instagram
       </a>`:''}
-      <button onclick="askPlace('${p.nameEn}')"
+      <button onclick="askPlace('${p.nameEn}', '${p.nameAr||''}')"
         style="width:100%;padding:13px;background:#E1F5EE;color:#085041;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">
         🔍 Ask AI about this place
       </button>
@@ -961,10 +961,25 @@ function openModal(p){
   loadReviews(p.id);
 }
 
-function askPlace(name){
+function askPlace(nameEn, nameAr){
   document.getElementById('placeModal').classList.remove('open');
-  document.getElementById('userInput').value=`Tell me about ${name}`;
-  showTab('plan');sendMessage();
+  const rtl = curLang==='ar'||curLang==='ur';
+  // Use Arabic name for RTL languages, English for others
+  const placeName = rtl && nameAr ? nameAr : nameEn;
+  // "Tell me about" in each language
+  const prefix = {
+    en: 'Tell me about',
+    ar: 'أخبرني عن',
+    ur: 'مجھے بتائیں',
+    fr: 'Parlez-moi de',
+    id: 'Ceritakan tentang',
+    tr: 'Hakkında bilgi ver:',
+    ru: 'Расскажи мне о',
+  };
+  const p = prefix[curLang] || prefix.en;
+  document.getElementById('userInput').value = `${p} ${placeName}`;
+  showTab('plan');
+  sendMessage();
 }
 
 document.getElementById('placeModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
