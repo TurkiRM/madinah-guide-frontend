@@ -1333,6 +1333,43 @@ function goToCall(){window.location.href=CALL_URL;}
 
 const saved=localStorage.getItem('mg_lang');
 if(saved)chooseLang(saved);
+
+// ── Android back button handler ────────────────────────────────────────────────
+// Push a dummy history state so the back button has somewhere to go
+// Instead of exiting the app, we intercept it and close modals or do nothing
+
+function pushDummyState(){
+  history.pushState({ page: 'app' }, '', window.location.href);
+}
+
+// Push initial state once app is visible
+window.addEventListener('load', () => {
+  setTimeout(pushDummyState, 500);
+});
+
+window.addEventListener('popstate', (e) => {
+  // Always push a new state to prevent exit
+  pushDummyState();
+
+  // Priority: close open modals first, then iOS modal, then lang modal
+  const placeModal = document.getElementById('placeModal');
+  const langModal  = document.getElementById('langModal');
+  const iosModal   = document.getElementById('iosModal');
+
+  if(placeModal?.classList.contains('open')){
+    placeModal.classList.remove('open');
+    return;
+  }
+  if(langModal?.classList.contains('open')){
+    langModal.classList.remove('open');
+    return;
+  }
+  if(iosModal?.style.display === 'flex'){
+    iosModal.style.display = 'none';
+    return;
+  }
+  // Nothing open — back button does nothing (stays in app)
+});
 </script>
 </body>
 </html>
