@@ -357,30 +357,6 @@
   <button onclick="document.getElementById('samsungBanner').style.display='none'" style="margin-left:10px;background:none;border:1px solid rgba(255,255,255,0.5);color:#fff;border-radius:8px;padding:2px 8px;font-size:12px;cursor:pointer">✕</button>
 </div>
 
-<!-- iOS Install Guide Modal -->
-<div id="iosModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;align-items:flex-end;justify-content:center;display:none">
-  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;padding:1.5rem 1.25rem;padding-bottom:calc(2rem + env(safe-area-inset-bottom))">
-    <div style="width:40px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 1.25rem"></div>
-    <div style="font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:4px;text-align:center" id="iosModalTitle">Install Madinah Guide</div>
-    <div style="font-size:13px;color:#888;text-align:center;margin-bottom:1.25rem" id="iosModalSub">Add to your home screen for the best experience</div>
-    <div style="display:flex;flex-direction:column;gap:0.85rem;margin-bottom:1.25rem">
-      <div style="display:flex;align-items:center;gap:12px;background:#f5f5f0;border-radius:12px;padding:0.85rem">
-        <div style="font-size:28px;flex-shrink:0">1️⃣</div>
-        <div id="iosStep1" style="font-size:13px;color:#1a1a1a;line-height:1.5">Tap the <strong>Share</strong> button <span style="font-size:18px">⬆️</span> at the bottom of Safari</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;background:#f5f5f0;border-radius:12px;padding:0.85rem">
-        <div style="font-size:28px;flex-shrink:0">2️⃣</div>
-        <div id="iosStep2" style="font-size:13px;color:#1a1a1a;line-height:1.5">Scroll down and tap <strong>"Add to Home Screen"</strong> 📱</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;background:#f5f5f0;border-radius:12px;padding:0.85rem">
-        <div style="font-size:28px;flex-shrink:0">3️⃣</div>
-        <div id="iosStep3" style="font-size:13px;color:#1a1a1a;line-height:1.5">Tap <strong>"Add"</strong> in the top right corner ✅</div>
-      </div>
-    </div>
-    <button onclick="closeIosModal()" style="width:100%;padding:14px;background:#085041;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer" id="iosModalBtn">Got it!</button>
-  </div>
-</div>
-
 <div class="install-banner" id="installBanner">
   <div class="ib-text">📱 <strong>Add to home screen</strong> for the best experience</div>
   <button class="ib-btn" id="installBtn">Install</button>
@@ -504,55 +480,6 @@ if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch
 // Show Chrome recommendation to Samsung Browser users
 if(navigator.userAgent.includes('SamsungBrowser')){
   document.getElementById('samsungBanner').style.display='block';
-}
-
-// ── iOS Install Guide ──────────────────────────────────────────────────────────
-const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const isInStandaloneMode = window.navigator.standalone === true;
-
-if(isIos && !isInStandaloneMode){
-  // Show iOS install banner after 3 seconds
-  // Only show once per session
-  if(!sessionStorage.getItem('ios_banner_shown')){
-    setTimeout(() => {
-      const banner = document.getElementById('installBanner');
-      if(banner){
-        // Change banner text for iOS
-        const ibText = banner.querySelector('.ib-text');
-        if(ibText) ibText.innerHTML = '📱 <strong>Add to Home Screen</strong> for the best experience';
-        const ibBtn = banner.querySelector('.ib-btn');
-        if(ibBtn){ ibBtn.textContent = 'How?'; ibBtn.onclick = openIosModal; }
-        banner.style.display = 'flex';
-        sessionStorage.setItem('ios_banner_shown', '1');
-      }
-    }, 3000);
-  }
-}
-
-function openIosModal(){
-  // Translate modal content based on current language
-  const titles = {en:'Install Madinah Guide',ar:'تثبيت دليل المدينة',ur:'ایپ انسٹال کریں',fr:'Installer Madinah Guide',id:'Pasang Madinah Guide',tr:'Uygulamayı Yükle',ru:'Установить приложение'};
-  const subs   = {en:'Add to your home screen for the best experience',ar:'أضف للشاشة الرئيسية للحصول على أفضل تجربة',ur:'بہترین تجربے کے لیے ہوم اسکرین پر شامل کریں',fr:'Ajoutez à votre écran d'accueil',id:'Tambahkan ke layar utama',tr:'Ana ekrana ekle',ru:'Добавьте на главный экран'};
-  const step1  = {en:'Tap the <strong>Share</strong> button ⬆️ at the bottom of Safari',ar:'اضغط على زر <strong>مشاركة</strong> ⬆️ في أسفل Safari',ur:'Safari کے نچلے حصے میں <strong>Share</strong> بٹن ⬆️ دبائیں',fr:'Appuyez sur <strong>Partager</strong> ⬆️ en bas de Safari',id:'Ketuk tombol <strong>Bagikan</strong> ⬆️ di bawah Safari',tr:'Safari'nin altındaki <strong>Paylaş</strong> ⬆️ düğmesine dokunun',ru:'Нажмите кнопку <strong>Поделиться</strong> ⬆️ внизу Safari'};
-  const step2  = {en:'Scroll down and tap <strong>"Add to Home Screen"</strong> 📱',ar:'مرر للأسفل واضغط <strong>"إضافة للشاشة الرئيسية"</strong> 📱',ur:'نیچے اسکرول کریں اور <strong>"Add to Home Screen"</strong> 📱 دبائیں',fr:'Faites défiler et appuyez sur <strong>"Sur l'écran d'accueil"</strong> 📱',id:'Gulir ke bawah dan ketuk <strong>"Tambahkan ke Layar Utama"</strong> 📱',tr:'Aşağı kaydırın ve <strong>"Ana Ekrana Ekle"</strong> 📱 seçeneğine dokunun',ru:'Прокрутите вниз и нажмите <strong>"На экран «Домой»"</strong> 📱'};
-  const step3  = {en:'Tap <strong>"Add"</strong> in the top right corner ✅',ar:'اضغط <strong>"إضافة"</strong> في الزاوية العلوية اليمنى ✅',ur:'اوپر دائیں کونے میں <strong>"Add"</strong> دبائیں ✅',fr:'Appuyez sur <strong>"Ajouter"</strong> en haut à droite ✅',id:'Ketuk <strong>"Tambahkan"</strong> di pojok kanan atas ✅',tr:'Sağ üst köşedeki <strong>"Ekle"</strong> düğmesine dokunun ✅',ru:'Нажмите <strong>"Добавить"</strong> в правом верхнем углу ✅'};
-  const btns   = {en:'Got it!',ar:'فهمت!',ur:'سمجھ گیا!',fr:'Compris!',id:'Mengerti!',tr:'Anladım!',ru:'Понятно!'};
-
-  const lang = curLang || 'en';
-  document.getElementById('iosModalTitle').textContent = titles[lang]||titles.en;
-  document.getElementById('iosModalSub').textContent   = subs[lang]||subs.en;
-  document.getElementById('iosStep1').innerHTML        = step1[lang]||step1.en;
-  document.getElementById('iosStep2').innerHTML        = step2[lang]||step2.en;
-  document.getElementById('iosStep3').innerHTML        = step3[lang]||step3.en;
-  document.getElementById('iosModalBtn').textContent   = btns[lang]||btns.en;
-
-  const modal = document.getElementById('iosModal');
-  modal.style.display = 'flex';
-}
-
-function closeIosModal(){
-  document.getElementById('iosModal').style.display = 'none';
-  document.getElementById('installBanner').style.display = 'none';
 }
 
 // Request visitor location silently — used to give accurate distances in AI answers
