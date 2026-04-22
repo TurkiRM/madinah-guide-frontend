@@ -351,6 +351,12 @@
   </div>
 </div>
 
+<!-- Samsung Browser warning — only shows in Samsung Internet -->
+<div id="samsungBanner" style="display:none;position:fixed;top:0;left:0;right:0;background:#085041;color:#fff;padding:10px 1rem;font-size:13px;text-align:center;z-index:999;line-height:1.5">
+  📱 For the best experience, open <strong>madinahguide.net</strong> in <strong>Chrome</strong> to install the app
+  <button onclick="document.getElementById('samsungBanner').style.display='none'" style="margin-left:10px;background:none;border:1px solid rgba(255,255,255,0.5);color:#fff;border-radius:8px;padding:2px 8px;font-size:12px;cursor:pointer">✕</button>
+</div>
+
 <div class="install-banner" id="installBanner">
   <div class="ib-text">📱 <strong>Add to home screen</strong> for the best experience</div>
   <button class="ib-btn" id="installBtn">Install</button>
@@ -449,6 +455,11 @@ let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all
 const ratingsCache = {}; // placeId -> {rating, count} fetched from backend
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// Show Chrome recommendation to Samsung Browser users
+if(navigator.userAgent.includes('SamsungBrowser')){
+  document.getElementById('samsungBanner').style.display='block';
+}
 
 // Request visitor location silently — used to give accurate distances in AI answers
 function requestLocation(){
