@@ -961,6 +961,50 @@ function openModal(p){
   loadReviews(p.id);
 }
 
+// ── Nearby places with distances ──────────────────────────────────────────────
+function haversineKm(lat1, lng1, lat2, lng2){
+  const R = 6371;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLng = (lng2-lng1) * Math.PI/180;
+  const a = Math.sin(dLat/2)**2 +
+            Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+            Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function buildNearbyContext(fromPlace){
+  if(!fromPlace?.lat || !fromPlace?.lng) return '';
+
+  // Calculate distance from visitor's current position to this place
+  const visitorLat = userLat || MADINAH_LAT;
+  const visitorLng = userLng || MADINAH_LNG;
+  const distToPlace = haversineKm(visitorLat, visitorLng, fromPlace.lat, fromPlace.lng);
+
+  // Find nearby places sorted by distance from this place (within 3km)
+  const nearby = PLACES
+    .filter(p => p.id !== fromPlace.id && p.lat && p.lng)
+    .map(p => ({
+      ...p,
+      distFromPlace:   haversineKm(fromPlace.lat, fromPlace.lng, p.lat, p.lng),
+      distFromVisitor: haversineKm(visitorLat, visitorLng, p.lat, p.lng),
+    }))
+    .filter(p => p.distFromPlace <= 3)
+    .sort((a,b) => a.distFromPlace - b.distFromPlace)
+    .slice(0, 8);
+
+  if(!nearby.length) return '';
+
+  const fmtDist = (km) => km < 1
+    ? `${Math.round(km * 1000)}m`
+    : `${km.toFixed(1)}km`;
+
+  const placeLines = nearby.map(p =>
+    `- ${p.nameEn} (${p.nameAr}) — ${fmtDist(p.distFromPlace)} away, visitor is ${fmtDist(p.distFromVisitor)} from it`
+  ).join('\n');
+
+  return `\n\nMy current position is ${fmtDist(distToPlace)} from ${fromPlace.nameEn}.\nNearby places from our verified database:\n${placeLines}\n\nPlease recommend these based on proximity and suggest a walking order.`;
+}
+
 function askPlace(nameEn, nameAr, placeId){
   document.getElementById('placeModal').classList.remove('open');
   const rtl = curLang==='ar'||curLang==='ur';
@@ -982,32 +1026,35 @@ function askPlace(nameEn, nameAr, placeId){
       tr:'DOĞRULANMIŞ BİLGİ — yalnızca bunu kullanın:',
       ru:'ПРОВЕРЕННАЯ ИНФОРМАЦИЯ — используйте только это:',
     };
-    const prefix = {
-      en:`Tell me about ${nameEn}. What other places nearby are worth visiting?`,
-      ar:`أخبرني عن ${nameAr||nameEn}. ما هي الأماكن القريبة الأخرى التي تستحق الزيارة؟`,
-      ur:`مجھے ${nameEn} کے بارے میں بتائیں۔ قریب میں اور کون سی قابل دید جگہیں ہیں؟`,
-      fr:`Parlez-moi de ${nameEn}. Quels autres endroits proches méritent une visite ?`,
-      id:`Ceritakan tentang ${nameEn}. Tempat apa lagi di sekitarnya yang layak dikunjungi?`,
-      tr:`${nameEn} hakkında bilgi ver. Yakınında ziyaret etmeye değer başka yerler var mı?`,
-      ru:`Расскажи мне о ${nameEn}. Какие ещё места рядом стоит посетить?`,
+    // Build nearby places list with distances from current place
+    const nearbyContext = buildNearbyContext(place);
+    const nearby = {
+      en:`What other places near ${nameEn} are worth visiting? ${nearbyContext}`,
+      ar:`ما هي الأماكن القريبة من ${nameAr||nameEn} التي تستحق الزيارة؟ ${nearbyContext}`,
+      ur:`${nameEn} کے قریب کون سی جگہیں قابل دید ہیں؟ ${nearbyContext}`,
+      fr:`Quels autres endroits proches de ${nameEn} méritent une visite ? ${nearbyContext}`,
+      id:`Tempat apa saja di dekat ${nameEn} yang layak dikunjungi? ${nearbyContext}`,
+      tr:`${nameEn} yakınında ziyaret etmeye değer başka yerler neler? ${nearbyContext}`,
+      ru:`Какие места рядом с ${nameEn} стоит посетить? ${nearbyContext}`,
     };
-    const msg = `${prefix[curLang]||prefix.en}
+    const msg = `${nearby[curLang]||nearby.en}
 
 ${infoLabel[curLang]||infoLabel.en}
 ${verifiedInfo}`;
     document.getElementById('userInput').value = msg;
   } else {
-    // No verified info yet — send plain question
-    const prefix = {
-      en:`Tell me about ${nameEn}. What other places nearby are worth visiting?`,
-      ar:`أخبرني عن ${nameAr||nameEn}. ما هي الأماكن القريبة الأخرى التي تستحق الزيارة؟`,
-      ur:`مجھے ${nameEn} کے بارے میں بتائیں۔ قریب میں اور کون سی قابل دید جگہیں ہیں؟`,
-      fr:`Parlez-moi de ${nameEn}. Quels autres endroits proches méritent une visite ?`,
-      id:`Ceritakan tentang ${nameEn}. Tempat apa lagi di sekitarnya yang layak dikunjungi?`,
-      tr:`${nameEn} hakkında bilgi ver. Yakınında ziyaret etmeye değer başka yerler var mı?`,
-      ru:`Расскажи мне о ${nameEn}. Какие ещё места рядом стоит посетить?`,
+    // No verified info — just nearby question with distances
+    const nearbyContext = buildNearbyContext(place);
+    const nearby = {
+      en:`What other places near ${nameEn} are worth visiting? ${nearbyContext}`,
+      ar:`ما هي الأماكن القريبة من ${nameAr||nameEn} التي تستحق الزيارة؟ ${nearbyContext}`,
+      ur:`${nameEn} کے قریب کون سی جگہیں قابل دید ہیں؟ ${nearbyContext}`,
+      fr:`Quels autres endroits proches de ${nameEn} méritent une visite ? ${nearbyContext}`,
+      id:`Tempat apa saja di dekat ${nameEn} yang layak dikunjungi? ${nearbyContext}`,
+      tr:`${nameEn} yakınında ziyaret etmeye değer başka yerler neler? ${nearbyContext}`,
+      ru:`Какие места рядом с ${nameEn} стоит посетить? ${nearbyContext}`,
     };
-    document.getElementById('userInput').value = prefix[curLang]||prefix.en;
+    document.getElementById('userInput').value = nearby[curLang]||nearby.en;
   }
   showTab('plan');
   sendMessage();
