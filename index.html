@@ -983,13 +983,13 @@ function askPlace(nameEn, nameAr, placeId){
       ru:'ПРОВЕРЕННАЯ ИНФОРМАЦИЯ — используйте только это:',
     };
     const prefix = {
-      en:`Tell me about ${nameEn}`,
-      ar:`أخبرني عن ${nameAr||nameEn}`,
-      ur:`مجھے بتائیں ${nameEn} کے بارے میں`,
-      fr:`Parlez-moi de ${nameEn}`,
-      id:`Ceritakan tentang ${nameEn}`,
-      tr:`${nameEn} hakkında bilgi ver`,
-      ru:`Расскажи мне о ${nameEn}`,
+      en:`Tell me about ${nameEn}. What other places nearby are worth visiting?`,
+      ar:`أخبرني عن ${nameAr||nameEn}. ما هي الأماكن القريبة الأخرى التي تستحق الزيارة؟`,
+      ur:`مجھے ${nameEn} کے بارے میں بتائیں۔ قریب میں اور کون سی قابل دید جگہیں ہیں؟`,
+      fr:`Parlez-moi de ${nameEn}. Quels autres endroits proches méritent une visite ?`,
+      id:`Ceritakan tentang ${nameEn}. Tempat apa lagi di sekitarnya yang layak dikunjungi?`,
+      tr:`${nameEn} hakkında bilgi ver. Yakınında ziyaret etmeye değer başka yerler var mı?`,
+      ru:`Расскажи мне о ${nameEn}. Какие ещё места рядом стоит посетить?`,
     };
     const msg = `${prefix[curLang]||prefix.en}
 
@@ -999,13 +999,13 @@ ${verifiedInfo}`;
   } else {
     // No verified info yet — send plain question
     const prefix = {
-      en:`Tell me about ${nameEn}`,
-      ar:`أخبرني عن ${nameAr||nameEn}`,
-      ur:`مجھے بتائیں ${nameEn} کے بارے میں`,
-      fr:`Parlez-moi de ${nameEn}`,
-      id:`Ceritakan tentang ${nameEn}`,
-      tr:`${nameEn} hakkında bilgi ver`,
-      ru:`Расскажи мне о ${nameEn}`,
+      en:`Tell me about ${nameEn}. What other places nearby are worth visiting?`,
+      ar:`أخبرني عن ${nameAr||nameEn}. ما هي الأماكن القريبة الأخرى التي تستحق الزيارة؟`,
+      ur:`مجھے ${nameEn} کے بارے میں بتائیں۔ قریب میں اور کون سی قابل دید جگہیں ہیں؟`,
+      fr:`Parlez-moi de ${nameEn}. Quels autres endroits proches méritent une visite ?`,
+      id:`Ceritakan tentang ${nameEn}. Tempat apa lagi di sekitarnya yang layak dikunjungi?`,
+      tr:`${nameEn} hakkında bilgi ver. Yakınında ziyaret etmeye değer başka yerler var mı?`,
+      ru:`Расскажи мне о ${nameEn}. Какие ещё места рядом стоит посетить?`,
     };
     document.getElementById('userInput').value = prefix[curLang]||prefix.en;
   }
