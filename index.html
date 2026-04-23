@@ -182,17 +182,26 @@
             <div style="font-size:13px;color:#888;line-height:1.5;margin-top:3px" id="wlcSub">Ask me anything about visiting Madinah — I will plan your trip with real local knowledge.</div>
           </div>
           <div class="feat-grid">
-            <div class="feat-card" onclick="quickSend('umrah')"><div class="feat-icon">🤲</div><div class="feat-title" id="fc1t">Umrah guidance</div><div class="feat-desc" id="fc1d">Sites, etiquette, ziyarat</div></div>
-            <div class="feat-card" onclick="quickSend('hotel')"><div class="feat-icon">🏨</div><div class="feat-title" id="fc2t">Hotels & stay</div><div class="feat-desc" id="fc2d">Near the mosque</div></div>
-            <div class="feat-card" onclick="quickSend('food')"><div class="feat-icon">🍽️</div><div class="feat-title" id="fc3t">Food & dining</div><div class="feat-desc" id="fc3d">Best restaurants</div></div>
-            <div class="feat-card" onclick="quickSend('dates')"><div class="feat-icon">🌴</div><div class="feat-title" id="fc4t">Dates & gifts</div><div class="feat-desc" id="fc4d">Best shops</div></div>
-            <div class="feat-card" onclick="quickSend('transport')"><div class="feat-icon">🚌</div><div class="feat-title" id="fc5t">Transport</div><div class="feat-desc" id="fc5d">Airport, taxis, train</div></div>
-            <div class="feat-card" onclick="quickSend('itinerary')"><div class="feat-icon">🗺️</div><div class="feat-title" id="fc6t">Full itinerary</div><div class="feat-desc" id="fc6d">Day by day + costs</div></div>
+            <div class="feat-card" onclick="quickCat('mosque')"><div class="feat-icon">🕌</div><div class="feat-title" id="fc1t">Mosques</div><div class="feat-desc" id="fc1d">Historic & holy sites</div></div>
+            <div class="feat-card" onclick="quickCat('historic')"><div class="feat-icon">🏛️</div><div class="feat-title" id="fc2t">Historic</div><div class="feat-desc" id="fc2d">Landmarks & heritage</div></div>
+            <div class="feat-card" onclick="quickCat('museum')"><div class="feat-icon">🏺</div><div class="feat-title" id="fc3t">Museums</div><div class="feat-desc" id="fc3d">Culture & exhibitions</div></div>
+            <div class="feat-card" onclick="quickCat('market')"><div class="feat-icon">🌴</div><div class="feat-title" id="fc4t">Markets</div><div class="feat-desc" id="fc4d">Dates, gold & more</div></div>
+            <div class="feat-card" onclick="quickCat('restaurant')"><div class="feat-icon">🍽️</div><div class="feat-title" id="fc5t">Food</div><div class="feat-desc" id="fc5d">Restaurants & local dishes</div></div>
+            <div class="feat-card" onclick="quickCat('coffee')"><div class="feat-icon">☕</div><div class="feat-title" id="fc6t">Coffee</div><div class="feat-desc" id="fc6d">Specialty cafes</div></div>
+            <div class="feat-card" onclick="quickCat('transport')" style="grid-column:1/-1"><div class="feat-icon">🚌</div><div class="feat-title" id="fc7t">Transport</div><div class="feat-desc" id="fc7d">Sightseeing bus & tours</div></div>
           </div>
         </div>
       </div>
       <div class="visitor-badge" id="visitorBadge"></div>
-      <div class="chips-row" id="chipsRow" style="display:none"></div>
+      <div class="chips-row" id="chipsRow" style="display:none">
+        <div class="chip" onclick="quickCat('mosque')">🕌 Mosques</div>
+        <div class="chip" onclick="quickCat('historic')">🏛️ Historic</div>
+        <div class="chip" onclick="quickCat('museum')">🏺 Museums</div>
+        <div class="chip" onclick="quickCat('market')">🌴 Markets</div>
+        <div class="chip" onclick="quickCat('restaurant')">🍽️ Food</div>
+        <div class="chip" onclick="quickCat('coffee')">☕ Coffee</div>
+        <div class="chip" onclick="quickCat('transport')">🚌 Transport</div>
+      </div>
       <div class="input-bar">
         <textarea id="userInput" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
         <button class="send-btn" id="sendBtn" onclick="sendMessage()">
@@ -392,13 +401,13 @@ const BACKEND  = 'https://madinah-guide-backend-1.onrender.com';
 const CALL_URL = 'visitor.html';
 
 const T = {
-  en:{banner:'Talk to a local Madinah guide',bannerSub:'Real humans · Free call',callNow:'📞 Call now',wlcTitle:'Welcome to Madinah Guide 🕌',wlcSub:'Ask me anything about Madinah — I will plan your trip with real local knowledge.',placeholder:'Ask anything about Madinah…',placesTitle:'Madinah Places',placesSub:'Holy sites, hotels, food & more',callTitle:'Talk to a local guide',callSub:'Connect with a real person who lives in Madinah. They know the city personally and speak your language.',callBtn:'Connect me to an agent',callFree:'Free for you · Cost covered by Madinah Guide · Available during business hours',bnPlan:'Plan',bnPlaces:'Places',bnCall:'Call guide',pilgrim:'🤲 Pilgrim mode — tailored for Hajj & Umrah',tourist:'🧳 Tourist mode — tailored for general visitors',chips:{umrah:'Plan my visit to Madinah — top sites, tips and what to expect',hotel:'Best hotels near the Prophet Mosque in Madinah for all budgets',food:'Best restaurants and local food to try in Madinah',dates:'Best shops for Ajwa dates and Islamic gifts in Madinah',transport:'How to get around Madinah — airport, taxis, Haramain train',itinerary:'Build me a 3-day Madinah itinerary with costs in SAR',prayer:'What prayer times should I know when visiting Madinah?',dress:'What is the dress code for visiting Al-Masjid an-Nabawi?',season:'What is the best time of year to visit Madinah?',budget:'How much should I budget for 5 days in Madinah?',safety:'Is Madinah safe? Tips for first-time visitors?'},fc:['Visit guidance','Hotels & stay','Food & dining','Dates & gifts','Transport','Full itinerary'],fd:['Top sites, tips & what to see','Near the mosque','Best restaurants','Best shops','Airport, taxis, train','Day by day + costs']},
-  ar:{banner:'تحدث مع مرشد محلي في المدينة',bannerSub:'بشر حقيقيون · مكالمة مجانية',callNow:'📞 اتصل الآن',wlcTitle:'مرحباً بك في دليل المدينة 🕌',wlcSub:'اسألني عن أي شيء في المدينة المنورة — سأخطط رحلتك.',placeholder:'اسألني عن المدينة المنورة…',placesTitle:'أماكن المدينة المنورة',placesSub:'المساجد والفنادق والطعام والمزيد',callTitle:'تحدث مع مرشد محلي',callSub:'تواصل مع شخص حقيقي يعيش في المدينة المنورة.',callBtn:'تواصل مع وكيل',callFree:'مجاني لك · متاح خلال ساعات العمل',bnPlan:'التخطيط',bnPlaces:'الأماكن',bnCall:'اتصل بمرشد',pilgrim:'🤲 وضع الحاج — إرشادات الحج والعمرة',tourist:'🧳 وضع السائح — للزوار العاديين',chips:{umrah:'خطط زيارتي للمدينة المنورة — أبرز المواقع والنصائح',hotel:'أفضل فنادق المدينة قرب المسجد النبوي',food:'أفضل المطاعم في المدينة المنورة',dates:'أفضل محلات التمر والهدايا',transport:'كيف أتنقل في المدينة المنورة',itinerary:'برنامج 3 أيام في المدينة مع التكاليف',prayer:'مواقيت الصلاة في المدينة',dress:'كود اللباس لزيارة المسجد النبوي',season:'أفضل وقت لزيارة المدينة',budget:'الميزانية اللازمة لـ5 أيام',safety:'هل المدينة آمنة؟ نصائح للزيارة الأولى'},fc:['إرشادات الزيارة','الفنادق والإقامة','الطعام والمطاعم','التمر والهدايا','المواصلات','برنامج كامل'],fd:['أبرز المواقع والنصائح','قرب المسجد','أفضل المطاعم','أفضل المحلات','المطار والتاكسي','يوم بيوم + التكاليف']},
-  ur:{banner:'مدینہ کے مقامی گائیڈ سے بات کریں',bannerSub:'حقیقی انسان · مفت کال',callNow:'📞 کال کریں',wlcTitle:'مدینہ گائیڈ میں خوش آمدید 🕌',wlcSub:'مدینہ کے بارے میں کچھ بھی پوچھیں۔',placeholder:'مدینہ کے بارے میں پوچھیں…',placesTitle:'مدینہ کے مقامات',placesSub:'مساجد، ہوٹل، کھانا اور مزید',callTitle:'مقامی گائیڈ سے بات کریں',callSub:'مدینہ میں رہنے والے حقیقی شخص سے جڑیں۔',callBtn:'ایجنٹ سے جوڑیں',callFree:'آپ کے لیے مفت · کاروباری اوقات میں دستیاب',bnPlan:'منصوبہ',bnPlaces:'مقامات',bnCall:'گائیڈ کو کال',pilgrim:'🤲 حاجی موڈ — حج اور عمرہ رہنمائی',tourist:'🧳 سیاح موڈ',chips:{umrah:'مدینہ کے لیے اپنا دورہ پلان کریں',hotel:'مسجد کے قریب بہترین ہوٹل',food:'مدینہ کے بہترین ریستوران',dates:'کھجور اور تحائف کی دکانیں',transport:'مدینہ میں نقل و حمل',itinerary:'3 دن کا مدینہ پروگرام',prayer:'نماز کے اوقات',dress:'مسجد کا لباس کوڈ',season:'مدینہ جانے کا بہترین وقت',budget:'5 دن کا بجٹ',safety:'مدینہ میں حفاظت'},fc:['دورہ رہنمائی','ہوٹل','کھانا','کھجور','نقل و حمل','مکمل پروگرام'],fd:['مقامات اور نصائح','مسجد کے قریب','مقامی کھانا','بہترین دکانیں','ہوائی اڈہ، ٹیکسی','روز بروز']},
-  fr:{banner:'Parler à un guide local de Médine',bannerSub:'Humains réels · Appel gratuit',callNow:'📞 Appeler',wlcTitle:'Bienvenue sur Madinah Guide 🕌',wlcSub:'Posez-moi n\'importe quelle question sur Médine.',placeholder:'Posez une question sur Médine…',placesTitle:'Lieux de Médine',placesSub:'Sites sacrés, hôtels, restaurants',callTitle:'Parler à un guide local',callSub:'Connectez-vous avec une vraie personne qui vit à Médine.',callBtn:'Me connecter à un agent',callFree:'Gratuit · Disponible pendant les heures de bureau',bnPlan:'Planifier',bnPlaces:'Lieux',bnCall:'Appeler guide',pilgrim:'🤲 Mode pèlerin — Guide Hajj & Umrah',tourist:'🧳 Mode touriste',chips:{umrah:'Planifiez ma visite à Médine — sites et conseils',hotel:'Meilleurs hôtels près de la mosquée',food:'Meilleurs restaurants à Médine',dates:'Magasins de dattes et cadeaux',transport:'Transport à Médine',itinerary:'Itinéraire 3 jours à Médine',prayer:'Horaires de prière',dress:'Code vestimentaire mosquée',season:'Meilleure période pour visiter',budget:'Budget 5 jours',safety:'Médine est-elle sûre?'},fc:['Guide visite','Hôtels','Restaurants','Dattes','Transport','Itinéraire complet'],fd:['Sites et conseils','Près de la mosquée','Cuisine locale','Meilleures boutiques','Aéroport, taxi','Jour par jour']},
-  id:{banner:'Bicara dengan pemandu lokal Madinah',bannerSub:'Manusia nyata · Panggilan gratis',callNow:'📞 Hubungi',wlcTitle:'Selamat datang di Madinah Guide 🕌',wlcSub:'Tanyakan apa saja tentang Madinah.',placeholder:'Tanyakan tentang Madinah…',placesTitle:'Tempat di Madinah',placesSub:'Situs suci, hotel, makanan dan lainnya',callTitle:'Bicara dengan pemandu lokal',callSub:'Terhubung dengan orang sungguhan yang tinggal di Madinah.',callBtn:'Hubungkan saya ke agen',callFree:'Gratis untuk Anda · Tersedia selama jam kerja',bnPlan:'Rencana',bnPlaces:'Tempat',bnCall:'Hubungi panduan',pilgrim:'🤲 Mode jemaah — Panduan Haji & Umrah',tourist:'🧳 Mode wisatawan',chips:{umrah:'Rencanakan kunjungan saya ke Madinah',hotel:'Hotel terbaik dekat Masjid Nabawi',food:'Restoran terbaik di Madinah',dates:'Toko kurma dan hadiah',transport:'Transportasi di Madinah',itinerary:'Itinerari 3 hari Madinah',prayer:'Waktu sholat',dress:'Kode berpakaian masjid',season:'Waktu terbaik mengunjungi',budget:'Anggaran 5 hari',safety:'Apakah Madinah aman?'},fc:['Panduan kunjungan','Hotel','Restoran','Kurma','Transportasi','Itinerari lengkap'],fd:['Tempat utama & tips','Dekat masjid','Makanan lokal','Toko terbaik','Bandara, taksi','Hari per hari']},
-  tr:{banner:"Medine'li bir rehberle konuşun",bannerSub:"Gerçek insanlar · Ücretsiz arama",callNow:"📞 Şimdi ara",wlcTitle:"Medine Rehberi'ne Hoş Geldiniz 🕌",wlcSub:"Medine hakkında her şeyi sorun — gerçek yerel bilgilerle seyahatinizi planlayacağım.",placeholder:"Medine hakkında soru sorun…",placesTitle:"Medine'de Yerler",placesSub:"Kutsal alanlar, oteller, yemek ve daha fazlası",callTitle:"Yerel rehberle konuşun",callSub:"Medine'de yaşayan ve şehri kişisel olarak tanıyan gerçek bir kişiyle bağlanın.",callBtn:"Bir acenteyle bağlan",callFree:"Sizin için ücretsiz · Mesai saatlerinde müsait",bnPlan:"Plan",bnPlaces:"Yerler",bnCall:"Rehber ara",pilgrim:"🤲 Hacı modu — Hac ve Umre rehberliği",tourist:"🧳 Turist modu — Genel ziyaretçiler",chips:{umrah:"Medine ziyaretimi planla — önemli yerler ve ipuçları",hotel:"Mescid-i Nebevi yakınındaki en iyi oteller",food:"Medine'deki en iyi restoranlar",dates:"Hurma ve İslami hediyelik eşya dükkanları",transport:"Medine'de ulaşım — havalimanı, taksi, tren",itinerary:"Medine için 3 günlük gezi planı",prayer:"Namaz vakitleri",dress:"Cami kıyafet kuralları",season:"Medine'yi ziyaret için en iyi dönem",budget:"5 günlük bütçe",safety:"Medine güvenli mi?"},fc:["Ziyaret Rehberliği","Oteller","Restoranlar","Hurmalar","Ulaşım","Tam program"],fd:["Önemli yerler & ipuçları","Cami yakını","Yerel yemek","En iyi dükkanlar","Havalimanı, taksi","Gün gün"]},
-  ru:{banner:'Поговорите с местным гидом в Медине',bannerSub:'Живые люди · Бесплатный звонок',callNow:'📞 Позвонить',wlcTitle:'Добро пожаловать в Madinah Guide 🕌',wlcSub:'Спросите меня что угодно о Медине — я спланирую ваше путешествие с реальными местными рекомендациями.',placeholder:'Спросите что-нибудь о Медине…',placesTitle:'Места в Медине',placesSub:'Святые места, отели, еда и многое другое',callTitle:'Поговорить с местным гидом',callSub:'Свяжитесь с реальным человеком, живущим в Медине и лично знающим город.',callBtn:'Соединить с агентом',callFree:'Бесплатно для вас · Доступно в рабочие часы',bnPlan:'Планер',bnPlaces:'Места',bnCall:'Позвать гида',pilgrim:'🤲 Режим паломника — руководство Хадж и Умра',tourist:'🧳 Режим туриста — для обычных посетителей',chips:{umrah:'Планирую посещение Медины — достопримечательности и советы',hotel:'Лучшие отели рядом с мечетью Пророка',food:'Лучшие рестораны в Медине',dates:'Магазины фиников и исламских подарков',transport:'Транспорт в Медине — аэропорт, такси, поезд',itinerary:'3-дневный маршрут по Медине с расходами',prayer:'Время молитв',dress:'Дресс-код мечети',season:'Лучшее время для посещения Медины',budget:'Бюджет на 5 дней',safety:'Медина безопасна?'},fc:['Руководство по визиту','Отели','Рестораны','Финики','Транспорт','Полный маршрут'],fd:['Главные места и советы','Рядом с мечетью','Местная еда','Лучшие магазины','Аэропорт, такси','День за днём']},
+  en:{banner:'Talk to a local Madinah guide',bannerSub:'Real humans · Free call',callNow:'📞 Call now',wlcTitle:'Welcome to Madinah Guide 🕌',wlcSub:'Ask me anything about Madinah — I will plan your trip with real local knowledge.',placeholder:'Ask anything about Madinah…',placesTitle:'Madinah Places',placesSub:'Holy sites, hotels, food & more',callTitle:'Talk to a local guide',callSub:'Connect with a real person who lives in Madinah. They know the city personally and speak your language.',callBtn:'Connect me to an agent',callFree:'Free for you · Cost covered by Madinah Guide · Available during business hours',bnPlan:'Plan',bnPlaces:'Places',bnCall:'Call guide',pilgrim:'🤲 Pilgrim mode — tailored for Hajj & Umrah',tourist:'🧳 Tourist mode — tailored for general visitors',chips:{umrah:'Plan my visit to Madinah — top sites, tips and what to expect',hotel:'Best hotels near the Prophet Mosque in Madinah for all budgets',food:'Best restaurants and local food to try in Madinah',dates:'Best shops for Ajwa dates and Islamic gifts in Madinah',transport:'How to get around Madinah — airport, taxis, Haramain train',itinerary:'Build me a 3-day Madinah itinerary with costs in SAR',prayer:'What prayer times should I know when visiting Madinah?',dress:'What is the dress code for visiting Al-Masjid an-Nabawi?',season:'What is the best time of year to visit Madinah?',budget:'How much should I budget for 5 days in Madinah?',safety:'Is Madinah safe? Tips for first-time visitors?'},fc:['Mosques','Historic','Museums','Markets','Food','Coffee','Transport'],fd:['Holy sites & history','Landmarks & heritage','Culture & exhibitions','Dates, gold & more','Restaurants & dishes','Specialty cafes','Tours & buses']},
+  ar:{banner:'تحدث مع مرشد محلي في المدينة',bannerSub:'بشر حقيقيون · مكالمة مجانية',callNow:'📞 اتصل الآن',wlcTitle:'مرحباً بك في دليل المدينة 🕌',wlcSub:'اسألني عن أي شيء في المدينة المنورة — سأخطط رحلتك.',placeholder:'اسألني عن المدينة المنورة…',placesTitle:'أماكن المدينة المنورة',placesSub:'المساجد والفنادق والطعام والمزيد',callTitle:'تحدث مع مرشد محلي',callSub:'تواصل مع شخص حقيقي يعيش في المدينة المنورة.',callBtn:'تواصل مع وكيل',callFree:'مجاني لك · متاح خلال ساعات العمل',bnPlan:'التخطيط',bnPlaces:'الأماكن',bnCall:'اتصل بمرشد',pilgrim:'🤲 وضع الحاج — إرشادات الحج والعمرة',tourist:'🧳 وضع السائح — للزوار العاديين',chips:{umrah:'خطط زيارتي للمدينة المنورة — أبرز المواقع والنصائح',hotel:'أفضل فنادق المدينة قرب المسجد النبوي',food:'أفضل المطاعم في المدينة المنورة',dates:'أفضل محلات التمر والهدايا',transport:'كيف أتنقل في المدينة المنورة',itinerary:'برنامج 3 أيام في المدينة مع التكاليف',prayer:'مواقيت الصلاة في المدينة',dress:'كود اللباس لزيارة المسجد النبوي',season:'أفضل وقت لزيارة المدينة',budget:'الميزانية اللازمة لـ5 أيام',safety:'هل المدينة آمنة؟ نصائح للزيارة الأولى'},fc:['المساجد','التاريخية','المتاحف','الأسواق','الطعام','القهوة','التنقل'],fd:['المواقع المقدسة والتاريخية','المعالم والتراث','الثقافة والمعارض','التمور والذهب','المطاعم المحلية','مقاهي متخصصة','جولات وحافلات']},
+  ur:{banner:'مدینہ کے مقامی گائیڈ سے بات کریں',bannerSub:'حقیقی انسان · مفت کال',callNow:'📞 کال کریں',wlcTitle:'مدینہ گائیڈ میں خوش آمدید 🕌',wlcSub:'مدینہ کے بارے میں کچھ بھی پوچھیں۔',placeholder:'مدینہ کے بارے میں پوچھیں…',placesTitle:'مدینہ کے مقامات',placesSub:'مساجد، ہوٹل، کھانا اور مزید',callTitle:'مقامی گائیڈ سے بات کریں',callSub:'مدینہ میں رہنے والے حقیقی شخص سے جڑیں۔',callBtn:'ایجنٹ سے جوڑیں',callFree:'آپ کے لیے مفت · کاروباری اوقات میں دستیاب',bnPlan:'منصوبہ',bnPlaces:'مقامات',bnCall:'گائیڈ کو کال',pilgrim:'🤲 حاجی موڈ — حج اور عمرہ رہنمائی',tourist:'🧳 سیاح موڈ',chips:{umrah:'مدینہ کے لیے اپنا دورہ پلان کریں',hotel:'مسجد کے قریب بہترین ہوٹل',food:'مدینہ کے بہترین ریستوران',dates:'کھجور اور تحائف کی دکانیں',transport:'مدینہ میں نقل و حمل',itinerary:'3 دن کا مدینہ پروگرام',prayer:'نماز کے اوقات',dress:'مسجد کا لباس کوڈ',season:'مدینہ جانے کا بہترین وقت',budget:'5 دن کا بجٹ',safety:'مدینہ میں حفاظت'},fc:['مساجد','تاریخی','عجائب گھر','بازار','کھانا','کافے','ٹرانسپورٹ'],fd:['مقدس و تاریخی مقامات','نشانیاں و ورثہ','ثقافت و نمائشیں','کھجور، سونا و مزید','ریستوران و کھانا','خصوصی کافے','سیاحتی ٹور']},
+  fr:{banner:'Parler à un guide local de Médine',bannerSub:'Humains réels · Appel gratuit',callNow:'📞 Appeler',wlcTitle:'Bienvenue sur Madinah Guide 🕌',wlcSub:'Posez-moi n\'importe quelle question sur Médine.',placeholder:'Posez une question sur Médine…',placesTitle:'Lieux de Médine',placesSub:'Sites sacrés, hôtels, restaurants',callTitle:'Parler à un guide local',callSub:'Connectez-vous avec une vraie personne qui vit à Médine.',callBtn:'Me connecter à un agent',callFree:'Gratuit · Disponible pendant les heures de bureau',bnPlan:'Planifier',bnPlaces:'Lieux',bnCall:'Appeler guide',pilgrim:'🤲 Mode pèlerin — Guide Hajj & Umrah',tourist:'🧳 Mode touriste',chips:{umrah:'Planifiez ma visite à Médine — sites et conseils',hotel:'Meilleurs hôtels près de la mosquée',food:'Meilleurs restaurants à Médine',dates:'Magasins de dattes et cadeaux',transport:'Transport à Médine',itinerary:'Itinéraire 3 jours à Médine',prayer:'Horaires de prière',dress:'Code vestimentaire mosquée',season:'Meilleure période pour visiter',budget:'Budget 5 jours',safety:'Médine est-elle sûre?'},fc:['Mosquées','Historique','Musées','Marchés','Nourriture','Café','Transport'],fd:['Sites sacrés & historiques','Monuments & patrimoine','Culture & expositions','Dattes, or & plus','Restaurants & cuisine','Cafés spécialisés','Bus touristique']},
+  id:{banner:'Bicara dengan pemandu lokal Madinah',bannerSub:'Manusia nyata · Panggilan gratis',callNow:'📞 Hubungi',wlcTitle:'Selamat datang di Madinah Guide 🕌',wlcSub:'Tanyakan apa saja tentang Madinah.',placeholder:'Tanyakan tentang Madinah…',placesTitle:'Tempat di Madinah',placesSub:'Situs suci, hotel, makanan dan lainnya',callTitle:'Bicara dengan pemandu lokal',callSub:'Terhubung dengan orang sungguhan yang tinggal di Madinah.',callBtn:'Hubungkan saya ke agen',callFree:'Gratis untuk Anda · Tersedia selama jam kerja',bnPlan:'Rencana',bnPlaces:'Tempat',bnCall:'Hubungi panduan',pilgrim:'🤲 Mode jemaah — Panduan Haji & Umrah',tourist:'🧳 Mode wisatawan',chips:{umrah:'Rencanakan kunjungan saya ke Madinah',hotel:'Hotel terbaik dekat Masjid Nabawi',food:'Restoran terbaik di Madinah',dates:'Toko kurma dan hadiah',transport:'Transportasi di Madinah',itinerary:'Itinerari 3 hari Madinah',prayer:'Waktu sholat',dress:'Kode berpakaian masjid',season:'Waktu terbaik mengunjungi',budget:'Anggaran 5 hari',safety:'Apakah Madinah aman?'},fc:['Masjid','Bersejarah','Museum','Pasar','Makanan','Kopi','Transportasi'],fd:['Situs suci & bersejarah','Landmark & warisan','Budaya & pameran','Kurma, emas & lainnya','Restoran & masakan','Kafe spesial','Bus wisata & tur']},
+  tr:{banner:"Medine'li bir rehberle konuşun",bannerSub:"Gerçek insanlar · Ücretsiz arama",callNow:"📞 Şimdi ara",wlcTitle:"Medine Rehberi'ne Hoş Geldiniz 🕌",wlcSub:"Medine hakkında her şeyi sorun — gerçek yerel bilgilerle seyahatinizi planlayacağım.",placeholder:"Medine hakkında soru sorun…",placesTitle:"Medine'de Yerler",placesSub:"Kutsal alanlar, oteller, yemek ve daha fazlası",callTitle:"Yerel rehberle konuşun",callSub:"Medine'de yaşayan ve şehri kişisel olarak tanıyan gerçek bir kişiyle bağlanın.",callBtn:"Bir acenteyle bağlan",callFree:"Sizin için ücretsiz · Mesai saatlerinde müsait",bnPlan:"Plan",bnPlaces:"Yerler",bnCall:"Rehber ara",pilgrim:"🤲 Hacı modu — Hac ve Umre rehberliği",tourist:"🧳 Turist modu — Genel ziyaretçiler",chips:{umrah:"Medine ziyaretimi planla — önemli yerler ve ipuçları",hotel:"Mescid-i Nebevi yakınındaki en iyi oteller",food:"Medine'deki en iyi restoranlar",dates:"Hurma ve İslami hediyelik eşya dükkanları",transport:"Medine'de ulaşım — havalimanı, taksi, tren",itinerary:"Medine için 3 günlük gezi planı",prayer:"Namaz vakitleri",dress:"Cami kıyafet kuralları",season:"Medine'yi ziyaret için en iyi dönem",budget:"5 günlük bütçe",safety:"Medine güvenli mi?"},fc:["Camiler","Tarihi","Müzeler","Pazarlar","Yemek","Kahve","Ulaşım"],fd:["Tarihi & kutsal alanlar","Anıtlar & miras","Kültür & sergiler","Hurma, altın & daha","Restoranlar & yemek","Özel kafeler","Turistik otobüs"]},
+  ru:{banner:'Поговорите с местным гидом в Медине',bannerSub:'Живые люди · Бесплатный звонок',callNow:'📞 Позвонить',wlcTitle:'Добро пожаловать в Madinah Guide 🕌',wlcSub:'Спросите меня что угодно о Медине — я спланирую ваше путешествие с реальными местными рекомендациями.',placeholder:'Спросите что-нибудь о Медине…',placesTitle:'Места в Медине',placesSub:'Святые места, отели, еда и многое другое',callTitle:'Поговорить с местным гидом',callSub:'Свяжитесь с реальным человеком, живущим в Медине и лично знающим город.',callBtn:'Соединить с агентом',callFree:'Бесплатно для вас · Доступно в рабочие часы',bnPlan:'Планер',bnPlaces:'Места',bnCall:'Позвать гида',pilgrim:'🤲 Режим паломника — руководство Хадж и Умра',tourist:'🧳 Режим туриста — для обычных посетителей',chips:{umrah:'Планирую посещение Медины — достопримечательности и советы',hotel:'Лучшие отели рядом с мечетью Пророка',food:'Лучшие рестораны в Медине',dates:'Магазины фиников и исламских подарков',transport:'Транспорт в Медине — аэропорт, такси, поезд',itinerary:'3-дневный маршрут по Медине с расходами',prayer:'Время молитв',dress:'Дресс-код мечети',season:'Лучшее время для посещения Медины',budget:'Бюджет на 5 дней',safety:'Медина безопасна?'},fc:['Мечети','Исторические','Музеи','Рынки','Еда','Кофе','Транспорт'],fd:['Святые & исторические','Достопримечательности','Культура & выставки','Финики, золото & др.','Рестораны & кухня','Кофейни','Автобусные туры']},
 };
 
 const PLACES = [
@@ -578,6 +587,9 @@ function chooseLang(lang){
   document.getElementById('userInput').dir=rtl?'rtl':'ltr';
   t.fc.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'t');if(e)e.textContent=v;});
   t.fd.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'d');if(e)e.textContent=v;});
+  // Transport card (7th) — always in English label from catLabels handled by quickCat
+  const e7t=document.getElementById('fc7t'); if(e7t) e7t.textContent=t.fc[6]||'Transport';
+  const e7d=document.getElementById('fc7d'); if(e7d) e7d.textContent=t.fd[6]||'Tours & buses';
   document.getElementById('langScreen').classList.add('gone');
   document.getElementById('app').classList.add('visible');
   fetchAllRatings().then(renderPlaces);
@@ -818,6 +830,80 @@ function quickSend(key){
   const t=T[curLang]||T.en;
   document.getElementById('userInput').value=t.chips[key]||key;
   showTab('plan');sendMessage();
+}
+
+function quickCat(cat){
+  // Find nearest place in this category to the visitor
+  const placesInCat = PLACES.filter(p => p.cat === cat && p.lat && p.lng);
+  if(!placesInCat.length){ showTab('places'); filterPlaces(document.querySelector('.cat-pill'), cat); return; }
+
+  const visitorLat = userLat || MADINAH_LAT;
+  const visitorLng = userLng || MADINAH_LNG;
+
+  // Sort by distance from visitor, pick closest
+  const sorted = placesInCat
+    .map(p => ({ ...p, dist: haversineKm(visitorLat, visitorLng, p.lat, p.lng) }))
+    .sort((a,b) => a.dist - b.dist);
+  const nearest = sorted[0];
+
+  // Category labels per language
+  const catLabels = {
+    mosque:     {en:'mosques',     ar:'المساجد',          ur:'مساجد',        fr:'mosquées',      id:'masjid',       tr:'camiler',      ru:'мечети'},
+    historic:   {en:'historic sites', ar:'المواقع التاريخية', ur:'تاریخی مقامات', fr:'sites historiques', id:'situs bersejarah', tr:'tarihi yerler', ru:'исторические места'},
+    museum:     {en:'museums',     ar:'المتاحف',           ur:'عجائب گھر',    fr:'musées',        id:'museum',       tr:'müzeler',      ru:'музеи'},
+    market:     {en:'markets',     ar:'الأسواق',           ur:'بازار',        fr:'marchés',       id:'pasar',        tr:'pazarlar',     ru:'рынки'},
+    restaurant: {en:'restaurants', ar:'المطاعم',           ur:'ریستوران',     fr:'restaurants',   id:'restoran',     tr:'restoranlar',  ru:'рестораны'},
+    coffee:     {en:'coffee shops',ar:'المقاهي',           ur:'کافے',         fr:'cafés',         id:'kafe',         tr:'kafeler',      ru:'кофейни'},
+    transport:  {en:'transport',   ar:'وسائل التنقل',      ur:'ٹرانسپورٹ',    fr:'transport',     id:'transportasi', tr:'ulaşım',       ru:'транспорт'},
+  };
+  const catLabel = (catLabels[cat]||catLabels.mosque)[curLang] || (catLabels[cat]||catLabels.mosque).en;
+
+  // Build question in visitor language
+  const rtl = curLang==='ar'||curLang==='ur';
+  const nearestName = rtl && nearest.nameAr ? nearest.nameAr : nearest.nameEn;
+  const fmtDist = (km) => km < 1 ? `${Math.round(km*1000)}m` : `${km.toFixed(1)}km`;
+
+  // All places in this category with distances
+  const placeLines = sorted.slice(0, 8).map(p => {
+    const name = rtl && p.nameAr ? p.nameAr : p.nameEn;
+    return `- ${p.nameEn} (${p.nameAr||''}) — ${fmtDist(p.dist)} from me`;
+  }).join('
+');
+
+  const questions = {
+    en: `What ${catLabel} in Madinah are worth visiting? Here are the ones in our verified database with distances from my current location:
+${placeLines}
+
+Please recommend them in order of proximity and give brief info about each.`,
+    ar: `ما هي ${catLabel} في المدينة المنورة التي تستحق الزيارة؟ إليك القائمة من قاعدة بياناتنا مع المسافات من موقعي:
+${placeLines}
+
+رتبها حسب القرب وأعط معلومات مختصرة عن كل مكان.`,
+    ur: `مدینہ منورہ میں کون سے ${catLabel} دیکھنے کے لائق ہیں؟ ہمارے ڈیٹا بیس سے فاصلوں کے ساتھ:
+${placeLines}
+
+قریبی ترتیب میں سفارش کریں اور ہر جگہ کے بارے میں مختصر معلومات دیں۔`,
+    fr: `Quels ${catLabel} à Médine méritent une visite ? Voici ceux de notre base vérifiée avec les distances depuis ma position :
+${placeLines}
+
+Recommandez-les par ordre de proximité avec une brève info sur chacun.`,
+    id: `${catLabel} apa saja di Madinah yang layak dikunjungi? Berikut daftar dari database kami dengan jarak dari lokasi saya:
+${placeLines}
+
+Rekomendasikan berdasarkan kedekatan dan berikan info singkat tentang masing-masing.`,
+    tr: `Medine'de hangi ${catLabel} ziyaret etmeye değer? Konumumdan mesafelerle birlikte doğrulanmış listemiz:
+${placeLines}
+
+Yakınlık sırasına göre önerin ve her biri hakkında kısa bilgi verin.`,
+    ru: `Какие ${catLabel} в Медине стоит посетить? Вот список из нашей базы с расстояниями от моего местоположения:
+${placeLines}
+
+Порекомендуйте их в порядке близости с кратким описанием каждого.`,
+  };
+
+  document.getElementById('userInput').value = questions[curLang] || questions.en;
+  showTab('plan');
+  sendMessage();
 }
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
