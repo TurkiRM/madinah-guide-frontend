@@ -867,8 +867,7 @@ function quickCat(cat){
   const placeLines = sorted.slice(0, 8).map(p => {
     const name = rtl && p.nameAr ? p.nameAr : p.nameEn;
     return `- ${p.nameEn} (${p.nameAr||''}) — ${fmtDist(p.dist)} from me`;
-  }).join('
-');
+  }).join('\n');
 
   const questions = {
     en: `What ${catLabel} in Madinah are worth visiting? Here are the ones in our verified database with distances from my current location:
