@@ -230,8 +230,8 @@
           <div class="cat-pill" onclick="filterPlaces(this,'mountain')">⛰️ Mountains</div>
           <div class="cat-pill" onclick="filterPlaces(this,'transport')">🚌 Transport</div>
         </div>
-        <!-- Active offers banner -->
-        <div id="offersBanner" style="display:none;flex-direction:column;gap:0.65rem;margin-bottom:0.25rem"></div>
+        <!-- Category offers banner — shows offers matching current category -->
+        <div id="offersBanner" style="display:none;flex-direction:column;gap:0.65rem;margin-bottom:0.5rem"></div>
 
         <div id="placesList" style="display:flex;flex-direction:column;gap:0.75rem"></div>
       </div>
@@ -985,7 +985,9 @@ async function fetchAllRatings(){
 function filterPlaces(el,cat){
   curCat=cat;
   document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('on'));
-  el.classList.add('on');renderPlaces();
+  el.classList.add('on');
+  renderPlaces();
+  renderOffersBanner();
 }
 
 function renderPlaces(){
@@ -1625,38 +1627,50 @@ async function fetchOffers(){
 function renderOffersBanner(){
   const banner = document.getElementById('offersBanner');
   if(!banner) return;
-  if(!allOffers.length){ banner.style.display='none'; return; }
+  banner.innerHTML = '';
+  banner.style.display = 'none';
+
+  if(!allOffers.length) return;
 
   const lang = curLang;
   const rtl  = lang==='ar'||lang==='ur';
 
+  // Find which places are in the current category
+  const catPlaceIds = (curCat === 'all')
+    ? PLACES.map(p => p.id)
+    : PLACES.filter(p => p.cat === curCat).map(p => p.id);
+
+  // Filter offers matching current category's places
+  const catOffers = allOffers.filter(o => catPlaceIds.includes(o.place_id));
+  if(!catOffers.length) return;
+
   banner.style.display = 'flex';
-  banner.innerHTML = '';
 
   // Header
-  const hdr = document.createElement('div');
   const offerLabel = {en:'🎁 Special Offers',ar:'🎁 عروض خاصة',ur:'🎁 خصوصی پیشکش',fr:'🎁 Offres spéciales',id:'🎁 Penawaran Spesial',tr:'🎁 Özel Teklifler',ru:'🎁 Специальные предложения'};
+  const hdr = document.createElement('div');
   hdr.style.cssText = 'font-size:14px;font-weight:700;color:#085041';
   hdr.textContent = offerLabel[lang]||offerLabel.en;
   banner.appendChild(hdr);
 
-  // Offer cards — horizontal scroll
+  // Horizontal scroll of offer cards
   const scroll = document.createElement('div');
-  scroll.style.cssText = 'display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch';
-  scroll.style.scrollbarWidth = 'none';
+  scroll.style.cssText = 'display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none';
 
-  allOffers.slice(0,6).forEach(o => {
+  catOffers.forEach(o => {
     const title = (rtl && o.title_ar) ? o.title_ar : o.title_en;
-    const card = document.createElement('div');
-    card.style.cssText = 'flex-shrink:0;width:200px;background:#fff;border-radius:12px;border:1px solid #eee;overflow:hidden;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.06)';
+    const card  = document.createElement('div');
+    card.style.cssText = 'flex-shrink:0;width:190px;background:#fff;border-radius:12px;border:1.5px solid #F6D860;overflow:hidden;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.06)';
     card.onclick = () => { const p = PLACES.find(pl => pl.id === o.place_id); if(p) openModal(p); };
     card.innerHTML = `
-      ${o.img ? `<div style="height:80px;overflow:hidden"><img src="${o.img}" style="width:100%;height:100%;object-fit:cover"/></div>` : '<div style="height:80px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:32px">🎁</div>'}
+      ${o.img
+        ? `<div style="height:75px;overflow:hidden"><img src="${o.img}" style="width:100%;height:100%;object-fit:cover"/></div>`
+        : `<div style="height:75px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:30px">🎁</div>`}
       <div style="padding:8px">
-        <div style="font-size:11px;color:#085041;font-weight:600">${o.place_name_en}</div>
-        <div style="font-size:12px;font-weight:700;color:#1a1a1a;margin:2px 0;line-height:1.3">${title}</div>
-        ${o.discount ? `<div style="display:inline-block;background:#FFF3CD;color:#856404;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px">${o.discount}</div>` : ''}
-        <div style="font-size:10px;color:#aaa;margin-top:3px">Until ${new Date(o.valid_until).toLocaleDateString(lang==='ar'?'ar-SA':'en-US',{month:'short',day:'numeric'})}</div>
+        <div style="font-size:10px;color:#085041;font-weight:600;margin-bottom:1px">${o.place_name_en}</div>
+        <div style="font-size:12px;font-weight:700;color:#1a1a1a;line-height:1.3">${title}</div>
+        ${o.discount ? `<div style="display:inline-block;background:#FFF3CD;color:#856404;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;margin-top:3px">${o.discount}</div>` : ''}
+        <div style="font-size:10px;color:#aaa;margin-top:3px">⏳ ${new Date(o.valid_until).toLocaleDateString(lang==='ar'?'ar-SA':'en-US',{month:'short',day:'numeric'})}</div>
       </div>`;
     scroll.appendChild(card);
   });
