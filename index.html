@@ -520,11 +520,12 @@ const PLACES = [
       {nameEn:'Green Route (Haram & Culture)',  nameAr:'المسار الأخضر (الحرم والثقافة)',  stops:['Al-Masjid an-Nabawi','Al-Baqi','Al-Manakha Square','Al-Salam Gate']},
       {nameEn:'Red Route (History & Malls)',    nameAr:'المسار الأحمر (التاريخ والأسواق)', stops:['Uhud Battlefield','Al-Noor Mall','Sultana Street','Al-Qiblatain Mosque','The Trench Battlefield','Quba Mosque','Hejaz Railway','Quba Boulevard']},
     ]},
-  {id:80,icon:'🚗',cat:'transport',nameEn:'Al-Ruhaili Car Rental',nameAr:'مكتب الرحيلي لتأجير السيارات',cost:'120 - 350 SAR',instagram:null,img:'photos/alruhaili-cars.jpg',descAr:'مكتب محلي لتأجير السيارات، يشمل جميع الفروع في المدينة المنورة.',descEn:'A local car rental office, including all branches within Madinah.',descUr:'گاڑیوں کے کرایے کا مقامی دفتر، جس میں مدینہ منورہ کی تمام شاخیں شامل ہیں۔',descFr:'Un bureau local de location de voitures, comprenant toutes les succursales à Médine.',descId:'Kantor penyewaan mobil lokal, mencakup semua cabang di Madinah.',descTr:'Medine\'deki tüm şubeleri kapsayan yerel bir araç kiralama ofisi.',descRu:'Местный офис по прокату автомобилей, включая все филиалы в Медине.',lat:24.48727, lng:39.57405,
+{id:80,icon:'🚗',cat:'transport',nameEn:'Al-Ruhaili Car Rental',nameAr:'مكتب الرحيلي لتأجير السيارات',cost:'120 - 350 SAR',instagram:null,img:'photos/alruhaili-cars.jpg',descAr:'مكتب تأجير سيارات لديه فرعين في المدينة المنورة، وله فروع أخرى في مدن كجدة والرياض، ولا يوجد له فرع في المطار.',descEn:'A car rental office with two branches in Madinah and others in Jeddah and Riyadh; they do not have an airport branch.',descUr:'کار رینٹل آفس جس کی مدینہ میں دو شاخیں ہیں اور جدہ و ریاض میں دیگر شاخیں ہیں۔ ایئرپورٹ پر کوئی برانچ نہیں ہے۔',descFr:'Bureau de location de voitures avec deux agences à Médine et d\'autres à Djeddah et Riyad ; pas d\'agence à l\'aéroport.',descId:'Kantor penyewaan mobil dengan dua cabang di Madinah dan cabang lainnya ở Jeddah dan Riyadh; tidak ada cabang di bandara.',descTr:'Medine\'de iki şubesi olan araç kiralama ofisi; Cidde ve Riyad\'da da şubeleri bulunmaktadır, havalimanında şubesi yoktur.',descRu:'Офис по прокату автомобилей с двумя филиалами в Медине и другими в Джидде и Эр-Рияде; филиала в аэропорту нет.',lat:24.48727, lng:39.57405,
     branches:[
-      {nameEn:'Road Khalid ibn Alwaleed', nameAr:'فرع طريق خالد بن الوليد', lat:24.48727, lng:39.57405},
-      {nameEn:'Al-Aziziyah Branch', nameAr:'فرع العزيزية', lat:24.46472, lng:39.54744},
-    ]},
+      {nameEn:'Khalid ibn Al-Waleed Rd Branch', nameAr:'فرع طريق خالد بن الوليد', lat:24.48727, lng:39.57405},
+      {nameEn:'Al-Aziziyah Branch', nameAr:'فرع العزيزية', lat:24.46472, lng:39.54744}
+    ]
+},
   ];
 
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
