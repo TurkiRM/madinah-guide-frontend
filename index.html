@@ -1152,9 +1152,11 @@ function buildNearbyContext(fromPlace){
   const visitorLng = userLng || MADINAH_LNG;
   const distToPlace = haversineKm(visitorLat, visitorLng, fromPlace.lat, fromPlace.lng);
 
-  // Find nearby places sorted by distance from this place (within 3km)
+  const COMMERCIAL_CATS = ['restaurant','coffee','market','hotel','shopping','pharmacy','salon','clinic','transport'];
+
+  // Find nearby commercial places sorted by distance from this place (within 3km)
   const nearby = PLACES
-    .filter(p => p.id !== fromPlace.id && p.lat && p.lng)
+    .filter(p => p.id !== fromPlace.id && p.lat && p.lng && COMMERCIAL_CATS.includes(p.cat))
     .map(p => ({
       ...p,
       distFromPlace:   haversineKm(fromPlace.lat, fromPlace.lng, p.lat, p.lng),
@@ -1200,33 +1202,33 @@ function askPlace(nameEn, nameAr, placeId){
     };
     // Build nearby places list with distances from current place
     const nearbyContext = buildNearbyContext(place);
-    const nearby = {
-      en:`What other places near ${nameEn} are worth visiting? ${nearbyContext}`,
-      ar:`ما هي الأماكن القريبة من ${nameAr||nameEn} التي تستحق الزيارة؟ ${nearbyContext}`,
-      ur:`${nameEn} کے قریب کون سی جگہیں قابل دید ہیں؟ ${nearbyContext}`,
-      fr:`Quels autres endroits proches de ${nameEn} méritent une visite ? ${nearbyContext}`,
-      id:`Tempat apa saja di dekat ${nameEn} yang layak dikunjungi? ${nearbyContext}`,
-      tr:`${nameEn} yakınında ziyaret etmeye değer başka yerler neler? ${nearbyContext}`,
-      ru:`Какие места рядом с ${nameEn} стоит посетить? ${nearbyContext}`,
+    const question = {
+      en:`Tell me about ${nameEn} and what other places nearby are worth visiting?`,
+      ar:`أخبرني عن ${nameAr||nameEn} وما هي الأماكن القريبة التي تستحق الزيارة؟`,
+      ur:`مجھے ${nameEn} کے بارے میں بتائیں اور قریب میں کون سی جگہیں دیکھنے کے قابل ہیں؟`,
+      fr:`Parlez-moi de ${nameEn} et quels endroits proches méritent une visite ?`,
+      id:`Ceritakan tentang ${nameEn} dan tempat apa saja di sekitarnya yang layak dikunjungi?`,
+      tr:`${nameEn} hakkında bilgi ver ve yakınında görülmeye değer başka yerler neler?`,
+      ru:`Расскажи мне о ${nameEn} и какие места рядом стоит посетить?`,
     };
-    const msg = `${nearby[curLang]||nearby.en}
+    const msg = `${question[curLang]||question.en}${nearbyContext}
 
 ${infoLabel[curLang]||infoLabel.en}
 ${verifiedInfo}`;
     document.getElementById('userInput').value = msg;
   } else {
-    // No verified info — just nearby question with distances
+    // No verified info — ask about place + nearby
     const nearbyContext = buildNearbyContext(place);
-    const nearby = {
-      en:`What other places near ${nameEn} are worth visiting? ${nearbyContext}`,
-      ar:`ما هي الأماكن القريبة من ${nameAr||nameEn} التي تستحق الزيارة؟ ${nearbyContext}`,
-      ur:`${nameEn} کے قریب کون سی جگہیں قابل دید ہیں؟ ${nearbyContext}`,
-      fr:`Quels autres endroits proches de ${nameEn} méritent une visite ? ${nearbyContext}`,
-      id:`Tempat apa saja di dekat ${nameEn} yang layak dikunjungi? ${nearbyContext}`,
-      tr:`${nameEn} yakınında ziyaret etmeye değer başka yerler neler? ${nearbyContext}`,
-      ru:`Какие места рядом с ${nameEn} стоит посетить? ${nearbyContext}`,
+    const question = {
+      en:`Tell me about ${nameEn} and what other places nearby are worth visiting?`,
+      ar:`أخبرني عن ${nameAr||nameEn} وما هي الأماكن القريبة التي تستحق الزيارة؟`,
+      ur:`مجھے ${nameEn} کے بارے میں بتائیں اور قریب میں کون سی جگہیں دیکھنے کے قابل ہیں؟`,
+      fr:`Parlez-moi de ${nameEn} et quels endroits proches méritent une visite ?`,
+      id:`Ceritakan tentang ${nameEn} dan tempat apa saja di sekitarnya yang layak dikunjungi?`,
+      tr:`${nameEn} hakkında bilgi ver ve yakınında görülmeye değer başka yerler neler?`,
+      ru:`Расскажи мне о ${nameEn} и какие места рядом стоит посетить?`,
     };
-    document.getElementById('userInput').value = nearby[curLang]||nearby.en;
+    document.getElementById('userInput').value = `${question[curLang]||question.en}${nearbyContext}`;
   }
   showTab('plan');
   sendMessage();
