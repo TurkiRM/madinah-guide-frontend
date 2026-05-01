@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Madinah Guide — Cashier</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem}
+    .card{background:#fff;border-radius:20px;padding:2rem 1.5rem;width:100%;max-width:380px;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+    .logo{text-align:center;margin-bottom:1.5rem}
+    .logo-icon{font-size:40px}
+    .logo-title{font-size:18px;font-weight:700;color:#085041;margin-top:6px}
+    .logo-sub{font-size:13px;color:#888;margin-top:2px}
+    .offer-info{background:#E1F5EE;border-radius:12px;padding:1rem;margin-bottom:1.5rem;display:none}
+    .offer-name{font-size:15px;font-weight:700;color:#085041}
+    .offer-price{font-size:22px;font-weight:800;color:#085041;margin-top:4px}
+    .offer-counter{font-size:12px;color:#1D9E75;margin-top:2px}
+    .input-wrap{margin-bottom:1rem}
+    .input-wrap label{font-size:13px;color:#888;display:block;margin-bottom:6px}
+    .code-input{width:100%;padding:14px;font-size:24px;font-weight:700;text-align:center;letter-spacing:6px;border:2px solid #e0e0e0;border-radius:12px;outline:none;text-transform:uppercase;color:#1a1a1a}
+    .code-input:focus{border-color:#085041}
+    .redeem-btn{width:100%;padding:14px;background:#085041;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+    .redeem-btn:active{background:#1D9E75}
+    .redeem-btn:disabled{background:#ccc}
+    .result{margin-top:1rem;padding:1rem;border-radius:12px;text-align:center;display:none}
+    .result.success{background:#E1F5EE;border:2px solid #1D9E75}
+    .result.error{background:#FDE8E8;border:2px solid #f5c6c6}
+    .result-icon{font-size:40px;margin-bottom:8px}
+    .result-title{font-size:18px;font-weight:700;margin-bottom:4px}
+    .result-name{font-size:14px;color:#555}
+    .result-price{font-size:20px;font-weight:800;color:#085041;margin-top:8px}
+    .clear-btn{margin-top:1rem;width:100%;padding:10px;background:#f5f5f0;color:#555;border:1px solid #e0e0e0;border-radius:10px;font-size:14px;cursor:pointer}
+    .counter-bar{background:#f5f5f0;border-radius:12px;padding:0.75rem 1rem;margin-bottom:1rem;display:none}
+    .counter-label{font-size:12px;color:#888;margin-bottom:6px}
+    .counter-track{background:#e0e0e0;border-radius:8px;height:10px;overflow:hidden}
+    .counter-fill{background:linear-gradient(90deg,#085041,#1D9E75);height:100%;border-radius:8px;transition:width 0.4s}
+    .counter-text{font-size:13px;font-weight:700;color:#085041;margin-top:4px;text-align:center}
+    .setup-card{background:#fff;border-radius:20px;padding:2rem 1.5rem;width:100%;max-width:380px;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+    .setup-title{font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:4px}
+    .setup-sub{font-size:13px;color:#888;margin-bottom:1.25rem}
+    .setup-input{width:100%;padding:12px;font-size:14px;border:1.5px solid #e0e0e0;border-radius:10px;outline:none;margin-bottom:10px;font-family:inherit}
+    .setup-input:focus{border-color:#085041}
+    .setup-btn{width:100%;padding:12px;background:#085041;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}
+    .err{font-size:13px;color:#A32D2D;text-align:center;margin-top:8px;display:none}
+  </style>
+</head>
+<body>
+
+<!-- Setup screen — cashier enters their key -->
+<div class="setup-card" id="setupCard">
+  <div style="text-align:center;margin-bottom:1.25rem">
+    <div style="font-size:40px">🏪</div>
+    <div style="font-size:18px;font-weight:700;color:#085041;margin-top:6px">Cashier Portal</div>
+    <div style="font-size:13px;color:#888;margin-top:2px">Madinah Guide · دليل المدينة</div>
+  </div>
+  <div class="setup-sub">Enter your cashier key to access your offer's redemption page.</div>
+  <input class="setup-input" id="keyInput" placeholder="Your cashier key (e.g. AB3X7K2M)" maxlength="8"/>
+  <button class="setup-btn" onclick="loadOffer()">Access Offer →</button>
+  <div class="err" id="setupErr"></div>
+</div>
+
+<!-- Redemption screen -->
+<div class="card" id="redeemCard" style="display:none">
+  <div class="logo">
+    <div class="logo-icon">🏪</div>
+    <div class="logo-title" id="offerTitle">Offer Name</div>
+    <div class="logo-sub" id="placeName">Place Name</div>
+  </div>
+
+  <!-- Live counter bar -->
+  <div class="counter-bar" id="counterBar">
+    <div class="counter-label">Remaining offers</div>
+    <div class="counter-track"><div class="counter-fill" id="counterFill" style="width:100%"></div></div>
+    <div class="counter-text" id="counterText">— of — remaining</div>
+  </div>
+
+  <!-- Code input -->
+  <div class="input-wrap">
+    <label>Enter visitor code</label>
+    <input class="code-input" id="codeInput" placeholder="ABC123" maxlength="6"
+      oninput="this.value=this.value.toUpperCase()"
+      onkeydown="if(event.key==='Enter') redeemCode()"/>
+  </div>
+
+  <button class="redeem-btn" id="redeemBtn" onclick="redeemCode()">
+    ✅ Redeem Code
+  </button>
+
+  <!-- Result -->
+  <div class="result" id="result">
+    <div class="result-icon" id="resultIcon"></div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-name" id="resultName"></div>
+    <div class="result-price" id="resultPrice"></div>
+  </div>
+
+  <button class="clear-btn" id="clearBtn" style="display:none" onclick="clearResult()">
+    ↩ Scan another code
+  </button>
+
+  <div style="margin-top:1.5rem;text-align:center;font-size:11px;color:#ccc">
+    Powered by Madinah Guide · madinahguide.net
+  </div>
+</div>
+
+<script>
+const BACKEND = 'https://madinah-guide-backend-1.onrender.com';
+let cashierKey = '';
+let currentOffer = null;
+
+// Check URL param for key (cashier can bookmark their page)
+const urlKey = new URLSearchParams(window.location.search).get('key');
+if(urlKey){ document.getElementById('keyInput').value = urlKey; loadOffer(); }
+
+async function loadOffer(){
+  const key = document.getElementById('keyInput').value.trim().toUpperCase();
+  const err = document.getElementById('setupErr');
+  if(!key){ err.textContent='Please enter your cashier key.'; err.style.display='block'; return; }
+
+  err.style.display='none';
+  document.querySelector('.setup-btn').textContent = 'Loading…';
+  document.querySelector('.setup-btn').disabled = true;
+
+  try{
+    // Use redeem endpoint with dummy code to verify key exists
+    const r = await fetch(BACKEND+'/flash-offers/redeem',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ code: 'VERIFY', cashier_key: key })
+    });
+    const d = await r.json();
+
+    // Key is valid if we get "Code not found" (not "Invalid cashier key")
+    if(d.error === 'Invalid cashier key.'){
+      err.textContent = 'Invalid key. Please check and try again.';
+      err.style.display = 'block';
+      document.querySelector('.setup-btn').textContent = 'Access Offer →';
+      document.querySelector('.setup-btn').disabled = false;
+      return;
+    }
+
+    cashierKey = key;
+    // Save key to URL for bookmarking
+    history.replaceState(null,'',`?key=${key}`);
+
+    // Load offer details
+    await refreshCounter();
+    document.getElementById('setupCard').style.display='none';
+    document.getElementById('redeemCard').style.display='block';
+
+  }catch(e){
+    err.textContent = 'Cannot connect. Please check your internet.';
+    err.style.display = 'block';
+    document.querySelector('.setup-btn').textContent = 'Access Offer →';
+    document.querySelector('.setup-btn').disabled = false;
+  }
+}
+
+async function refreshCounter(){
+  try{
+    // Get all flash offers and find ours by cashier key
+    // We use a trick: attempt redeem with dummy code to get offer info
+    // Instead, just show the info from the last successful redeem
+    // For counter, we poll the status endpoint
+    if(!currentOffer) return;
+    const r = await fetch(`${BACKEND}/flash-offers/${currentOffer.id}/status`);
+    const d = await r.json();
+    if(d.success) updateCounter(d.remaining_qty, currentOffer.total_qty);
+  }catch(e){}
+}
+
+function updateCounter(remaining, total){
+  const bar  = document.getElementById('counterBar');
+  const fill = document.getElementById('counterFill');
+  const text = document.getElementById('counterText');
+  bar.style.display = 'block';
+  const pct = total > 0 ? (remaining / total) * 100 : 0;
+  fill.style.width = pct + '%';
+  fill.style.background = pct > 50 ? 'linear-gradient(90deg,#085041,#1D9E75)' : pct > 20 ? '#F0A500' : '#A32D2D';
+  text.textContent = `${remaining} of ${total} remaining`;
+}
+
+async function redeemCode(){
+  const code = document.getElementById('codeInput').value.trim().toUpperCase();
+  const btn  = document.getElementById('redeemBtn');
+  const res  = document.getElementById('result');
+
+  if(!code || code.length < 4){ showResult(false,'Enter the visitor code first.','',''); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Checking…';
+  res.style.display = 'none';
+
+  try{
+    const r = await fetch(BACKEND+'/flash-offers/redeem',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ code, cashier_key: cashierKey })
+    });
+    const d = await r.json();
+
+    if(d.success){
+      showResult(true, '✅ Valid!', d.visitor_name, `Charge: ${d.offer_price} ${d.currency}`);
+      if(currentOffer){
+        currentOffer.remaining_qty = Math.max(0, (currentOffer.remaining_qty||0) - 1);
+        updateCounter(currentOffer.remaining_qty, currentOffer.total_qty);
+      }
+      // Auto-clear after 4 seconds
+      setTimeout(clearResult, 4000);
+    } else {
+      showResult(false, '❌ Invalid', d.error, '');
+    }
+  }catch(e){
+    showResult(false,'Connection error','Please try again.','');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✅ Redeem Code';
+}
+
+function showResult(success, title, name, price){
+  const res = document.getElementById('result');
+  res.className = 'result ' + (success ? 'success' : 'error');
+  res.style.display = 'block';
+  document.getElementById('resultIcon').textContent = success ? '✅' : '❌';
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultName').textContent = name;
+  document.getElementById('resultPrice').textContent = price;
+  document.getElementById('resultPrice').style.color = success ? '#085041' : '#A32D2D';
+  document.getElementById('clearBtn').style.display = 'block';
+  document.getElementById('codeInput').value = '';
+}
+
+function clearResult(){
+  document.getElementById('result').style.display='none';
+  document.getElementById('clearBtn').style.display='none';
+  document.getElementById('codeInput').focus();
+}
+
+// Poll counter every 15 seconds
+setInterval(refreshCounter, 15000);
+</script>
+</body>
+</html>
