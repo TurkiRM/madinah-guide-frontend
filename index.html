@@ -231,6 +231,9 @@
           <div class="cat-pill" onclick="filterPlaces(this,'clinic')">🏥 Clinics</div>
           <div class="cat-pill" onclick="filterPlaces(this,'transport')">🚗 Transport</div>
         </div>
+        <!-- Flash offers — limited quantity with claim button -->
+        <div id="flashBanner" style="display:none;flex-direction:column;gap:0.65rem;margin-bottom:0.5rem"></div>
+
         <!-- Category offers banner — shows offers matching current category -->
         <div id="offersBanner" style="display:none;flex-direction:column;gap:0.65rem;margin-bottom:0.5rem"></div>
 
@@ -622,6 +625,7 @@ function chooseLang(lang){
   document.getElementById('app').classList.add('visible');
   fetchAllRatings().then(renderPlaces);
   fetchOffers();
+  fetchFlashOffers();
   requestLocation();
 }
 
@@ -986,6 +990,7 @@ function filterPlaces(el,cat){
   document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('on'));
   el.classList.add('on');
   renderPlaces();
+  renderFlashBanner();
   renderOffersBanner();
 }
 
@@ -1615,6 +1620,157 @@ function goToCall(){
 
 const saved=localStorage.getItem('mg_lang');
 if(saved)chooseLang(saved);
+// ══ FLASH OFFERS ══════════════════════════════════════════════════════════════
+let allFlashOffers = [];
+
+async function fetchFlashOffers(){
+  try{
+    const r = await fetch(BACKEND+'/flash-offers');
+    const d = await r.json();
+    if(d.success) allFlashOffers = d.offers||[];
+    renderFlashBanner();
+  }catch(e){ console.warn('Flash offers error:',e); }
+}
+
+function renderFlashBanner(){
+  const banner = document.getElementById('flashBanner');
+  if(!banner) return;
+  banner.innerHTML=''; banner.style.display='none';
+  if(!allFlashOffers.length) return;
+
+  const lang = curLang;
+  const rtl  = lang==='ar'||lang==='ur';
+
+  // Filter by current category
+  const catPlaceIds = curCat==='all'
+    ? PLACES.map(p=>p.id)
+    : PLACES.filter(p=>p.cat===curCat).map(p=>p.id);
+
+  const visible = allFlashOffers.filter(o => catPlaceIds.includes(o.place_id));
+  if(!visible.length) return;
+
+  banner.style.display='flex';
+
+  const flashLabel={en:'⚡ Flash Deals',ar:'⚡ عروض فلاش',ur:'⚡ فلیش ڈیلز',fr:'⚡ Ventes Flash',id:'⚡ Flash Sale',tr:'⚡ Flaş Teklifler',ru:'⚡ Флеш-акции'};
+  const hdr=document.createElement('div');
+  hdr.style.cssText='font-size:14px;font-weight:700;color:#A32D2D';
+  hdr.textContent=flashLabel[lang]||flashLabel.en;
+  banner.appendChild(hdr);
+
+  visible.forEach(o=>{
+    const title=(rtl&&o.title_ar)?o.title_ar:o.title_en;
+    const pct=o.total_qty>0?Math.round((o.remaining_qty/o.total_qty)*100):0;
+    const barColor=pct>50?'#1D9E75':pct>20?'#F0A500':'#A32D2D';
+    const placeData=PLACES.find(p=>p.id===o.place_id);
+    const cardImg=o.img||(placeData&&placeData.img)||null;
+    const cardIcon=placeData?placeData.icon:'⚡';
+
+    const card=document.createElement('div');
+    card.style.cssText='background:#fff;border-radius:14px;border:2px solid #FDE8E8;overflow:hidden;box-shadow:0 2px 8px rgba(163,45,45,0.12)';
+    card.innerHTML=`
+      <div style="display:flex;gap:0">
+        ${cardImg
+          ?`<div style="width:80px;flex-shrink:0;overflow:hidden"><img src="${cardImg}" style="width:100%;height:100%;object-fit:cover"/></div>`
+          :`<div style="width:80px;flex-shrink:0;background:linear-gradient(135deg,#A32D2D,#E05050);display:flex;align-items:center;justify-content:center;font-size:28px">${cardIcon}</div>`}
+        <div style="flex:1;padding:10px;min-width:0">
+          <div style="font-size:10px;color:#888;font-weight:600">${o.place_name_en}</div>
+          <div style="font-size:13px;font-weight:700;color:#1a1a1a;line-height:1.3">${title}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+            ${o.original_price?`<span style="font-size:11px;color:#aaa;text-decoration:line-through">${o.original_price} SAR</span>`:''}
+            <span style="font-size:16px;font-weight:800;color:#A32D2D">${o.offer_price} SAR</span>
+          </div>
+          <!-- Progress bar -->
+          <div style="background:#f0f0f0;border-radius:4px;height:5px;margin:5px 0">
+            <div style="width:${pct}%;background:${barColor};height:100%;border-radius:4px"></div>
+          </div>
+          <div style="font-size:10px;color:#555"><strong>${o.remaining_qty}</strong> of ${o.total_qty} left</div>
+        </div>
+        <div style="padding:10px;display:flex;align-items:center;flex-shrink:0">
+          <button onclick="openClaimModal(${JSON.stringify(o).replace(/"/g,'&quot;')})" style="background:#A32D2D;color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+            ${lang==='ar'?'احجز الآن':lang==='ur'?'ابھی لیں':'Claim'}
+          </button>
+        </div>
+      </div>`;
+    banner.appendChild(card);
+  });
+}
+
+// ── Claim Modal ───────────────────────────────────────────────────────────────
+let claimingOffer = null;
+
+function openClaimModal(offer){
+  claimingOffer = offer;
+  const lang=curLang; const rtl=lang==='ar'||lang==='ur';
+  const title=(rtl&&offer.title_ar)?offer.title_ar:offer.title_en;
+
+  const labels={
+    title:{en:'Claim Your Deal',ar:'احجز عرضك',ur:'اپنی ڈیل لیں',fr:'Réserver votre offre',id:'Klaim Penawaran',tr:'Teklifinizi Alın',ru:'Получить скидку'},
+    name:{en:'Your name',ar:'اسمك',ur:'آپ کا نام',fr:'Votre nom',id:'Nama Anda',tr:'Adınız',ru:'Ваше имя'},
+    email:{en:'Your email',ar:'بريدك الإلكتروني',ur:'آپ کی ای میل',fr:'Votre email',id:'Email Anda',tr:'E-postanız',ru:'Ваш email'},
+    btn:{en:'Get My Code',ar:'احصل على الكود',ur:'کوڈ حاصل کریں',fr:'Obtenir mon code',id:'Dapatkan Kode',tr:'Kodumu Al',ru:'Получить код'},
+    sub:{en:'Show this code to the cashier',ar:'أظهر هذا الكود للكاشير',ur:'یہ کوڈ کیشیئر کو دکھائیں',fr:'Montrez ce code au caissier',id:'Tunjukkan kode ini ke kasir',tr:'Bu kodu kasiyere gösterin',ru:'Покажите код кассиру'},
+  };
+
+  document.getElementById('placeModalContent').innerHTML=`
+    <div style="text-align:center;margin-bottom:1rem">
+      <div style="font-size:32px">⚡</div>
+      <div style="font-size:18px;font-weight:700;color:#A32D2D;margin-top:4px">${labels.title[lang]||labels.title.en}</div>
+      <div style="font-size:14px;color:#555;margin-top:4px">${title}</div>
+      <div style="font-size:22px;font-weight:800;color:#A32D2D;margin-top:4px">${offer.offer_price} SAR</div>
+      <div style="font-size:12px;color:#888">${offer.remaining_qty} of ${offer.total_qty} remaining</div>
+    </div>
+
+    <div id="claimForm" style="display:flex;flex-direction:column;gap:8px">
+      <input id="claimName"  placeholder="${labels.name[lang]||labels.name.en}"  style="padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit" dir="${rtl?'rtl':'ltr'}"/>
+      <input id="claimEmail" placeholder="${labels.email[lang]||labels.email.en}" type="email" style="padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit"/>
+      <button onclick="submitClaim()" style="padding:13px;background:#A32D2D;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer" id="claimBtn">
+        ${labels.btn[lang]||labels.btn.en}
+      </button>
+      <div id="claimMsg" style="font-size:13px;text-align:center;color:#888"></div>
+    </div>
+
+    <div id="claimResult" style="display:none;text-align:center;padding:1rem">
+      <div style="font-size:48px;font-weight:900;letter-spacing:8px;color:#085041;background:#E1F5EE;border-radius:14px;padding:1rem;margin-bottom:0.75rem" id="claimCode"></div>
+      <div style="font-size:14px;color:#555">${labels.sub[lang]||labels.sub.en}</div>
+      <div style="font-size:12px;color:#888;margin-top:4px">${offer.place_name_en}</div>
+    </div>`;
+
+  document.getElementById('placeModal').classList.add('open');
+}
+
+async function submitClaim(){
+  const name  = document.getElementById('claimName')?.value.trim();
+  const email = document.getElementById('claimEmail')?.value.trim();
+  const msg   = document.getElementById('claimMsg');
+  const btn   = document.getElementById('claimBtn');
+
+  const errLabels={en:'Please enter your name and email.',ar:'يرجى إدخال الاسم والبريد الإلكتروني.',ur:'براہ کرم نام اور ای میل درج کریں۔',fr:'Veuillez entrer votre nom et email.',id:'Masukkan nama dan email Anda.',tr:'Lütfen adınızı ve e-postanızı girin.',ru:'Введите имя и email.'};
+  if(!name||!email){ msg.style.color='#A32D2D'; msg.textContent=errLabels[curLang]||errLabels.en; return; }
+
+  btn.disabled=true; btn.textContent='…';
+  try{
+    const r=await fetch(BACKEND+'/flash-offers/claim',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({offer_id:claimingOffer.id,visitor_name:name,visitor_email:email})
+    });
+    const d=await r.json();
+    if(!d.success) throw new Error(d.error);
+
+    // Show code
+    document.getElementById('claimForm').style.display='none';
+    document.getElementById('claimResult').style.display='block';
+    document.getElementById('claimCode').textContent=d.code;
+
+    // Update local counter
+    const fo=allFlashOffers.find(o=>o.id===claimingOffer.id);
+    if(fo) fo.remaining_qty=d.remaining_qty||Math.max(0,fo.remaining_qty-1);
+    renderFlashBanner();
+
+  }catch(e){
+    btn.disabled=false; btn.textContent='Get My Code';
+    msg.style.color='#A32D2D'; msg.textContent=e.message;
+  }
+}
 // ══ OFFERS ════════════════════════════════════════════════════════════════════
 let allOffers = [];
 
