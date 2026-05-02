@@ -1709,7 +1709,12 @@ function openClaimModal(offer){
     email:{en:'Your email',ar:'بريدك الإلكتروني',ur:'آپ کی ای میل',fr:'Votre email',id:'Email Anda',tr:'E-postanız',ru:'Ваш email'},
     btn:{en:'Get My Code',ar:'احصل على الكود',ur:'کوڈ حاصل کریں',fr:'Obtenir mon code',id:'Dapatkan Kode',tr:'Kodumu Al',ru:'Получить код'},
     sub:{en:'Show this code to the cashier',ar:'أظهر هذا الكود للكاشير',ur:'یہ کوڈ کیشیئر کو دکھائیں',fr:'Montrez ce code au caissier',id:'Tunjukkan kode ini ke kasir',tr:'Bu kodu kasiyere gösterin',ru:'Покажите код кассиру'},
+    alreadyClaimed:{en:'You already claimed this deal',ar:'لقد حجزت هذا العرض مسبقاً',ur:'آپ یہ ڈیل پہلے ہی لے چکے ہیں',fr:'Vous avez déjà réclamé cette offre',id:'Anda sudah mengklaim penawaran ini',tr:'Bu teklifi zaten aldınız',ru:'Вы уже получили этот код'},
+    expired:{en:'Your code expired — claim again',ar:'انتهت صلاحية كودك — احجز مجدداً',ur:'آپ کا کوڈ ختم ہو گیا — دوبارہ لیں',fr:'Code expiré — réclamez à nouveau',id:'Kode kedaluwarsa — klaim lagi',tr:'Kodunuz süresi doldu — tekrar alın',ru:'Код истёк — получите снова'},
   };
+
+  // Check localStorage — has this device already claimed?
+  const existing = getDeviceClaim(offer.id);
 
   document.getElementById('placeModalContent').innerHTML=`
     <div style="text-align:center;margin-bottom:1rem">
@@ -1720,7 +1725,10 @@ function openClaimModal(offer){
       <div style="font-size:12px;color:#888">${offer.remaining_qty} of ${offer.total_qty} remaining</div>
     </div>
 
-    <div id="claimForm" style="display:flex;flex-direction:column;gap:8px">
+    <div id="claimForm" style="display:${existing&&!existing.expired?'none':'flex'};flex-direction:column;gap:8px">
+      ${existing&&existing.expired
+        ? `<div style="background:#FDE8E8;border-radius:10px;padding:0.75rem;text-align:center;font-size:13px;color:#A32D2D;margin-bottom:8px">${labels.expired[lang]||labels.expired.en}</div>`
+        : ''}
       <input id="claimName"  placeholder="${labels.name[lang]||labels.name.en}"  style="padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit" dir="${rtl?'rtl':'ltr'}"/>
       <input id="claimEmail" placeholder="${labels.email[lang]||labels.email.en}" type="email" style="padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit"/>
       <button onclick="submitClaim()" style="padding:13px;background:#A32D2D;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer" id="claimBtn">
@@ -1729,13 +1737,67 @@ function openClaimModal(offer){
       <div id="claimMsg" style="font-size:13px;text-align:center;color:#888"></div>
     </div>
 
-    <div id="claimResult" style="display:none;text-align:center;padding:1rem">
-      <div style="font-size:48px;font-weight:900;letter-spacing:8px;color:#085041;background:#E1F5EE;border-radius:14px;padding:1rem;margin-bottom:0.75rem" id="claimCode"></div>
+    <div id="claimResult" style="display:${existing&&!existing.expired?'block':'none'};text-align:center;padding:1rem">
+      ${existing&&!existing.expired
+        ? `<div style="font-size:13px;color:#085041;font-weight:600;margin-bottom:8px">${labels.alreadyClaimed[lang]||labels.alreadyClaimed.en}</div>`
+        : ''}
+      <div style="font-size:48px;font-weight:900;letter-spacing:8px;color:#085041;background:#E1F5EE;border-radius:14px;padding:1rem;margin-bottom:0.75rem" id="claimCode">${existing&&!existing.expired?existing.code:''}</div>
+      <div id="claimCountdown" style="font-size:13px;font-weight:600;margin-bottom:8px"></div>
       <div style="font-size:14px;color:#555">${labels.sub[lang]||labels.sub.en}</div>
       <div style="font-size:12px;color:#888;margin-top:4px">${offer.place_name_en}</div>
     </div>`;
 
   document.getElementById('placeModal').classList.add('open');
+
+  // If already claimed and not expired — show countdown immediately
+  if(existing && !existing.expired){
+    startCountdown(existing.expiresAt);
+  }
+}
+
+// ── LocalStorage helpers for flash claims ─────────────────────────────────────
+function getDeviceClaims(){ try{ return JSON.parse(localStorage.getItem('mg_flash_claims')||'{}'); }catch(e){ return {}; } }
+function saveDeviceClaim(offerId, code, expiresAt){
+  const claims = getDeviceClaims();
+  claims['offer_'+offerId] = { code, expiresAt, claimedAt: Date.now() };
+  localStorage.setItem('mg_flash_claims', JSON.stringify(claims));
+}
+function getDeviceClaim(offerId){
+  const c = getDeviceClaims()['offer_'+offerId];
+  if(!c) return null;
+  if(new Date(c.expiresAt) < new Date()){ return { ...c, expired: true }; }
+  return c;
+}
+
+let countdownInterval = null;
+
+function startCountdown(expiresAt){
+  if(countdownInterval) clearInterval(countdownInterval);
+  const el = document.getElementById('claimCountdown');
+  if(!el) return;
+
+  function tick(){
+    const diff = new Date(expiresAt) - new Date();
+    if(diff <= 0){
+      clearInterval(countdownInterval);
+      el.textContent = '⚠️ Code expired';
+      el.style.color = '#A32D2D';
+      return;
+    }
+    const mins = Math.floor(diff/60000);
+    const secs = Math.floor((diff%60000)/1000);
+    el.textContent = `⏱ Valid for ${mins}:${String(secs).padStart(2,'0')} minutes`;
+    el.style.color = diff < 5*60000 ? '#A32D2D' : '#085041';
+  }
+  tick();
+  countdownInterval = setInterval(tick, 1000);
+}
+
+function showClaimCode(code, expiresAt){
+  document.getElementById('claimForm').style.display='none';
+  document.getElementById('claimResult').style.display='block';
+  document.getElementById('claimCode').textContent=code;
+  startCountdown(expiresAt);
 }
 
 async function submitClaim(){
@@ -1756,10 +1818,11 @@ async function submitClaim(){
     const d=await r.json();
     if(!d.success) throw new Error(d.error);
 
-    // Show code
-    document.getElementById('claimForm').style.display='none';
-    document.getElementById('claimResult').style.display='block';
-    document.getElementById('claimCode').textContent=d.code;
+    // Save to localStorage
+    saveDeviceClaim(claimingOffer.id, d.code, d.expires_at);
+
+    // Show code with countdown
+    showClaimCode(d.code, d.expires_at);
 
     // Update local counter
     const fo=allFlashOffers.find(o=>o.id===claimingOffer.id);
