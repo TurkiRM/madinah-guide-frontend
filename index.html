@@ -229,9 +229,8 @@
           <div class="cat-pill" onclick="filterPlaces(this,'pharmacy')">💊 Pharmacy</div>
           <div class="cat-pill" onclick="filterPlaces(this,'salon')">✂️ Salons</div>
           <div class="cat-pill" onclick="filterPlaces(this,'clinic')">🏥 Clinics</div>
-          <div class="cat-pill" onclick="filterPlaces(this,'services')">🛎️ Services</div>
           <div class="cat-pill" onclick="filterPlaces(this,'transport')">🚗 Transport</div>
-          
+          <div class="cat-pill" onclick="filterPlaces(this,'services')">🛎️ Services</div>
         </div>
         <!-- Flash offers — limited quantity with claim button -->
         <div id="flashBanner" style="display:none;flex-direction:column;gap:0.65rem;margin-bottom:0.5rem"></div>
@@ -925,7 +924,7 @@ function filterPlaces(el,cat){
 function renderPlaces(){
   const list=document.getElementById('placesList');
   const lang=curLang;
-  const COMMERCIAL_CATS = ['restaurant','coffee','market','hotel','shopping','pharmacy','salon','clinic','transport'];
+  const COMMERCIAL_CATS = ['restaurant','coffee','market','hotel','shopping','pharmacy','salon','clinic','transport','services'];
   const visiblePlaces = PLACES.filter(p => COMMERCIAL_CATS.includes(p.cat));
   const filtered = curCat==='all' ? visiblePlaces : PLACES.filter(p=>p.cat===curCat);
   list.innerHTML='';
@@ -1085,7 +1084,7 @@ function buildNearbyContext(fromPlace){
   const visitorLng = userLng || MADINAH_LNG;
   const distToPlace = haversineKm(visitorLat, visitorLng, fromPlace.lat, fromPlace.lng);
 
-  const COMMERCIAL_CATS = ['restaurant','coffee','market','hotel','shopping','pharmacy','salon','clinic','transport'];
+  const COMMERCIAL_CATS = ['restaurant','coffee','market','hotel','shopping','pharmacy','salon','clinic','transport','services'];
 
   // Find nearby commercial places sorted by distance from this place (within 3km)
   const nearby = PLACES
