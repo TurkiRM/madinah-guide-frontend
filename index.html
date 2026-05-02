@@ -1658,11 +1658,62 @@ function openClaimModal(offer){
 
     <div id="claimResult" style="display:none;text-align:center;padding:1rem">
       <div style="font-size:48px;font-weight:900;letter-spacing:8px;color:#085041;background:#E1F5EE;border-radius:14px;padding:1rem;margin-bottom:0.75rem" id="claimCode"></div>
+      <div id="claimCountdown" style="font-size:13px;font-weight:600;margin-bottom:8px"></div>
       <div style="font-size:14px;color:#555">${labels.sub[lang]||labels.sub.en}</div>
       <div style="font-size:12px;color:#888;margin-top:4px">${offer.place_name_en}</div>
     </div>`;
 
   document.getElementById('placeModal').classList.add('open');
+
+  // Check if this device already claimed — show code immediately with countdown
+  const existing = getDeviceClaim(offer.id);
+  if(existing && !existing.expired){
+    document.getElementById('claimForm').style.display='none';
+    document.getElementById('claimResult').style.display='block';
+    document.getElementById('claimCode').textContent = existing.code;
+    startCountdown(existing.expiresAt);
+  } else if(existing && existing.expired){
+    // Show expired message so they know to claim again
+    const expMsg = document.getElementById('claimMsg');
+    if(expMsg){ expMsg.style.color='#A32D2D'; expMsg.textContent='Your previous code expired. Please claim again.'; }
+  }
+}
+
+// ── LocalStorage helpers for flash claims ─────────────────────────────────────
+function getDeviceClaims(){ try{ return JSON.parse(localStorage.getItem('mg_flash_claims')||'{}'); }catch(e){ return {}; } }
+function saveDeviceClaim(offerId, code, expiresAt){
+  const claims = getDeviceClaims();
+  claims['offer_'+offerId] = { code, expiresAt, claimedAt: Date.now() };
+  localStorage.setItem('mg_flash_claims', JSON.stringify(claims));
+}
+function getDeviceClaim(offerId){
+  const c = getDeviceClaims()['offer_'+offerId];
+  if(!c) return null;
+  if(new Date(c.expiresAt) < new Date()) return { ...c, expired: true };
+  return c;
+}
+
+let countdownInterval = null;
+
+function startCountdown(expiresAt){
+  if(countdownInterval) clearInterval(countdownInterval);
+  function tick(){
+    const el = document.getElementById('claimCountdown');
+    if(!el){ clearInterval(countdownInterval); return; }
+    const diff = new Date(expiresAt) - new Date();
+    if(diff <= 0){
+      clearInterval(countdownInterval);
+      el.textContent = '⚠️ Code expired';
+      el.style.color = '#A32D2D';
+      return;
+    }
+    const mins = Math.floor(diff/60000);
+    const secs = Math.floor((diff%60000)/1000);
+    el.textContent = `⏱ Valid for ${mins}:${String(secs).padStart(2,'0')} min`;
+    el.style.color = diff < 5*60000 ? '#A32D2D' : '#085041';
+  }
+  tick();
+  countdownInterval = setInterval(tick, 1000);
 }
 
 async function submitClaim(){
@@ -1671,7 +1722,7 @@ async function submitClaim(){
   const msg   = document.getElementById('claimMsg');
   const btn   = document.getElementById('claimBtn');
 
-  const errLabels={en:'Please enter your name and email.',ar:'يرجى إدخال الاسم والبريد الإلكتروني.',ur:'براہ کرم نام اور ای میل درج کریں۔',fr:'Veuillez entrer votre nom et email.',id:'Masukkan nama dan email Anda.',tr:'Lütfen adınızı ve e-postanızı girin.',ru:'Введите имя и email.'};
+  const errLabels={en:'Please enter your name and email.',ar:'يرجى إدخال الاسم والبريد الإلكتروني.',ur:'براہ کرم نام اور ای میل درج کریں۔',fr:'Veuillez entrer votre nom et email.',id:'Masukkan nama dan email Anda.',tr:'Lutfen adinizi ve e-postanizi girin.',ru:'Введите имя и email.'};
   if(!name||!email){ msg.style.color='#A32D2D'; msg.textContent=errLabels[curLang]||errLabels.en; return; }
 
   btn.disabled=true; btn.textContent='…';
@@ -1683,10 +1734,14 @@ async function submitClaim(){
     const d=await r.json();
     if(!d.success) throw new Error(d.error);
 
-    // Show code
+    // Save to localStorage with expiry
+    saveDeviceClaim(claimingOffer.id, d.code, d.expires_at);
+
+    // Show code with countdown
     document.getElementById('claimForm').style.display='none';
     document.getElementById('claimResult').style.display='block';
-    document.getElementById('claimCode').textContent=d.code;
+    document.getElementById('claimCode').textContent = d.code;
+    startCountdown(d.expires_at);
 
     // Update local counter
     const fo=allFlashOffers.find(o=>o.id===claimingOffer.id);
