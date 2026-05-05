@@ -444,11 +444,11 @@ const PLACES = [
       {nameEn:'Al Hijrah Walkway',        nameAr:'ممشى الهجرة',               lat:24.424862,  lng:39.594131},
     ]},
 
-  {id:74,icon:'🍽️',cat:'restaurant',nameEn:'Ghaith Azal Restaurant',nameAr:'مطعم غيث أزال',cost:'5 - 60 SAR',instagram:'ghayth_azal',img:'photos/ghaithazal.jpeg',descAr:'مطعم يقدم المأكولات الشعبية واليمنية الأصيلة، والمشاوي والرز مع اللحم والدجاج في المدينة المنورة.',descEn:'A restaurant serving authentic traditional and Yemeni cuisine, grills, and rice with meat and chicken in Madinah.',descUr:'مدینہ منورہ میں روایتی اور یمنی کھانے، گرلز، اور گوشت و چکن کے ساتھ چاول پیش کرنے والا ایک ریستورانت۔',descFr:'Un restaurant proposant une cuisine traditionnelle et yéménite authentique, des grillades et du riz avec de la viande et du poulet à Médine.',descId:'Restoran yang menyajikan masakan tradisional dan Yaman otentik, panggangan, dan nasi dengan daging serta ayam di Madinah.',descTr:'Medine\'de otantik geleneksel ve Yemen mutfağı, ızgaralar ve etli/tavuklu pilav sunan bir restoran.',descRu:'Ресторан аутентичной традиционной и йеменской кухни, гриля и риса с мясом и курицей в Медине.',lat:24.47697,lng:39.59100,infoEn:'The restaurant has a 25% discount on grills, chicken, and rice, plus an additional 5 SAR off for the first 30 customers. Offer valid until the end of May 5, 2026.',infoAr:'المطعم لديه عرض خصم 25% على المشويات والدجاج والرز بالاضافه الى خصم اضافي 5 ريال لأول 30 عميل العرض مستمر حتى نهاية 5 مايو 2026'},
+  {id:74,icon:'🍽️',cat:'restaurant',nameEn:'Ghaith Azal Restaurant',nameAr:'مطعم غيث أزال',cost:'30 - 80 SAR',instagram:'ghaithazal',img:'photos/ghaith-azal.jpg',descAr:'مطعم يقدم المأكولات الشعبية واليمنية الأصيلة في المدينة المنورة.',descEn:'A restaurant serving authentic traditional and Yemeni cuisine in Madinah.',descUr:'مدینہ منورہ میں روایتی اور یمنی کھانے پیش کرنے والا ایک ریستورانت۔',descFr:'Un restaurant proposant une cuisine traditionnelle et yemenite authentique a Medine.',descId:'Restoran yang menyajikan masakan tradisional dan Yaman otentik di Madinah.',descTr:'Medine de otantik geleneksel ve Yemen mutfagi sunan bir restoran.',descRu:'Ресторан аутентичной традиционной и йеменской кухни в Медине.',lat:24.47697,lng:39.59100,infoEn:'',infoAr:''},
+
   // --- SERVICES ---
   {id:82,icon:'🧺',cat:'services',nameEn:'Al-Sayh Laundry',nameAr:'مغسلة ملابس (حي السيح)',cost:'Varies',instagram:null,img:'photos/sayh-laundry.jpg',descAr:'مغسلة ملابس تقدم خدمات الغسيل والكي في حي السيح.',descEn:'A laundry service providing washing and ironing in the Al-Sayh neighborhood.',descUr:'سیح کے علاقے میں کپڑے دھونے اور استری کی خدمات فراہم کرنے والی لانڈری۔',descFr:'Blanchisserie offrant des services de lavage et repassage dans le quartier Al-Sayh.',descId:'Layanan penatu menyediakan jasa cuci dan setrika di lingkungan Al-Sayh.',descTr:'Al-Sayh mahallesinde yikama ve ütüleme hizmetleri sunan camasırhane.',descRu:'Прачечная со стиркой и глажкой в районе Аль-Сайх.',lat:24.47098,lng:39.59462,infoEn:'',infoAr:'غسيل جميع أنواع الملابس والبطانيات'},
-  {id:83,icon:'💻',cat:'services',nameEn:'Vision and Solutions Est.',nameAr:'مؤسسة رؤية وحلول',cost:'Varies',instagram:null,img:'photos/vision-solutions.jpg',descAr:'محل لبيع أجهزة الكمبيوتر وملحقاته وصيانته.',descEn:'A shop for selling computers, accessories, and maintenance services.',descUr:'کمپیوٹر، اس کے لوازمات کی فروخت اور مرمت کی دکان۔',descFr:'Un magasin de vente d\'ordinateurs, d\'accessoires et de services de maintenance.',descId:'Toko penjualan komputer, aksesori, dan layanan pemeliharaan.',descTr:'Bilgisayar, aksesuar satışı ve bakım hizmetleri sunan bir mağaza.',descRu:'Магазин по продаже компьютеров, аксессуаров и услуг по техническому обслуживанию.',lat:24.47846,lng:39.58560,infoEn:'',infoAr:''},
-  
+
   // --- TRANSPORT ---
   {id:80,icon:'🚗',cat:'transport',nameEn:'Al-Ruhaili Car Rental',nameAr:'مكتب الرحيلي لتأجير السيارات',cost:'120 - 350 SAR',instagram:null,img:'photos/alruhaili-cars.jpg',descAr:'مكتب محلي لتأجير السيارات، يشمل جميع الفروع في المدينة المنورة.',descEn:'A local car rental office, including all branches within Madinah.',descUr:'گاڑیوں کے کرایے کا مقامی دفتر، جس میں مدینہ منورہ کی تمام شاخیں شامل ہیں۔',descFr:'Bureau local de location de voitures, toutes succursales a Medine.',descId:'Kantor penyewaan mobil lokal, semua cabang di Madinah.',descTr:'Medine deki tum subeleri kapsayan yerel arac kiralama ofisi.',descRu:'Местный офис проката авто, все филиалы в Медине.',lat:24.47293240453584,lng:39.64682638543038,
     branches:[
@@ -687,14 +687,35 @@ function addMsg(role,text){
 function showTyping(){hideWelcome();const div=document.createElement('div');div.className='msg ai';div.id='typ';div.innerHTML='<div class="msg-av">🕌</div><div class="typing"><span></span><span></span><span></span></div>';const m=document.getElementById('messages');m.appendChild(div);m.scrollTop=m.scrollHeight;}
 function removeTyping(){const e=document.getElementById('typ');if(e)e.remove();}
 
+// Offer-seeking keywords in all 7 languages
+const OFFER_KEYWORDS = [
+  // English
+  'discount','offer','deal','cheap','save','budget','affordable','best price','promotion','sale','off',
+  // Arabic
+  'خصم','عرض','عروض','رخيص','توفير','ميزانية','أرخص','تخفيض','تنزيلات','وفر',
+  // Urdu
+  'رعایت','آفر','سستا','بچت','ڈسکاؤنٹ','سیل',
+  // French
+  'réduction','offre','promotion','pas cher','économie','rabais',
+  // Indonesian
+  'diskon','promo','murah','hemat','penawaran','tawaran',
+  // Turkish
+  'indirim','teklif','ucuz','tasarruf','kampanya','promosyon',
+  // Russian
+  'скидка','акция','дешево','предложение','экономия','распродажа',
+];
+
+function isOfferSeeking(text){
+  const low = text.toLowerCase();
+  return OFFER_KEYWORDS.some(w => low.includes(w));
+}
+
 function detectType(text){
   if(detectedType)return;
-  const p=['hajj','umrah','umra','ziyarat','prophet','rawdah','nabawi','pilgrimage','عمرة','حج','نبوي','روضة','عمرہ'];
   const to=['tourist','tourism','sightseeing','vacation','holiday'];
   const low=text.toLowerCase();
   const t=T[curLang]||T.en;
-  if(p.some(w=>low.includes(w))){detectedType='pilgrim';const b=document.getElementById('visitorBadge');b.textContent=t.pilgrim;b.className='visitor-badge vb-p';}
-  else if(to.some(w=>low.includes(w))){detectedType='tourist';const b=document.getElementById('visitorBadge');b.textContent=t.tourist;b.className='visitor-badge vb-t';}
+  if(to.some(w=>low.includes(w))){detectedType='tourist';const b=document.getElementById('visitorBadge');b.textContent=t.tourist;b.className='visitor-badge vb-t';}
 }
 
 async function sendMessage(){
@@ -734,7 +755,17 @@ async function sendMessage(){
 
   addMsg('user', displayText);
   detectType(text);
-  chatHistory.push({role:'user',content:text});
+
+  // If visitor is looking for offers/discounts — prepend offer context to their message
+  let messageToSend = text;
+  if(isOfferSeeking(text) && (allFlashOffers.length > 0 || allOffers.length > 0)){
+    const offerHint = allFlashOffers.length > 0
+      ? `[Context: visitor is looking for deals. We have ${allFlashOffers.length} active flash deal(s) and ${allOffers.length} promotion(s) right now — prioritize these in your response]`
+      : `[Context: visitor is looking for deals. We have ${allOffers.length} active promotion(s) — prioritize these]`;
+    messageToSend = text + '\n\n' + offerHint;
+  }
+
+  chatHistory.push({role:'user',content:messageToSend});
   showTyping();
   const ratingStr = (p) => { const rv=ratingsCache[p.id]; return rv&&rv.count>0?`★${rv.rating}(${rv.count} reviews)`:''; };
   const placeList = (cat) => PLACES.filter(p=>p.cat===cat).map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}${ratingStr(p)?' '+ratingStr(p):''} — ${p.descEn}`).join('\n');
@@ -744,30 +775,51 @@ async function sendMessage(){
     return `• ${p.nameEn} (${p.nameAr}) — ${p.cost}${ratingStr(p)?' '+ratingStr(p):''}${info}`;
   }).join('\n');
 
+  // Build offers context — include all active regular offers and flash offers
+  const offersCtx = (() => {
+    const parts = [];
+
+    if(allFlashOffers.length > 0){
+      parts.push('⚡ FLASH DEALS — LIMITED QUANTITY (tell customer to tap Claim Now!):');
+      allFlashOffers.forEach(o => {
+        parts.push(`• ${o.place_name_en}: "${o.title_en}" — ${o.offer_price} SAR${o.original_price?' (was '+o.original_price+' SAR)':''} — ${o.remaining_qty} of ${o.total_qty} left — expires ${new Date(o.valid_until).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
+      });
+    }
+
+    if(allOffers.length > 0){
+      parts.push('\n🎁 CURRENT PROMOTIONS:');
+      allOffers.forEach(o => {
+        parts.push(`• ${o.place_name_en}: "${o.title_en}"${o.discount?' — '+o.discount:''} — valid until ${new Date(o.valid_until).toLocaleDateString()}`);
+      });
+    }
+
+    return parts.length > 0
+      ? '\n\n' + parts.join('\n')
+      : '\n\n(No active offers at the moment)';
+  })();
+
   const bizContext = `
 
-MADINAH GUIDE — VERIFIED PLACES DATABASE:
-Recommend from this list first. Use exact English names so they become tappable links.
+MADINAH GUIDE — VERIFIED PLACES & LIVE OFFERS:
+Recommend from this list. Use exact English names so they become tappable links.
 
-🍽️ RESTAURANTS (${PLACES.filter(p=>p.cat==='restaurant').length} places):
+🍽️ RESTAURANTS:
 ${placeList('restaurant')}
 
-☕ CAFES (${PLACES.filter(p=>p.cat==='coffee').length} places):
+☕ CAFES:
 ${placeList('coffee')}
 
-🛒 MARKETS (${PLACES.filter(p=>p.cat==='market').length} places):
+🛒 MARKETS:
 ${placeList('market')}
-
-🏨 HOTELS: Anwar Al Madinah Mövenpick, Pullman Zamzam, Hilton Madinah, Dar Al Tawfiq, Al Shohada Hotel — all near the Haram.
 
 🚗 TRANSPORT:
 ${placeList('transport')}
 
-${PLACES.filter(p=>p.cat==='hotel').length > 0 ? '🏨 HOTELS IN DATABASE:\n'+placeList('hotel') : ''}
-${PLACES.filter(p=>p.cat==='pharmacy').length > 0 ? '💊 PHARMACIES:\n'+placeList('pharmacy') : ''}
-${PLACES.filter(p=>p.cat==='salon').length > 0 ? '✂️ SALONS:\n'+placeList('salon') : ''}
-${PLACES.filter(p=>p.cat==='shopping').length > 0 ? '🛍️ SHOPPING:\n'+placeList('shopping') : ''}
-${PLACES.filter(p=>p.cat==='clinic').length > 0 ? '🏥 CLINICS:\n'+placeList('clinic') : ''}`;
+🛎️ SERVICES:
+${placeList('services')}
+
+🏨 HOTELS (not listed yet): Anwar Al Madinah Mövenpick, Pullman Zamzam, Hilton Madinah, Dar Al Tawfiq.
+${offersCtx}`;
   try{
     const r=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.slice(-10),language:curLang,visitorType:detectedType,bizContext,userLat,userLng})});
     const d=await r.json();
