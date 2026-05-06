@@ -1502,11 +1502,34 @@ function loadPrayer(){
   const locale = curLang==='ar'?'ar-SA':curLang==='tr'?'tr-TR':curLang==='ru'?'ru-RU':'en-US';
   const dateStr = now.toLocaleDateString(locale, {weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
-  // Hijri date using built-in Intl API
-  const hijriStr = now.toLocaleDateString(
-    curLang==='ar' ? 'ar-SA-u-ca-islamic-umalqura' : 'en-u-ca-islamic-umalqura',
-    {day:'numeric', month:'long', year:'numeric', calendar:'islamic-umalqura'}
-  );
+  // Hijri date — always calculate using Arabic Islamic calendar, then translate month name
+  const hijriMonths = {
+    en: ['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Shaban','Ramadan','Shawwal','Dhul Qadah','Dhul Hijjah'],
+    ar: ['محرم','صفر','ربيع الأول','ربيع الثاني','جمادى الأولى','جمادى الثانية','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'],
+    ur: ['محرم','صفر','ربیع الاول','ربیع الثانی','جمادی الاول','جمادی الثانی','رجب','شعبان','رمضان','شوال','ذوالقعدہ','ذوالحجہ'],
+    fr: ['Mouharram','Safar','Rabi al-Awwal','Rabi al-Thani','Joumada al-Awwal','Joumada al-Thani','Rajab','Chaabane','Ramadan','Chawwal','Dhu al-Qida','Dhu al-Hijja'],
+    id: ['Muharram','Safar','Rabi ul-Awal','Rabi ul-Akhir','Jumadil Awal','Jumadil Akhir','Rajab','Syaban','Ramadan','Syawal','Zulkaidah','Zulhijjah'],
+    tr: ['Muharrem','Safer','Rebiülevvel','Rebiülahir','Cemaziyelevvel','Cemaziyelahir','Recep','Şaban','Ramazan','Şevval','Zilkade','Zilhicce'],
+    ru: ['Мухаррам','Сафар','Раби аль-Авваль','Раби ас-Сани','Джумада аль-Авваль','Джумада ас-Сани','Раджаб','Шаабан','Рамадан','Шавваль','Зуль-Каада','Зуль-Хиджа'],
+  };
+
+  // Get Hijri parts using Arabic locale (most reliable)
+  const hijriAr = now.toLocaleDateString('ar-SA-u-ca-islamic-umalqura',
+    {day:'numeric', month:'numeric', year:'numeric'});
+  // Parse: expected format like "١١/١١/١٤٤٦" or similar
+  // Use numeric to get raw numbers reliably
+  const hijriParts = now.toLocaleDateString('en-u-ca-islamic-umalqura',
+    {day:'numeric', month:'numeric', year:'numeric'}).split('/');
+  const hijriMonth = parseInt(hijriParts[0]) - 1; // 0-indexed
+  const hijriDay   = parseInt(hijriParts[1]);
+  const hijriYear  = parseInt(hijriParts[2]);
+
+  const months = hijriMonths[curLang] || hijriMonths.en;
+  const monthName = months[hijriMonth] || months[0];
+
+  const hijriStr = curLang==='ar'||curLang==='ur'
+    ? `${hijriDay} ${monthName} ${hijriYear}`
+    : `${hijriDay} ${monthName} ${hijriYear} AH`;
 
   const pNames = PRAYER_NAMES[curLang]||PRAYER_NAMES.en;
 
