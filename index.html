@@ -1685,6 +1685,12 @@ function speak(text){
   // Strip markdown and emojis for cleaner speech
   const clean = text
     .replace(/[*]{2}(.+?)[*]{2}/g, '$1')
+    .replace(/[*_~`#]/g, '')
+    .replace(/\p{Emoji}/gu, '')
+    .replace(/[\u2600-\u27BF]/g, '')
+    .replace(/[\uFE00-\uFE0F]/g, '')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/\s{2,}/g, ' ')
     .split('\n\n').join('. ')
     .split('\n').join(', ')
     .trim();
