@@ -897,34 +897,36 @@ function linkifyPlaces(text) {
   // sort by name length descending so longer names match first
   const sorted = [...PLACES].sort((a,b) => b.nameEn.length - a.nameEn.length);
   sorted.forEach(p => {
-    if(!p.lat || !p.lng) return;
-    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&destination_place_name=${encodeURIComponent(p.nameEn)}`;
     // match English name
     const enRegex = new RegExp(p.nameEn.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
-    result = result.replace(enRegex, `[[MAPS:${p.nameEn}|${mapsUrl}]]`);
+    result = result.replace(enRegex, `[[PLACE:${p.nameEn}|${p.id}]]`);
     // match Arabic name
     if(p.nameAr) {
       const arRegex = new RegExp(p.nameAr.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
-      result = result.replace(arRegex, `[[MAPS:${p.nameAr}|${mapsUrl}]]`);
+      result = result.replace(arRegex, `[[PLACE:${p.nameAr}|${p.id}]]`);
     }
   });
   return result;
 }
 
 function renderReply(text) {
-  // first linkify places
   const linked = linkifyPlaces(text);
   // escape HTML
   const escaped = linked
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  // convert [[MAPS:label|url]] to styled links
-  const withLinks = escaped.replace(/\[\[MAPS:([^|]+)\|([^\]]+)\]\]/g,
-    (_, label, url) =>
-      `<a href="${url}" target="_blank" style="color:#085041;font-weight:600;text-decoration:none;border-bottom:1px solid #085041;">📍 ${label}</a>`
+  // convert [[PLACE:label|id]] to styled buttons that open place modal
+  const withLinks = escaped.replace(/\[\[PLACE:([^|]+)\|(\d+)\]\]/g,
+    (_, label, id) =>
+      `<span onclick="openPlaceById(${id})" style="color:#085041;font-weight:600;cursor:pointer;border-bottom:1.5px solid #1D9E75;white-space:nowrap;display:inline-flex;align-items:center;gap:3px">📍 ${label}</span>`
   );
   // convert markdown-style **bold**
   const withBold = withLinks.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
   return withBold;
+}
+
+function openPlaceById(id){
+  const p = PLACES.find(pl => pl.id === id);
+  if(p) openModal(p);
 }
 
 function quickSend(key){
