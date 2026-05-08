@@ -801,22 +801,55 @@ async function sendMessage(){
     return `• ${p.nameEn} (${p.nameAr}) — ${p.cost}${ratingStr(p)?' '+ratingStr(p):''}${info}`;
   }).join('\n');
 
-  // Build offers context — include all active regular offers and flash offers
+  // ── Detect which category the visitor is asking about ──────────────────────
+  const msgLow = text.toLowerCase();
+  const catKeywords = {
+    restaurant: ['food','eat','restaurant','lunch','dinner','meal','مطعم','اكل','غداء','عشاء','khaana','manger','makan','yemek','еда','برگر','chicken','دجاج','برياني','مشوي','grill'],
+    coffee:     ['coffee','cafe','كافيه','قهوة','كفة','cappuccino','latte','kahve','кофе','caffee','mqaha'],
+    market:     ['market','supermarket','grocery','سوق','بقالة','pasar','marché','рынок','bazar'],
+    shopping:   ['shop','shopping','clothes','ملابس','تسوق','pakaian','vêtement','одежда'],
+    transport:  ['car','rent','taxi','transport','سيارة','تأجير','araç','автомобиль','transportasi'],
+    services:   ['laundry','gym','fitness','computer','service','غسيل','صالة','كمبيوتر','layanan','hizmet','услуга'],
+  };
+
+  let detectedCat = null;
+  for(const [cat, words] of Object.entries(catKeywords)){
+    if(words.some(w => msgLow.includes(w))){ detectedCat = cat; break; }
+  }
+
+  // ── Filter offers to only those matching detected category ─────────────────
+  const relevantPlaceIds = detectedCat
+    ? PLACES.filter(p => p.cat === detectedCat).map(p => p.id)
+    : null; // null = show all offers
+
+  const filterOffers = (offers) => relevantPlaceIds
+    ? offers.filter(o => relevantPlaceIds.includes(o.place_id))
+    : offers;
+
+  const relevantFlash  = filterOffers(allFlashOffers);
+  const relevantOffers = filterOffers(allOffers);
+
+  // Build offers context — only relevant to detected category
   const offersCtx = (() => {
     const parts = [];
 
-    if(allFlashOffers.length > 0){
+    if(relevantFlash.length > 0){
       parts.push('⚡ FLASH DEALS — LIMITED QUANTITY (tell customer to tap Claim Now!):');
-      allFlashOffers.forEach(o => {
+      relevantFlash.forEach(o => {
         parts.push(`• ${o.place_name_en}: "${o.title_en}" — ${o.offer_price} SAR${o.original_price?' (was '+o.original_price+' SAR)':''} — ${o.remaining_qty} of ${o.total_qty} left — expires ${new Date(o.valid_until).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
       });
     }
 
-    if(allOffers.length > 0){
+    if(relevantOffers.length > 0){
       parts.push('\n🎁 CURRENT PROMOTIONS:');
-      allOffers.forEach(o => {
+      relevantOffers.forEach(o => {
         parts.push(`• ${o.place_name_en}: "${o.title_en}"${o.discount?' — '+o.discount:''} — valid until ${new Date(o.valid_until).toLocaleDateString()}`);
       });
+    }
+
+    // If no offers match the category — explicitly tell AI not to mention unrelated offers
+    if(parts.length === 0 && detectedCat){
+      return `\n\n(No active offers for ${detectedCat} right now — do NOT mention offers from other categories)`;
     }
 
     return parts.length > 0
