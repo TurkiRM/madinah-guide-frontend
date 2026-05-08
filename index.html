@@ -207,6 +207,8 @@
       </div>
       <div class="input-bar">
         <textarea id="userInput" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button id="ttsToggleBtn" onclick="toggleTTS()" style="width:36px;height:36px;border-radius:50%;background:#f5f5f0;border:1.5px solid #e0e0e0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0" title="Mute Daleel">🔊</button>
+        <button id="micBtn" onclick="toggleMic()" style="width:42px;height:42px;border-radius:50%;background:#f5f5f0;border:1.5px solid #e0e0e0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:all 0.2s" title="Speak">🎤</button>
         <button class="send-btn" id="sendBtn" onclick="sendMessage()">
           <svg class="send-icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
@@ -851,6 +853,7 @@ ${offersCtx}`;
     const reply=d.reply||'Sorry, please try again.';
     chatHistory.push({role:'assistant',content:reply});
     removeTyping();addMsg('ai',reply);detectType(reply);
+    speak(reply);
   }catch(e){removeTyping();addMsg('ai','Sorry, I could not connect. Please try again or call a local guide.');}
   isTyping=false;document.getElementById('sendBtn').disabled=false;
 }
@@ -1661,6 +1664,154 @@ function goToCall(){
 
 const saved=localStorage.getItem('mg_lang');
 if(saved)chooseLang(saved);
+// ══ SPEECH — VOICE INPUT & OUTPUT ════════════════════════════════════════════
+let recognition  = null;
+let isListening  = false;
+let isSpeaking   = false;
+let ttsEnabled   = true; // auto-read AI responses
+
+// ── Language map for Web Speech API ──────────────────────────────────────────
+const SPEECH_LANG = {
+  en: 'en-US', ar: 'ar-SA', ur: 'ur-PK',
+  fr: 'fr-FR', id: 'id-ID', tr: 'tr-TR', ru: 'ru-RU'
+};
+
+// ── Text to Speech ────────────────────────────────────────────────────────────
+function speak(text){
+  if(!ttsEnabled || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel(); // stop any current speech
+  isSpeaking = true;
+
+  // Strip markdown and emojis for cleaner speech
+  const clean = text
+    .replace(/[*]{2}(.+?)[*]{2}/g, '$1')
+    .split('\n\n').join('. ')
+    .split('\n').join(', ')
+    .trim();
+
+  const utter = new SpeechSynthesisUtterance(clean);
+  utter.lang = SPEECH_LANG[curLang] || 'en-US';
+  utter.rate = 0.95;
+  utter.pitch = 1;
+  utter.volume = 1;
+
+  // Pick best available voice for the language
+  const voices = window.speechSynthesis.getVoices();
+  const match = voices.find(v => v.lang.startsWith(utter.lang.split('-')[0]));
+  if(match) utter.voice = match;
+
+  utter.onend = () => { isSpeaking = false; };
+  utter.onerror = () => { isSpeaking = false; };
+
+  window.speechSynthesis.speak(utter);
+}
+
+function stopSpeaking(){
+  window.speechSynthesis.cancel();
+  isSpeaking = false;
+}
+
+// ── Speech Recognition (mic) ──────────────────────────────────────────────────
+function toggleMic(){
+  if(isListening){ stopListening(); return; }
+  startListening();
+}
+
+function startListening(){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition){
+    const msgs = {
+      en:'Voice input is not supported in this browser. Please use Chrome.',
+      ar:'التعرف على الصوت غير مدعوم في هذا المتصفح. استخدم Chrome.',
+      ur:'آواز کا ان پٹ اس براؤزر میں سپورٹ نہیں — Chrome استعمال کریں۔',
+      fr:'La saisie vocale non supportee. Utilisez Chrome.',
+      id:'Input suara tidak didukung. Gunakan Chrome.',
+      tr:'Ses girişi desteklenmiyor. Chrome kullanın.',
+      ru:'Голосовой ввод не поддерживается. Используйте Chrome.'
+    };
+    alert(msgs[curLang]||msgs.en);
+    return;
+  }
+
+  // Stop any current speech before listening
+  stopSpeaking();
+
+  recognition = new SpeechRecognition();
+  recognition.lang = SPEECH_LANG[curLang] || 'en-US';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    isListening = true;
+    const btn = document.getElementById('micBtn');
+    btn.textContent = '🔴';
+    btn.style.background = '#FDE8E8';
+    btn.style.borderColor = '#A32D2D';
+    btn.style.animation = 'pulse 1s infinite';
+    // Show listening hint in input
+    document.getElementById('userInput').placeholder =
+      curLang==='ar' ? '🎤 جارٍ الاستماع…' :
+      curLang==='ur' ? '🎤 سن رہا ہوں…' :
+      curLang==='fr' ? '🎤 Ecoute...' :
+      curLang==='id' ? '🎤 Mendengarkan…' :
+      curLang==='tr' ? '🎤 Dinleniyor…' :
+      curLang==='ru' ? '🎤 Слушаю…' :
+      '🎤 Listening…';
+  };
+
+  recognition.onresult = (e) => {
+    const transcript = Array.from(e.results)
+      .map(r => r[0].transcript).join('');
+    document.getElementById('userInput').value = transcript;
+    // If final result — auto send
+    if(e.results[e.results.length-1].isFinal){
+      stopListening();
+      setTimeout(() => sendMessage(), 300);
+    }
+  };
+
+  recognition.onerror = (e) => {
+    stopListening();
+    if(e.error !== 'no-speech' && e.error !== 'aborted'){
+      console.warn('Speech error:', e.error);
+    }
+  };
+
+  recognition.onend = () => { stopListening(); };
+
+  recognition.start();
+}
+
+function stopListening(){
+  isListening = false;
+  const btn = document.getElementById('micBtn');
+  if(btn){
+    btn.textContent = '🎤';
+    btn.style.background = '#f5f5f0';
+    btn.style.borderColor = '#e0e0e0';
+    btn.style.animation = '';
+  }
+  const t = T[curLang]||T.en;
+  const input = document.getElementById('userInput');
+  if(input && !input.value) input.placeholder = t.placeholder||'Ask anything…';
+  if(recognition){ try{ recognition.stop(); }catch(e){} recognition = null; }
+}
+
+// Load voices when available (needed for some browsers)
+window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+
+// ── TTS toggle button (tap AI bubble to stop/start reading) ───────────────────
+function toggleTTS(){
+  ttsEnabled = !ttsEnabled;
+  if(!ttsEnabled) stopSpeaking();
+  const btn = document.getElementById('ttsToggleBtn');
+  if(btn){
+    btn.textContent = ttsEnabled ? '🔊' : '🔇';
+    btn.title = ttsEnabled ? 'Mute Daleel' : 'Unmute Daleel';
+  }
+}
+
 // ══ FLASH OFFERS ══════════════════════════════════════════════════════════════
 let allFlashOffers = [];
 
