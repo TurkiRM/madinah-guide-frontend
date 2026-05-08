@@ -1686,10 +1686,11 @@ function speak(text){
   const clean = text
     .replace(/[*]{2}(.+?)[*]{2}/g, '$1')
     .replace(/[*_~`#]/g, '')
-    .replace(/\p{Emoji}/gu, '')
-    .replace(/[\u2600-\u27BF]/g, '')
-    .replace(/[\uFE00-\uFE0F]/g, '')
-    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')   // emoji block (faces, objects, symbols)
+    .replace(/[\u{2600}-\u{27BF}]/gu, '')       // misc symbols (but not digits)
+    .replace(/[\uFE00-\uFE0F]/g, '')            // variation selectors
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')     // zero-width chars
+    .replace(/[\uD83C-\uDBFF][\uDC00-\uDFFF]/g, '') // surrogate pairs
     .replace(/\s{2,}/g, ' ')
     .split('\n\n').join('. ')
     .split('\n').join(', ')
