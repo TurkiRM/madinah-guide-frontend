@@ -500,6 +500,7 @@ const PLACES = [
 
 ];
 
+
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
 const ratingsCache = {}; // placeId -> {rating, count} fetched from backend
 
@@ -896,7 +897,15 @@ ${placeList('transport')}
 ${placeList('services')}
 
 🏨 HOTELS (not listed yet): Anwar Al Madinah Mövenpick, Pullman Zamzam, Hilton Madinah, Dar Al Tawfiq.
-${offersCtx}`;
+
+⚠️ STRICT OFFERS RULE — CRITICAL:
+You MUST ONLY mention offers that are explicitly listed below.
+Do NOT invent, guess, or assume any offers exist.
+Do NOT mention offers from your training data.
+If the list below says "No active offers" — tell the visitor there are no current offers.
+${offersCtx}
+
+REMEMBER: If an offer is not in the list above, it does NOT exist. Never say a place "has an offer" unless it is listed above.`;
   try{
     const r=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.slice(-10),language:curLang,visitorType:detectedType,bizContext,userLat,userLng})});
     const d=await r.json();
