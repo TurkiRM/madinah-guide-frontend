@@ -704,9 +704,11 @@ function addMsg(role,text){
   const msgs=document.getElementById('messages');
   const av=role==='user'?(curLang==='ar'?'أنا':curLang==='ur'?'میں':'Me'):'🕌';
   const div=document.createElement('div'); div.className='msg '+(role==='user'?'user':'ai');
+  // Detect if this AI reply should use location links
+  const useLocation = role==='ai' && isLocationSeeking(chatHistory.slice(-2).find(m=>m.role==='user')?.content||'');
   const bubbleContent = role==='user'
     ? text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    : renderReply(text);
+    : renderReply(text, useLocation);
   div.innerHTML=`<div class="msg-av">${av}</div><div class="bubble">${bubbleContent}</div>`;
   msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
 }
@@ -892,35 +894,65 @@ ${offersCtx}`;
 }
 
 // ── Convert place names in AI reply to tappable Google Maps links ─────────────
-function linkifyPlaces(text) {
+// Keywords indicating visitor wants location/directions not profile
+const LOCATION_KEYWORDS = [
+  'closest','nearest','near','nearby','where is','directions','how to get','location','distance','far',
+  'أقرب','القريب','قريب','أين','اتجاهات','كيف أصل','موقع','مسافة',
+  'قریب','فاصلہ','راستہ','کہاں',
+  'plus proche','pres','ou','itineraire','comment aller',
+  'terdekat','dekat','lokasi','arah','cara ke',
+  'en yakin','yakin','nerede','yol tarifi',
+  'blizhayshiy','ryadom','gde','marshrut',
+];
+
+function isLocationSeeking(text){
+  const low = text.toLowerCase();
+  return LOCATION_KEYWORDS.some(w => low.includes(w));
+}
+
+function linkifyPlaces(text, forceLocation) {
   let result = text;
-  // sort by name length descending so longer names match first
   const sorted = [...PLACES].sort((a,b) => b.nameEn.length - a.nameEn.length);
   sorted.forEach(p => {
-    // match English name
+    const useLocation = forceLocation || false;
     const enRegex = new RegExp(p.nameEn.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
-    result = result.replace(enRegex, `[[PLACE:${p.nameEn}|${p.id}]]`);
-    // match Arabic name
+    result = result.replace(enRegex, useLocation
+      ? `[[LOC:${p.nameEn}|${p.id}]]`
+      : `[[PLACE:${p.nameEn}|${p.id}]]`
+    );
     if(p.nameAr) {
       const arRegex = new RegExp(p.nameAr.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
-      result = result.replace(arRegex, `[[PLACE:${p.nameAr}|${p.id}]]`);
+      result = result.replace(arRegex, useLocation
+        ? `[[LOC:${p.nameAr}|${p.id}]]`
+        : `[[PLACE:${p.nameAr}|${p.id}]]`
+      );
     }
   });
   return result;
 }
 
-function renderReply(text) {
-  const linked = linkifyPlaces(text);
-  // escape HTML
+function renderReply(text, forceLocation) {
+  const linked = linkifyPlaces(text, forceLocation);
   const escaped = linked
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  // convert [[PLACE:label|id]] to styled buttons that open place modal
-  const withLinks = escaped.replace(/\[\[PLACE:([^|]+)\|(\d+)\]\]/g,
+
+  // Profile links — open place modal
+  const withProfile = escaped.replace(/\[\[PLACE:([^|]+)\|(\d+)\]\]/g,
     (_, label, id) =>
       `<span onclick="openPlaceById(${id})" style="color:#085041;font-weight:600;cursor:pointer;border-bottom:1.5px solid #1D9E75;white-space:nowrap;display:inline-flex;align-items:center;gap:3px">📍 ${label}</span>`
   );
-  // convert markdown-style **bold**
-  const withBold = withLinks.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+
+  // Location links — open Google Maps
+  const withLocation = withProfile.replace(/\[\[LOC:([^|]+)\|(\d+)\]\]/g,
+    (_, label, id) => {
+      const p = PLACES.find(pl => pl.id == id);
+      if(!p || !p.lat) return label;
+      const url = 'https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lng+'&destination_place_name='+encodeURIComponent(p.nameEn);
+      return '<a href="'+url+'" target="_blank" style="color:#085041;font-weight:600;text-decoration:none;border-bottom:1.5px solid #1D9E75;white-space:nowrap">🗺️ '+label+'</a>';
+    }
+  );
+
+  const withBold = withLocation.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
   return withBold;
 }
 
