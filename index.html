@@ -768,7 +768,7 @@ function hideWelcome(){
 function addMsg(role,text){
   hideWelcome();
   const msgs=document.getElementById('messages');
-  const av=role==='user'?(curLang==='ar'?'أنا':curLang==='ur'?'میں':'Me'):'🕌';
+  const av=role==='user'?(curLang==='ar'?'أنا':curLang==='ur'?'میں':'Me'):'✨';
   const div=document.createElement('div'); div.className='msg '+(role==='user'?'user':'ai');
   // Detect if this AI reply should use location links
   const useLocation = role==='ai' && isLocationSeeking(chatHistory.slice(-2).find(m=>m.role==='user')?.content||'');
@@ -778,7 +778,7 @@ function addMsg(role,text){
   div.innerHTML=`<div class="msg-av">${av}</div><div class="bubble">${bubbleContent}</div>`;
   msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
 }
-function showTyping(){hideWelcome();const div=document.createElement('div');div.className='msg ai';div.id='typ';div.innerHTML='<div class="msg-av">🕌</div><div class="typing"><span></span><span></span><span></span></div>';const m=document.getElementById('messages');m.appendChild(div);m.scrollTop=m.scrollHeight;}
+function showTyping(){hideWelcome();const div=document.createElement('div');div.className='msg ai';div.id='typ';div.innerHTML='<div class="msg-av">✨</div><div class="typing"><span></span><span></span><span></span></div>';const m=document.getElementById('messages');m.appendChild(div);m.scrollTop=m.scrollHeight;}
 function removeTyping(){const e=document.getElementById('typ');if(e)e.remove();}
 
 // Offer-seeking keywords in all 7 languages
@@ -872,12 +872,14 @@ async function sendMessage(){
   // ── Detect which category the visitor is asking about ──────────────────────
   const msgLow = text.toLowerCase();
   const catKeywords = {
-    restaurant: ['food','eat','restaurant','lunch','dinner','meal','مطعم','اكل','غداء','عشاء','khaana','manger','makan','yemek','еда','برگر','chicken','دجاج','برياني','مشوي','grill'],
-    coffee:     ['coffee','cafe','كافيه','قهوة','كفة','cappuccino','latte','kahve','кофе','caffee','mqaha'],
-    market:     ['market','supermarket','grocery','سوق','بقالة','pasar','marché','рынок','bazar'],
-    shopping:   ['shop','shopping','clothes','ملابس','تسوق','pakaian','vêtement','одежда'],
+    restaurant: ['food','eat','restaurant','lunch','dinner','meal','hungry','burger','chicken','grill','shawarma','mandi','biryani','falafel','sandwich','مطعم','اكل','غداء','عشاء','برگر','دجاج','مشوي','شاورما','مندي','فلافل','khaana','manger','makan','yemek','еда'],
+    coffee:     ['coffee','cafe','كافيه','قهوة','كفة','cappuccino','latte','espresso','kahve','кофе'],
+    market:     ['market','supermarket','grocery','سوق','بقالة','pasar','рынок','bazar'],
+    shopping:   ['shop','shopping','clothes','shoes','shoe','footwear','clothing','wear','outfit','sneakers','sandals','boots','ملابس','أحذية','حذاء','تسوق','رجالية','ثياب','pakaian','sepatu','vêtement','chaussures','одежда','обувь','ayakkabı','giyim'],
     transport:  ['car','rent','taxi','transport','سيارة','تأجير','araç','автомобиль','transportasi'],
-    services:   ['laundry','gym','fitness','computer','service','غسيل','صالة','كمبيوتر','layanan','hizmet','услуга'],
+    services:   ['laundry','gym','fitness','computer','polish','maintenance','phone','mobile','shipping','delivery','dental','teeth','beauty','غسيل','صالة','كمبيوتر','تلميع','صيانة','شحن','أسنان','جمال','layanan','hizmet','услуга'],
+    clinic:     ['dental','teeth','clinic','doctor','dentist','أسنان','عيادة','طبيب','dişçi','стоматолог'],
+    pharmacy:   ['beauty','salon','spa','care','women','ladies','تجميل','صالون','نساء','عناية','güzellik','красота'],
   };
 
   let detectedCat = null;
@@ -944,6 +946,15 @@ ${placeList('transport')}
 
 🛎️ SERVICES:
 ${placeList('services')}
+
+🛍️ SHOPPING:
+${placeList('shopping')}
+
+🏥 CLINIC:
+${placeList('clinic')}
+
+💅 BEAUTY & PHARMACY:
+${placeList('pharmacy')}
 
 🏨 HOTELS (not listed yet): Anwar Al Madinah Mövenpick, Pullman Zamzam, Hilton Madinah, Dar Al Tawfiq.
 
