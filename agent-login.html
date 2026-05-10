@@ -2,267 +2,2343 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Madinah Guide — Agent Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Madinah Guide"/>
+  <meta name="theme-color" content="#085041"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <title>Madinah Guide — دليل المدينة المنورة</title>
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
-    .wrap{width:100%;max-width:380px;display:flex;flex-direction:column;gap:0.85rem}
-
-    /* Header */
-    .header{background:#085041;border-radius:16px;padding:1.5rem;text-align:center}
-    .h-icon{font-size:40px;margin-bottom:0.5rem}
-    .h-en{font-size:18px;font-weight:600;color:#fff;margin-bottom:3px}
-    .h-ar{font-size:13px;color:#9FE1CB;margin-bottom:2px}
-    .h-sub{font-size:11px;color:#5DCAA5}
-
-    /* Cards */
-    .card{background:#fff;border-radius:16px;border:1px solid #e0e0e0;padding:1.25rem}
-    .card-title{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:1rem}
-
-    /* Form */
-    .flbl{font-size:11px;color:#888;margin-bottom:4px;font-weight:500}
-    .finput{width:100%;padding:10px 12px;font-size:14px;border:1.5px solid #e0e0e0;border-radius:10px;background:#f9f9f9;color:#1a1a1a;margin-bottom:0.85rem;transition:border-color 0.2s;outline:none}
-    .finput:focus{border-color:#1D9E75;background:#fff}
-    .finput.err{border-color:#E24B4A}
-    .pw-wrap{position:relative;margin-bottom:0.85rem}
-    .pw-wrap .finput{margin-bottom:0;padding-right:42px}
-    .pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#888;padding:4px}
-
-    /* Login button */
-    .login-btn{width:100%;padding:12px;background:#0F6E56;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.2s,transform 0.1s;display:flex;align-items:center;justify-content:center;gap:8px}
-    .login-btn:hover{background:#085041}
-    .login-btn:active{transform:scale(0.98)}
-    .login-btn:disabled{background:#5DCAA5;cursor:not-allowed}
-
-    /* Error / success */
-    .msg{padding:10px 12px;border-radius:10px;font-size:13px;margin-bottom:0.75rem;display:none}
-    .msg.err{background:#FCEBEB;color:#A32D2D;border:1px solid #F09595;display:block}
-    .msg.ok{background:#E1F5EE;color:#085041;border:1px solid #5DCAA5;display:block}
-
-    /* Spinner */
-    .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:sp 0.7s linear infinite;display:none}
-    @keyframes sp{to{transform:rotate(360deg)}}
-
-    /* Status bar */
-    .status-bar{display:flex;align-items:center;gap:6px;font-size:11px;color:#888;background:#fff;border-radius:10px;border:1px solid #e0e0e0;padding:8px 12px}
-    .sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-    .sdot-g{background:#1D9E75}
-    .sdot-y{background:#EF9F27;animation:bl 1s infinite}
-    .sdot-r{background:#E24B4A}
-    @keyframes bl{0%,100%{opacity:1}50%{opacity:0.3}}
-
-    /* Agent welcome screen */
-    .welcome{display:none;flex-direction:column;gap:0.85rem}
-    .agent-card{background:#fff;border-radius:16px;border:1px solid #e0e0e0;padding:1.25rem;text-align:center}
-    .agent-av{width:64px;height:64px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin:0 auto 0.75rem}
-    .agent-name{font-size:18px;font-weight:600;color:#1a1a1a;margin-bottom:3px}
-    .agent-role{font-size:12px;color:#888;margin-bottom:0.75rem}
-    .lang-pills{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-bottom:1rem}
-    .lpill{font-size:11px;padding:3px 10px;border-radius:10px;background:#E1F5EE;color:#085041;font-weight:500}
-    .go-btn{width:100%;padding:12px;background:#1D9E75;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:8px}
-    .go-btn:hover{background:#0F6E56}
-    .logout-btn{width:100%;padding:10px;background:transparent;color:#888;border:1px solid #e0e0e0;border-radius:12px;font-size:13px;cursor:pointer}
-    .logout-btn:hover{background:#f5f5f0}
-
-    .footer{font-size:11px;color:#bbb;text-align:center}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#085041}
+    #langScreen{position:fixed;inset:0;background:#085041;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;z-index:100}
+    #langScreen.gone{display:none}
+    .ls-logo{font-size:60px;margin-bottom:1rem}
+    .ls-title{font-size:26px;font-weight:700;color:#fff;margin-bottom:4px;text-align:center}
+    .ls-ar{font-size:17px;color:#9FE1CB;margin-bottom:2rem;text-align:center}
+    .ls-prompt{font-size:13px;color:#5DCAA5;margin-bottom:1.25rem}
+    .lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;width:100%;max-width:340px}
+    .lang-opt{background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.2);border-radius:16px;padding:1rem;cursor:pointer;text-align:center}
+    .lang-opt:active{transform:scale(0.96);background:rgba(255,255,255,0.25)}
+    .lang-flag{font-size:28px;display:block;margin-bottom:4px}
+    .lang-name{font-size:14px;font-weight:600;color:#fff}
+    .lang-native{font-size:11px;color:#9FE1CB}
+    .lang-opt.full{grid-column:1/-1}
+    #app{position:fixed;inset:0;display:flex;flex-direction:column;background:#f5f5f0;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.4,0,0.2,1)}
+    #app.visible{transform:translateY(0)}
+    .call-banner{background:#085041;padding:0.65rem 1rem;padding-top:calc(0.65rem + env(safe-area-inset-top));display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .cb-dot{width:8px;height:8px;border-radius:50%;background:#1D9E75;animation:pulse 1.5s infinite;flex-shrink:0}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.2)}}
+    .cb-text{flex:1;min-width:0}
+    .cb-strong{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+    .cb-sub{font-size:11px;color:#9FE1CB}
+    .call-now-btn{background:#1D9E75;color:#fff;border:none;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0}
+    .call-now-btn:active{background:#5DCAA5}
+    .tab-content{flex:1;overflow:hidden;position:relative}
+    .pane{position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;transition:transform 0.3s ease,opacity 0.3s ease}
+    .pane.hidden{transform:translateX(30px);opacity:0;pointer-events:none}
+    .bottom-nav{display:flex;background:#fff;border-top:1px solid #eee;padding-bottom:env(safe-area-inset-bottom);flex-shrink:0}
+    .bn{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 0;cursor:pointer;border:none;background:transparent}
+    .bn-icon{font-size:22px;margin-bottom:2px}
+    .bn-lbl{font-size:10px;color:#aaa;font-weight:500}
+    .bn.on .bn-lbl{color:#085041;font-weight:700}
+    .messages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1rem;display:flex;flex-direction:column;gap:0.85rem}
+    .msg{display:flex;gap:8px;align-items:flex-end}
+    .msg.user{flex-direction:row-reverse}
+    .msg-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;font-weight:700}
+    .msg.ai .msg-av{background:#E1F5EE;color:#085041}
+    .msg.user .msg-av{background:#085041;color:#fff;font-size:10px}
+    .bubble{padding:10px 13px;border-radius:18px;max-width:82%;font-size:14px;line-height:1.6;word-break:break-word;white-space:pre-wrap}
+    .msg.ai .bubble{background:#fff;color:#1a1a1a;border:1px solid #eee;border-bottom-left-radius:4px}
+    .msg.user .bubble{background:#085041;color:#fff;border-bottom-right-radius:4px}
+    .msg.ai .bubble a{color:#085041;font-weight:600;text-decoration:none;border-bottom:1.5px solid #1D9E75;white-space:nowrap}
+    .msg.ai .bubble a:active{opacity:0.7}
+    .typing{display:flex;gap:4px;align-items:center;padding:12px 14px;background:#fff;border:1px solid #eee;border-radius:18px;border-bottom-left-radius:4px;width:58px}
+    .typing span{width:7px;height:7px;border-radius:50%;background:#1D9E75;animation:bn 1.2s ease-in-out infinite}
+    .typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+    @keyframes bn{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+    .visitor-badge{margin:0 1rem 0.5rem;padding:7px 12px;border-radius:10px;font-size:12px;display:none;align-items:center;gap:6px;flex-shrink:0}
+    .vb-p{background:#E1F5EE;color:#085041;display:flex}
+    .vb-t{background:#FAEEDA;color:#633806;display:flex}
+    .chips-row{padding:0 1rem 0.75rem;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0}
+    .chips-row::-webkit-scrollbar{display:none}
+    .chip{font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid #ddd;color:#555;background:#fff;white-space:nowrap;flex-shrink:0;cursor:pointer}
+    .chip:active{background:#E1F5EE;color:#085041}
+    .input-bar{background:#fff;border-top:1px solid #eee;padding:0.65rem 1rem;display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
+    .input-bar textarea{flex:1;padding:10px 12px;font-size:16px;border:1.5px solid #e0e0e0;border-radius:22px;background:#f9f9f9;color:#1a1a1a;resize:none;outline:none;font-family:inherit;line-height:1.4;max-height:100px}
+    .input-bar textarea:focus{border-color:#1D9E75;background:#fff}
+    .send-btn{width:42px;height:42px;border-radius:50%;background:#085041;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .send-btn:active{background:#1D9E75}
+    .send-btn:disabled{background:#ccc}
+    .send-icon{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .welcome{padding:1rem;display:flex;flex-direction:column;gap:0.85rem}
+    .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;margin-top:0.25rem}
+    .feat-card{background:#fff;border-radius:14px;border:1px solid #eee;padding:0.85rem;cursor:pointer}
+    .feat-card:active{border-color:#1D9E75;background:#f0faf5}
+    .feat-icon{font-size:24px;margin-bottom:4px}
+    .feat-title{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:2px}
+    .feat-desc{font-size:11px;color:#888;line-height:1.3}
+    .places-wrap{padding:1rem;display:flex;flex-direction:column;gap:0.85rem}
+    .cat-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+    .cat-scroll::-webkit-scrollbar{display:none}
+    .cat-pill{padding:7px 14px;border-radius:20px;border:1.5px solid #e0e0e0;background:#fff;cursor:pointer;white-space:nowrap;font-size:13px;color:#555;font-weight:500;flex-shrink:0}
+    .cat-pill.on{border-color:#085041;background:#085041;color:#fff}
+    .cat-pill:active{opacity:0.8}
+    .place-card{background:#fff;border-radius:16px;border:1px solid #eee;overflow:hidden;cursor:pointer}
+    .place-card:active{opacity:0.85}
+    .place-img{height:110px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:44px}
+    .place-body{padding:0.85rem}
+    .place-name{font-size:15px;font-weight:600;color:#1a1a1a}
+    .place-name-ar{font-size:12px;color:#888;direction:rtl;margin-top:1px}
+    .place-meta{display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap}
+    .place-cost{font-size:11px;color:#0F6E56;font-weight:600}
+    .place-rating{font-size:11px;color:#BA7517;font-weight:600}
+    .place-desc{font-size:13px;color:#555;line-height:1.5;margin-top:6px}
+    .call-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:2rem 1.5rem;text-align:center;gap:1.25rem}
+    .call-av{width:84px;height:84px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:38px;animation:pulse 2s infinite}
+    .call-title{font-size:21px;font-weight:700;color:#1a1a1a}
+    .call-sub{font-size:14px;color:#888;line-height:1.65;max-width:300px}
+    .call-langs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+    .call-lang{font-size:12px;padding:5px 12px;border-radius:12px;background:#E1F5EE;color:#085041;font-weight:500}
+    .big-call-btn{width:100%;max-width:300px;padding:16px;background:#1D9E75;color:#fff;border:none;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+    .big-call-btn:active{background:#085041}
+    .call-free{font-size:12px;color:#aaa;max-width:260px;line-height:1.5}
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;justify-content:center}
+    .modal-bg.open{display:flex}
+    .modal-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1rem 1.25rem;padding-bottom:calc(1.5rem + env(safe-area-inset-bottom))}
+    .modal-handle{width:40px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 1rem}
+    .install-banner{position:fixed;bottom:calc(56px + env(safe-area-inset-bottom) + 8px);left:1rem;right:1rem;background:#085041;border-radius:14px;padding:0.85rem 1rem;display:none;align-items:center;gap:10px;z-index:150}
+    .ib-text{flex:1;font-size:13px;color:#fff;line-height:1.4}
+    .ib-btn{background:#1D9E75;color:#fff;border:none;border-radius:9px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+    .ib-x{background:none;border:none;color:#9FE1CB;font-size:18px;cursor:pointer}
+    .lang-picker-opt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0.85rem;border-radius:14px;border:2px solid #eee;cursor:pointer;background:#fff;text-align:center;transition:all 0.15s}
+    .lang-picker-opt:active{background:#E1F5EE;border-color:#1D9E75}
+    .lang-picker-opt.active-lang{border-color:#085041;background:#E1F5EE}
+    .prayer-row{display:flex;align-items:center;background:#fff;border-radius:14px;border:1px solid #eee;padding:0.85rem 1rem;transition:all 0.2s}
+    .prayer-row.next-prayer{border-color:#1D9E75;background:#E1F5EE}
+    .prayer-row.current-prayer{border-color:#085041;background:#085041}
+    .prayer-icon{font-size:22px;margin-right:12px;flex-shrink:0}
+    .prayer-name{font-size:15px;font-weight:600;color:#1a1a1a;flex:1}
+    .prayer-row.current-prayer .prayer-name{color:#fff}
+    .prayer-row.next-prayer .prayer-name{color:#085041}
+    .prayer-time{font-size:16px;font-weight:700;color:#085041}
+    .prayer-row.current-prayer .prayer-time{color:#9FE1CB}
+    .prayer-row.next-prayer .prayer-time{color:#085041}
+    .prayer-badge{font-size:10px;padding:3px 8px;border-radius:8px;margin-left:8px;font-weight:600}
+    .badge-now{background:#fff;color:#085041}
+    .badge-next{background:#085041;color:#fff}
+    .event-card{background:#fff;border-radius:16px;border:1px solid #eee;overflow:hidden;cursor:pointer}
+    .event-card:active{opacity:0.85}
+    .event-img{height:140px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:50px;position:relative}
+    .event-cat-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.45);color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px}
+    .event-date-badge{position:absolute;top:10px;right:10px;background:#fff;color:#085041;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
+    .event-body{padding:0.85rem}
+    .event-title{font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px}
+    .event-title-ar{font-size:13px;color:#888;direction:rtl;margin-bottom:6px}
+    .event-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:#888}
+    .event-meta span{display:flex;align-items:center;gap:4px}
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
-<!-- LOGIN FORM -->
-<div class="wrap" id="loginWrap">
-  <div class="header">
-    <div class="h-icon">🕌</div>
-    <div class="h-en">Madinah Guide</div>
-    <div class="h-ar">دليل المدينة المنورة</div>
-    <div class="h-sub">Agent portal · بوابة الوكيل</div>
+<div id="langScreen">
+  <img src="logo-app.png" alt="Madinah Guide" style="width:160px;height:160px;object-fit:contain;margin-bottom:0.5rem;border-radius:16px"/>
+  <div class="ls-ar" style="margin-bottom:0.25rem">دليل المدينة المنورة</div>
+  <div class="ls-prompt">Choose your language · اختر لغتك</div>
+  <div class="lang-grid">
+    <div class="lang-opt" onclick="chooseLang('ar')"><span class="lang-flag">🇸🇦</span><span class="lang-name">عربي</span><span class="lang-native">Arabic</span></div>
+    <div class="lang-opt" onclick="chooseLang('en')"><span class="lang-flag">🇬🇧</span><span class="lang-name">English</span><span class="lang-native">English</span></div>
+    <div class="lang-opt" onclick="chooseLang('ur')"><span class="lang-flag">🇵🇰</span><span class="lang-name">اردو</span><span class="lang-native">Urdu</span></div>
+    <div class="lang-opt" onclick="chooseLang('fr')"><span class="lang-flag">🇫🇷</span><span class="lang-name">Français</span><span class="lang-native">French</span></div>
+    <div class="lang-opt" onclick="chooseLang('id')"><span class="lang-flag">🇮🇩</span><span class="lang-name">Indonesia</span><span class="lang-native">Indonesian</span></div>
+    <div class="lang-opt" onclick="chooseLang('tr')"><span class="lang-flag">🇹🇷</span><span class="lang-name">Türkçe</span><span class="lang-native">Turkish</span></div>
+    <div class="lang-opt full" onclick="chooseLang('ru')"><span class="lang-flag">🇷🇺</span><span class="lang-name">Русский</span><span class="lang-native">Russian</span></div>
   </div>
-
-  <div class="card">
-    <div class="card-title">Agent login — تسجيل دخول الوكيل</div>
-    <div class="msg" id="errMsg"></div>
-
-    <div class="flbl">Phone number · رقم الهاتف</div>
-    <input class="finput" id="phone" type="tel" placeholder="+966XXXXXXXXX" autocomplete="tel" onkeydown="if(event.key==='Enter')document.getElementById('password').focus()"/>
-
-    <div class="flbl">Password · كلمة المرور</div>
-    <div class="pw-wrap">
-      <input class="finput" id="password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
-      <button class="pw-toggle" onclick="togglePw()" tabindex="-1">👁️</button>
-    </div>
-
-    <button class="login-btn" id="loginBtn" onclick="doLogin()">
-      <div class="spin" id="spin"></div>
-      <span id="loginLbl">Login — تسجيل الدخول</span>
-    </button>
-  </div>
-
-  <div class="status-bar">
-    <div class="sdot sdot-y" id="sdot"></div>
-    <span id="statusLbl">Connecting to backend…</span>
-  </div>
-
-  <div class="footer">Madinah Guide · Agent portal · Secure login</div>
 </div>
 
-<!-- WELCOME / GO ONLINE -->
-<div class="wrap welcome" id="welcomeWrap">
-  <div class="header">
-    <div class="h-icon">🕌</div>
-    <div class="h-en">Madinah Guide</div>
-    <div class="h-ar">مرحباً بك</div>
+<div id="app">
+  <div class="call-banner">
+    <img src="logo-app.png" alt="" style="width:28px;height:28px;object-fit:contain;border-radius:6px;flex-shrink:0"/>
+    <div class="cb-dot"></div>
+    <div class="cb-text">
+      <span class="cb-strong" id="bannerTitle">Talk to a local Madinah guide</span>
+      <span class="cb-sub" id="bannerSub">Real humans · Free call</span>
+    </div>
+    <button class="call-now-btn" onclick="showTab('call')" id="callNowBtn">📞 Call now</button>
+    <button onclick="openLangPicker()" style="background:rgba(255,255,255,0.15);border:none;border-radius:20px;padding:7px 10px;font-size:14px;cursor:pointer;flex-shrink:0" id="langPickerBtn" title="Change language">🌐</button>
   </div>
 
-  <div class="agent-card">
-    <div class="agent-av" id="agentAv">AS</div>
-    <div class="agent-name" id="agentName">Agent</div>
-    <div class="agent-role" id="agentRole">Call center agent</div>
-    <div class="lang-pills" id="langPills"></div>
-    <button class="go-btn" onclick="goToDashboard()">Go online — الذهاب للوحة التحكم</button>
-    <button class="logout-btn" onclick="doLogout()">Logout — تسجيل الخروج</button>
+  <div class="tab-content">
+
+    <!-- PLAN -->
+    <div class="pane hidden" id="pane-plan">
+      <div class="messages" id="messages">
+        <div class="welcome" id="welcomeScreen">
+          <div style="text-align:center;margin-top:0.5rem"><img src="logo-app.png" alt="Madinah Guide" style="width:100px;height:100px;object-fit:contain;border-radius:14px"/></div>
+          <div>
+            <div style="font-size:19px;font-weight:700;color:#1a1a1a" id="wlcTitle">Welcome to Madinah Guide</div>
+            <div style="font-size:13px;color:#888;line-height:1.5;margin-top:3px" id="wlcSub">Ask me anything about visiting Madinah — I will plan your trip with real local knowledge.</div>
+          </div>
+          <div class="feat-grid">
+            <div class="feat-card" onclick="quickCat('restaurant')"><div class="feat-icon">🍽️</div><div class="feat-title" id="fc1t">Restaurants</div><div class="feat-desc" id="fc1d">Local & international</div></div>
+            <div class="feat-card" onclick="quickCat('coffee')"><div class="feat-icon">☕</div><div class="feat-title" id="fc2t">Cafes</div><div class="feat-desc" id="fc2d">Coffee & desserts</div></div>
+            <div class="feat-card" onclick="quickCat('market')"><div class="feat-icon">🛒</div><div class="feat-title" id="fc3t">Markets</div><div class="feat-desc" id="fc3d">Dates, gold & more</div></div>
+            <div class="feat-card" onclick="quickCat('hotel')"><div class="feat-icon">🏨</div><div class="feat-title" id="fc4t">Hotels</div><div class="feat-desc" id="fc4d">Near the Haram</div></div>
+            <div class="feat-card" onclick="quickCat('shopping')"><div class="feat-icon">🛍️</div><div class="feat-title" id="fc5t">Shopping</div><div class="feat-desc" id="fc5d">Malls & boutiques</div></div>
+            <div class="feat-card" onclick="quickCat('pharmacy')"><div class="feat-icon">💊</div><div class="feat-title" id="fc6t">Pharmacy</div><div class="feat-desc" id="fc6d">24h & near you</div></div>
+            <div class="feat-card" onclick="quickCat('salon')"><div class="feat-icon">✂️</div><div class="feat-title" id="fc7t">Salons</div><div class="feat-desc" id="fc7d">Hair & beauty</div></div>
+            <div class="feat-card" onclick="quickCat('transport')"><div class="feat-icon">🚗</div><div class="feat-title" id="fc8t">Transport</div><div class="feat-desc" id="fc8d">Cars, taxis & buses</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="visitor-badge" id="visitorBadge"></div>
+      <div class="chips-row" id="chipsRow" style="display:none">
+        <div class="chip" onclick="quickCat('restaurant')">🍽️ Food</div>
+        <div class="chip" onclick="quickCat('coffee')">☕ Cafes</div>
+        <div class="chip" onclick="quickCat('market')">🛒 Markets</div>
+        <div class="chip" onclick="quickCat('hotel')">🏨 Hotels</div>
+        <div class="chip" onclick="quickCat('shopping')">🛍️ Shopping</div>
+        <div class="chip" onclick="quickCat('pharmacy')">💊 Pharmacy</div>
+        <div class="chip" onclick="quickCat('salon')">✂️ Salons</div>
+        <div class="chip" onclick="quickCat('transport')">🚗 Transport</div>
+      </div>
+      <div class="input-bar">
+        <textarea id="userInput" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button id="ttsToggleBtn" onclick="toggleTTS()" style="width:36px;height:36px;border-radius:50%;background:#f5f5f0;border:1.5px solid #e0e0e0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0" title="Mute Daleel">🔊</button>
+        <button id="micBtn" onclick="toggleMic()" style="width:42px;height:42px;border-radius:50%;background:#f5f5f0;border:1.5px solid #e0e0e0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:all 0.2s" title="Speak">🎤</button>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg class="send-icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- PLACES -->
+    <div class="pane" id="pane-places">
+      <div class="places-wrap">
+        <div>
+          <div style="font-size:18px;font-weight:700;color:#1a1a1a" id="placesTitle">Madinah Places</div>
+          <div style="font-size:13px;color:#888;margin-top:2px" id="placesSub">Holy sites, hotels, food & more</div>
+        </div>
+        <div class="cat-scroll">
+          <div class="cat-pill on" onclick="filterPlaces(this,'all')">⭐ All</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'restaurant')">🍽️ Food</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'coffee')">☕ Cafes</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'market')">🛒 Markets</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'hotel')">🏨 Hotels</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'shopping')">🛍️ Shopping</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'pharmacy')">💊 Pharmacy</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'salon')">✂️ Salons</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'clinic')">🏥 Clinics</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'transport')">🚗 Transport</div>
+          <div class="cat-pill" onclick="filterPlaces(this,'services')">🛎️ Services</div>
+        </div>
+        <!-- Flash offers — limited quantity with claim button -->
+        <div id="flashBanner" style="display:none;flex-direction:column;gap:0.65rem;margin-bottom:0.5rem"></div>
+
+        <!-- Category offers banner — shows offers matching current category -->
+        <div id="offersBanner" style="display:none;flex-direction:column;gap:0.65rem;margin-bottom:0.5rem"></div>
+
+        <div id="placesList" style="display:flex;flex-direction:column;gap:0.75rem"></div>
+      </div>
+    </div>
+
+    <!-- PRAYER TIMES -->
+    <div class="pane hidden" id="pane-prayer">
+      <div style="padding:1rem;display:flex;flex-direction:column;gap:0.85rem">
+
+        <!-- Header -->
+        <div style="background:#085041;border-radius:16px;padding:1.25rem;color:#fff;text-align:center">
+          <div style="font-size:13px;color:#9FE1CB;margin-bottom:4px" id="prayerDateLbl"></div>
+          <div style="font-size:22px;font-weight:700" id="prayerCityLbl">Madinah Al-Munawwarah</div>
+          <div style="font-size:13px;color:#9FE1CB;margin-top:2px">المدينة المنورة</div>
+          <!-- Countdown to next prayer -->
+          <div style="margin-top:1rem;background:rgba(255,255,255,0.12);border-radius:12px;padding:0.75rem">
+            <div style="font-size:11px;color:#9FE1CB;margin-bottom:4px" id="nextPrayerLbl">Next prayer</div>
+            <div style="font-size:20px;font-weight:700" id="nextPrayerName">—</div>
+            <div style="font-size:15px;color:#9FE1CB;margin-top:2px" id="nextPrayerCountdown">—</div>
+          </div>
+        </div>
+
+        <!-- Prayer times cards -->
+        <div id="prayerList" style="display:flex;flex-direction:column;gap:0.5rem"></div>
+
+        <!-- Source note -->
+        <div style="font-size:11px;color:#aaa;text-align:center" id="prayerSourceLbl">
+          Times calculated for Madinah · Umm al-Qura method
+        </div>
+
+        <!-- Qibla direction -->
+        <a href="https://qiblafinder.withgoogle.com/" target="_blank"
+          style="background:#085041;border-radius:14px;padding:1rem;display:flex;align-items:center;gap:12px;text-decoration:none">
+          <div style="font-size:36px">🧭</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:600;color:#fff" id="qiblaTitle">Qibla Direction</div>
+            <div style="font-size:12px;color:#9FE1CB;margin-top:2px" id="qiblaDesc">Tap to open Google Qibla Finder — uses your compass</div>
+          </div>
+          <div style="font-size:18px;color:#9FE1CB">→</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- EVENTS -->
+    <div class="pane hidden" id="pane-events">
+      <div style="padding:1rem;display:flex;flex-direction:column;gap:0.85rem">
+
+        <!-- Header -->
+        <div>
+          <div style="font-size:18px;font-weight:700;color:#1a1a1a" id="eventsTitle">Madinah Events</div>
+          <div style="font-size:13px;color:#888;margin-top:2px" id="eventsSub">Upcoming events in Al-Madinah Al-Munawwarah</div>
+        </div>
+
+        <!-- Filter pills -->
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px" id="eventsPills">
+          <div class="cat-pill on" onclick="filterEvents(this,'all')" id="epill-all">🗓️ All</div>
+          <div class="cat-pill" onclick="filterEvents(this,'sport')">🏃 Sport</div>
+          <div class="cat-pill" onclick="filterEvents(this,'culture')">🎭 Culture</div>
+          <div class="cat-pill" onclick="filterEvents(this,'forum')">🎤 Forums</div>
+          <div class="cat-pill" onclick="filterEvents(this,'heritage')">🏛️ Heritage</div>
+          <div class="cat-pill" onclick="filterEvents(this,'food')">🍽️ Food</div>
+          <div class="cat-pill" onclick="filterEvents(this,'other')">✨ Other</div>
+        </div>
+
+        <!-- Events list -->
+        <div id="eventsList">
+          <div style="text-align:center;padding:3rem 1rem;color:#aaa">
+            <div style="font-size:40px;margin-bottom:0.75rem">📅</div>
+            <div style="font-size:14px" id="eventsEmptyLbl">Loading events…</div>
+          </div>
+        </div>
+
+        <!-- Source credit -->
+        <div style="font-size:11px;color:#aaa;text-align:center;padding:0.5rem 0" id="eventsSourceLbl">
+          Source: Visit Madinah · visitmadinahsa.com
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CALL -->
+    <div class="pane hidden" id="pane-call">
+      <div class="call-wrap">
+        <div class="call-av">👨‍💼</div>
+        <div class="call-title" id="callTitle">Talk to a local guide</div>
+        <div class="call-sub" id="callSub">Connect with a real person who lives in Madinah. They know the city personally and speak your language.</div>
+        <div class="call-langs">
+          <span class="call-lang">🇸🇦 عربي</span>
+          <span class="call-lang">🇬🇧 English</span>
+          <span class="call-lang">🇵🇰 اردو</span>
+          <span class="call-lang">🇫🇷 Français</span>
+          <span class="call-lang">🇮🇩 Indonesia</span>
+          <span class="call-lang">🇹🇷 Türkçe</span>
+          <span class="call-lang">🇷🇺 Русский</span>
+        </div>
+        <button class="big-call-btn" onclick="goToCall()">📞 <span id="callBtnLbl">Connect me to an agent</span></button>
+        <div class="call-free" id="callFree">Free for you · Cost covered by Madinah Guide · Available during business hours</div>
+      </div>
+    </div>
+
   </div>
 
-  <div class="status-bar">
-    <div class="sdot sdot-g"></div>
-    <span id="welcomeStatus">Logged in successfully ✓</span>
+  <div class="bottom-nav">
+    <button class="bn" id="bn-plan" onclick="showTab('plan')"><span class="bn-icon">✨</span><span class="bn-lbl" id="bnl-plan">Plan</span></button>
+    <button class="bn on" id="bn-places" onclick="showTab('places')"><span class="bn-icon">🔍</span><span class="bn-lbl" id="bnl-places">Explore</span></button>
+    <button class="bn" id="bn-prayer" onclick="showTab('prayer')"><span class="bn-icon">🕐</span><span class="bn-lbl" id="bnl-prayer">Prayer</span></button>
+    <button class="bn" id="bn-events" onclick="showTab('events')"><span class="bn-icon">📅</span><span class="bn-lbl" id="bnl-events">Events</span></button>
+    <button class="bn" id="bn-call" onclick="showTab('call')"><span class="bn-icon">📞</span><span class="bn-lbl" id="bnl-call">Call guide</span></button>
   </div>
+</div>
+
+<!-- Language picker modal -->
+<div class="modal-bg" id="langModal">
+  <div class="modal-sheet" style="padding-bottom:calc(2rem + env(safe-area-inset-bottom))">
+    <div class="modal-handle"></div>
+    <div style="font-size:16px;font-weight:600;color:#1a1a1a;margin-bottom:1rem;text-align:center">Choose language · اختر لغتك</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.65rem">
+      <div onclick="switchLang('ar')" class="lang-picker-opt" id="lpo-ar"><span style="font-size:22px">🇸🇦</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">عربي</div><div style="font-size:11px;color:#888">Arabic</div></div>
+      <div onclick="switchLang('en')" class="lang-picker-opt" id="lpo-en"><span style="font-size:22px">🇬🇧</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">English</div><div style="font-size:11px;color:#888">English</div></div>
+      <div onclick="switchLang('ur')" class="lang-picker-opt" id="lpo-ur"><span style="font-size:22px">🇵🇰</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">اردو</div><div style="font-size:11px;color:#888">Urdu</div></div>
+      <div onclick="switchLang('fr')" class="lang-picker-opt" id="lpo-fr"><span style="font-size:22px">🇫🇷</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">Français</div><div style="font-size:11px;color:#888">French</div></div>
+      <div onclick="switchLang('id')" class="lang-picker-opt" id="lpo-id"><span style="font-size:22px">🇮🇩</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">Indonesia</div><div style="font-size:11px;color:#888">Indonesian</div></div>
+      <div onclick="switchLang('tr')" class="lang-picker-opt" id="lpo-tr"><span style="font-size:22px">🇹🇷</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">Türkçe</div><div style="font-size:11px;color:#888">Turkish</div></div>
+      <div onclick="switchLang('ru')" class="lang-picker-opt" style="grid-column:1/-1" id="lpo-ru"><span style="font-size:22px">🇷🇺</span><div style="font-size:13px;font-weight:600;color:#1a1a1a">Русский</div><div style="font-size:11px;color:#888">Russian</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="placeModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div id="placeModalContent"></div>
+  </div>
+</div>
+
+<!-- Samsung Browser warning — only shows in Samsung Internet -->
+<div id="samsungBanner" style="display:none;position:fixed;top:0;left:0;right:0;background:#085041;color:#fff;padding:10px 1rem;font-size:13px;text-align:center;z-index:999;line-height:1.5">
+  📱 For the best experience, open <strong>madinahguide.net</strong> in <strong>Chrome</strong> to install the app
+  <button onclick="document.getElementById('samsungBanner').style.display='none'" style="margin-left:10px;background:none;border:1px solid rgba(255,255,255,0.5);color:#fff;border-radius:8px;padding:2px 8px;font-size:12px;cursor:pointer">✕</button>
+</div>
+
+<!-- iOS Install Guide Modal -->
+<div id="iosModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;align-items:flex-end;justify-content:center;display:none">
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;padding:1.5rem 1.25rem;padding-bottom:calc(2rem + env(safe-area-inset-bottom))">
+    <div style="width:40px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 1.25rem"></div>
+    <div style="font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:4px;text-align:center" id="iosModalTitle">Install Madinah Guide</div>
+    <div style="font-size:13px;color:#888;text-align:center;margin-bottom:1.25rem" id="iosModalSub">Add to your home screen for the best experience</div>
+    <div style="display:flex;flex-direction:column;gap:0.85rem;margin-bottom:1.25rem">
+      <div style="display:flex;align-items:center;gap:12px;background:#f5f5f0;border-radius:12px;padding:0.85rem">
+        <div style="font-size:28px;flex-shrink:0">1️⃣</div>
+        <div id="iosStep1" style="font-size:13px;color:#1a1a1a;line-height:1.5">Tap the <strong>Share</strong> button <span style="font-size:18px">⬆️</span> at the bottom of Safari</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;background:#f5f5f0;border-radius:12px;padding:0.85rem">
+        <div style="font-size:28px;flex-shrink:0">2️⃣</div>
+        <div id="iosStep2" style="font-size:13px;color:#1a1a1a;line-height:1.5">Scroll down and tap <strong>"Add to Home Screen"</strong> 📱</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;background:#f5f5f0;border-radius:12px;padding:0.85rem">
+        <div style="font-size:28px;flex-shrink:0">3️⃣</div>
+        <div id="iosStep3" style="font-size:13px;color:#1a1a1a;line-height:1.5">Tap <strong>"Add"</strong> in the top right corner ✅</div>
+      </div>
+    </div>
+    <button onclick="closeIosModal()" style="width:100%;padding:14px;background:#085041;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer" id="iosModalBtn">Got it!</button>
+  </div>
+</div>
+
+<div class="install-banner" id="installBanner">
+  <div class="ib-text">📱 <strong>Add to home screen</strong> for the best experience</div>
+  <button class="ib-btn" id="installBtn">Install</button>
+  <button class="ib-x" onclick="document.getElementById('installBanner').style.display='none'">✕</button>
 </div>
 
 <script>
-const BACKEND = 'https://madinah-guide-backend-1.onrender.com';
-const LANG_NAMES = { ar:'🇸🇦 عربي', en:'🇬🇧 English', ur:'🇵🇰 اردو', fr:'🇫🇷 Français', id:'🇮🇩 Indonesia' };
+const BACKEND  = 'https://madinah-guide-backend-1.onrender.com';
+const CALL_URL = 'visitor.html';
 
-// ─── Check backend health ────────────────────────────────────────────────────
-async function checkHealth() {
-  try {
-    const r = await fetch(BACKEND + '/');
-    const d = await r.json();
-    if (d.status === 'ok') {
-      document.getElementById('sdot').className = 'sdot sdot-g';
-      document.getElementById('statusLbl').textContent = 'Backend connected ✓';
+const T = {
+  en:{banner:'Find the best in Madinah',bannerSub:'Local experts · Free call',callNow:'📞 Call now',wlcTitle:'Welcome to Madinah Guide 🌟',wlcSub:'Ask me anything — best restaurants, cafes, shops, hotels and offers in Madinah.',placeholder:'Ask anything about Madinah…',placesTitle:'Madinah Places',placesSub:'Restaurants, cafes, hotels, shops & more',callTitle:'Talk to a local guide',callSub:'Connect with a real person who lives in Madinah. They know the city personally and speak your language.',callBtn:'Connect me to an agent',callFree:'Available 6 AM – 10 PM Madinah time · Arabic & English · Free call',bnPlan:'AI Guide',bnPlaces:'Places',bnCall:'Call guide',pilgrim:'🤲 Pilgrim mode — tailored for Hajj & Umrah',tourist:'🧳 Tourist mode — tailored for general visitors',chips:{umrah:'Plan my visit to Madinah — top sites, tips and what to expect',hotel:'Best hotels near the Prophet Mosque in Madinah for all budgets',food:'Best restaurants and local food to try in Madinah',dates:'Best shops for Ajwa dates and Islamic gifts in Madinah',transport:'How to get around Madinah — airport, taxis, Haramain train',itinerary:'Build me a 3-day Madinah itinerary with costs in SAR',prayer:'What prayer times should I know when visiting Madinah?',dress:'What is the dress code for visiting Al-Masjid an-Nabawi?',season:'What is the best time of year to visit Madinah?',budget:'How much should I budget for 5 days in Madinah?',safety:'Is Madinah safe? Tips for first-time visitors?'},fc:['Restaurants','Cafes','Markets','Hotels','Shopping','Pharmacy','Salons','Transport'],fd:['Local & international','Coffee & desserts','Dates, gold & more','Near the Haram','Malls & boutiques','24h & near you','Hair & beauty','Cars, taxis & buses']},
+  ar:{banner:'اكتشف أفضل ما في المدينة',bannerSub:'خبراء محليون · مكالمة مجانية',callNow:'📞 اتصل الآن',wlcTitle:'مرحباً بك في دليل المدينة 🌟',wlcSub:'اسألني عن أي شيء — أفضل المطاعم والمقاهي والمحلات والعروض في المدينة.',placeholder:'اسألني عن المدينة المنورة…',placesTitle:'أماكن المدينة المنورة',placesSub:'مطاعم، مقاهي، فنادق، محلات والمزيد',callTitle:'تحدث مع مرشد محلي',callSub:'تواصل مع شخص حقيقي يعيش في المدينة المنورة.',callBtn:'تواصل مع وكيل',callFree:'متاح من 6 صباحاً حتى 10 مساءً بتوقيت المدينة · عربي وإنجليزي · مجاناً',bnPlan:'AI مساعد',bnPlaces:'الأماكن',bnCall:'اتصل بمرشد',pilgrim:'🤲 وضع الحاج — إرشادات الحج والعمرة',tourist:'🧳 وضع السائح — للزوار العاديين',chips:{umrah:'خطط زيارتي للمدينة المنورة — أبرز المواقع والنصائح',hotel:'أفضل فنادق المدينة قرب المسجد النبوي',food:'أفضل المطاعم في المدينة المنورة',dates:'أفضل محلات التمر والهدايا',transport:'كيف أتنقل في المدينة المنورة',itinerary:'برنامج 3 أيام في المدينة مع التكاليف',prayer:'مواقيت الصلاة في المدينة',dress:'كود اللباس لزيارة المسجد النبوي',season:'أفضل وقت لزيارة المدينة',budget:'الميزانية اللازمة لـ5 أيام',safety:'هل المدينة آمنة؟ نصائح للزيارة الأولى'},fc:['المطاعم','المقاهي','الأسواق','الفنادق','التسوق','الصيدليات','الصالونات','التنقل'],fd:['محلية وعالمية','قهوة وحلويات','تمور وذهب والمزيد','قرب الحرم','مجمعات ومحلات','على مدار الساعة','شعر وتجميل','سيارات وتاكسي']},
+  ur:{banner:'مدینہ میں بہترین تلاش کریں',bannerSub:'مقامی ماہرین · مفت کال',callNow:'📞 کال کریں',wlcTitle:'مدینہ گائیڈ میں خوش آمدید 🌟',wlcSub:'کھانا، کافے، دکانیں، ہوٹل اور بہترین آفرز کے بارے میں پوچھیں۔',placeholder:'مدینہ کے بارے میں پوچھیں…',placesTitle:'مدینہ کے مقامات',placesSub:'ریستوران، کافے، ہوٹل، دکانیں اور مزید',callTitle:'مقامی گائیڈ سے بات کریں',callSub:'مدینہ میں رہنے والے حقیقی شخص سے جڑیں۔',callBtn:'ایجنٹ سے جوڑیں',callFree:'مدینہ وقت صبح 6 سے رات 10 بجے تک · عربی اور انگریزی · مفت',bnPlan:'AI گائیڈ',bnPlaces:'مقامات',bnCall:'گائیڈ کو کال',pilgrim:'🤲 حاجی موڈ — حج اور عمرہ رہنمائی',tourist:'🧳 سیاح موڈ',chips:{umrah:'مدینہ کے لیے اپنا دورہ پلان کریں',hotel:'مسجد کے قریب بہترین ہوٹل',food:'مدینہ کے بہترین ریستوران',dates:'کھجور اور تحائف کی دکانیں',transport:'مدینہ میں نقل و حمل',itinerary:'3 دن کا مدینہ پروگرام',prayer:'نماز کے اوقات',dress:'مسجد کا لباس کوڈ',season:'مدینہ جانے کا بہترین وقت',budget:'5 دن کا بجٹ',safety:'مدینہ میں حفاظت'},fc:['ریستوران','کافے','بازار','ہوٹل','شاپنگ','فارمیسی','سیلون','ٹرانسپورٹ'],fd:['مقامی و بین الاقوامی','قہوہ و میٹھائی','کھجور، سونا و مزید','حرم کے قریب','مالز و بوتیک','24 گھنٹے دستیاب','بال و خوبصورتی','گاڑی، ٹیکسی']},
+  fr:{banner:'Découvrez le meilleur de Médine',bannerSub:'Experts locaux · Appel gratuit',callNow:'📞 Appeler',wlcTitle:'Bienvenue sur Madinah Guide 🌟',wlcSub:'Demandez-moi les meilleurs restaurants, cafés, hôtels et offres à Médine.',placeholder:'Posez une question sur Médine…',placesTitle:'Lieux de Médine',placesSub:'Restaurants, cafés, hôtels, boutiques et plus',callTitle:'Parler à un guide local',callSub:'Connectez-vous avec une vraie personne qui vit à Médine.',callBtn:'Me connecter à un agent',callFree:'Disponible 6h – 22h heure de Medine · Arabe et anglais · Gratuit',bnPlan:'AI Guide',bnPlaces:'Lieux',bnCall:'Appeler guide',pilgrim:'🤲 Mode pèlerin — Guide Hajj & Umrah',tourist:'🧳 Mode touriste',chips:{umrah:'Planifiez ma visite à Médine — sites et conseils',hotel:'Meilleurs hôtels près de la mosquée',food:'Meilleurs restaurants à Médine',dates:'Magasins de dattes et cadeaux',transport:'Transport à Médine',itinerary:'Itinéraire 3 jours à Médine',prayer:'Horaires de prière',dress:'Code vestimentaire mosquée',season:'Meilleure période pour visiter',budget:'Budget 5 jours',safety:'Médine est-elle sûre?'},fc:['Restaurants','Cafés','Marchés','Hôtels','Shopping','Pharmacie','Salons','Transport'],fd:['Cuisine locale & internationale','Café & desserts','Dattes, or & plus','Près du Haram','Centres commerciaux','24h & près de vous','Coiffure & beauté','Voitures, taxis & bus']},
+  id:{banner:'Temukan yang terbaik di Madinah',bannerSub:'Pakar lokal · Panggilan gratis',callNow:'📞 Hubungi',wlcTitle:'Selamat datang di Madinah Guide 🌟',wlcSub:'Tanyakan restoran, kafe, hotel, toko, dan penawaran terbaik di Madinah.',placeholder:'Tanyakan tentang Madinah…',placesTitle:'Tempat di Madinah',placesSub:'Restoran, kafe, hotel, toko dan lainnya',callTitle:'Bicara dengan pemandu lokal',callSub:'Terhubung dengan orang sungguhan yang tinggal di Madinah.',callBtn:'Hubungkan saya ke agen',callFree:'Tersedia 06.00 – 22.00 waktu Madinah · Arab dan Inggris · Gratis',bnPlan:'AI Guide',bnPlaces:'Tempat',bnCall:'Hubungi panduan',pilgrim:'🤲 Mode jemaah — Panduan Haji & Umrah',tourist:'🧳 Mode wisatawan',chips:{umrah:'Rencanakan kunjungan saya ke Madinah',hotel:'Hotel terbaik dekat Masjid Nabawi',food:'Restoran terbaik di Madinah',dates:'Toko kurma dan hadiah',transport:'Transportasi di Madinah',itinerary:'Itinerari 3 hari Madinah',prayer:'Waktu sholat',dress:'Kode berpakaian masjid',season:'Waktu terbaik mengunjungi',budget:'Anggaran 5 hari',safety:'Apakah Madinah aman?'},fc:['Restoran','Kafe','Pasar','Hotel','Belanja','Apotek','Salon','Transportasi'],fd:['Lokal & internasional','Kopi & dessert','Kurma, emas & lainnya','Dekat Haram','Mall & butik','24 jam & dekat Anda','Rambut & kecantikan','Mobil, taksi & bus']},
+  tr:{banner:"Medine'nin en iyisini keşfedin",bannerSub:"Yerel uzmanlar · Ücretsiz arama",callNow:"📞 Şimdi ara",wlcTitle:"Medine Rehberi'ne Hoş Geldiniz 🌟",wlcSub:"Medine'deki en iyi restoranlar, kafeler, oteller ve fırsatlar hakkında sorun.",placeholder:"Medine hakkında soru sorun…",placesTitle:"Medine'de Yerler",placesSub:"Restoranlar, kafeler, oteller, dükkanlar ve daha fazlası",callTitle:"Yerel rehberle konuşun",callSub:"Medine'de yaşayan ve şehri kişisel olarak tanıyan gerçek bir kişiyle bağlanın.",callBtn:"Bir acenteyle bağlan",callFree:"06:00 – 22:00 Medine saati · Arapca ve Ingilizce · Ucretsiz",bnPlan:"Plan",bnPlaces:"Yerler",bnCall:"Rehber ara",pilgrim:"🤲 Hacı modu — Hac ve Umre rehberliği",tourist:"🧳 Turist modu — Genel ziyaretçiler",chips:{umrah:"Medine ziyaretimi planla — önemli yerler ve ipuçları",hotel:"Mescid-i Nebevi yakınındaki en iyi oteller",food:"Medine'deki en iyi restoranlar",dates:"Hurma ve İslami hediyelik eşya dükkanları",transport:"Medine'de ulaşım — havalimanı, taksi, tren",itinerary:"Medine için 3 günlük gezi planı",prayer:"Namaz vakitleri",dress:"Cami kıyafet kuralları",season:"Medine'yi ziyaret için en iyi dönem",budget:"5 günlük bütçe",safety:"Medine güvenli mi?"},fc:["Restoranlar","Kafeler","Pazarlar","Oteller","Alisveris","Eczane","Salonlar","Ulasim"],fd:["Yerel & uluslararasi","Kahve & tatlilar","Hurma, altin & daha","Harem yakininda","Alisveris merkezleri","24 saat & yakininda","Sac & guzellik","Araba, taksi & otobus"]},
+  ru:{banner:'Найдите лучшее в Медине',bannerSub:'Местные эксперты · Бесплатный звонок',callNow:'📞 Позвонить',wlcTitle:'Добро пожаловать в Madinah Guide 🌟',wlcSub:'Спросите о лучших ресторанах, кафе, отелях и акциях в Медине.',placeholder:'Спросите что-нибудь о Медине…',placesTitle:'Места в Медине',placesSub:'Рестораны, кафе, отели, магазины и многое другое',callTitle:'Поговорить с местным гидом',callSub:'Свяжитесь с реальным человеком, живущим в Медине и лично знающим город.',callBtn:'Соединить с агентом',callFree:'Доступно 6:00–22:00 по времени Медины · Арабский и английский · Бесплатно',bnPlan:'AI Гид',bnPlaces:'Места',bnCall:'Позвать гида',pilgrim:'🤲 Режим паломника — руководство Хадж и Умра',tourist:'🧳 Режим туриста — для обычных посетителей',chips:{umrah:'Планирую посещение Медины — достопримечательности и советы',hotel:'Лучшие отели рядом с мечетью Пророка',food:'Лучшие рестораны в Медине',dates:'Магазины фиников и исламских подарков',transport:'Транспорт в Медине — аэропорт, такси, поезд',itinerary:'3-дневный маршрут по Медине с расходами',prayer:'Время молитв',dress:'Дресс-код мечети',season:'Лучшее время для посещения Медины',budget:'Бюджет на 5 дней',safety:'Медина безопасна?'},fc:['Рестораны','Кафе','Рынки','Отели','Шопинг','Аптеки','Салоны','Транспорт'],fd:['Местная & международная','Кофе & десерты','Финики, золото & др.','Рядом с Харамом','Моллы & бутики','24ч & рядом','Волосы & красота','Авто, такси & автобус']},
+};
+
+const PLACES = [
+
+  // --- COFFEE ---
+  {id:14,icon:'☕',cat:'coffee',nameEn:'Kiffa Roasters',nameAr:'محمصة كفة',cost:'Varies',instagram:'kiffaroaster',img:'photos/kiffa.jpg',descEn:'Specialty coffee roastery near the Haram, known for rich brews and turquoise interiors.',descAr:'محمصة قهوة مختصة بالقرب من الحرم، تشتهر بديكوراتها الفيروزية.',descUr:'کفہ روسٹرز — حرم کے قریب اسپیشلٹی کافی، فیروزی انٹیریئر کے لیے مشہور۔',descFr:'Kiffa Roasters — torrefaction specialisee pres du Haram, interieurs turquoise.',descId:'Kiffa Roasters — kedai kopi specialty dekat Haram, interior pirus.',descTr:'Kiffa Roasters — Harem yakininda ozel kahve, turkuaz ic mekanıyla.',descRu:'Kiffa Roasters — обжарщик кофе у Харама с бирюзовыми интерьерами.',lat:24.473468,lng:39.608965},
+  {id:15,icon:'☕',cat:'coffee',nameEn:'ROW Specialty Coffee',nameAr:'رو كافيه',cost:'Varies',instagram:'rowcafe.sa',img:'photos/row.jpg',descEn:"Elegant and aesthetic cafe famous for its signature Ajwa date cookies.",descAr:'كافيه أنيق ومميز يشتهر بكوكيز العجوة الفريد.',descUr:'ROW کافی — عجوہ ڈیٹ کوکیز کے لیے مشہور خوبصورت کافے۔',descFr:'ROW Coffee — café élégant célèbre pour ses cookies aux dattes Ajwa.',descId:'ROW Coffee — kafe elegan terkenal dengan kue kurma Ajwa.',descTr:'ROW Kahve — Acve hurma kurabiyeleriyle ünlü zarif kafe.',descRu:'ROW Coffee — элегантное кафе с печеньем Аджва.',lat:24.467743,lng:39.575448},
+  {id:16,icon:'☕',cat:'coffee',nameEn:'8oz Coffee',nameAr:'ايت اوز كوفي',cost:'Varies',instagram:'8ozcafe',img:'photos/8oz.jpg',descEn:"Modern industrial vibe offering a wide range of specialty hot and cold drinks.",descAr:'يتميز بطابع عصري ويقدم مجموعة واسعة من المشروبات المختصة.',descUr:'8oz کافی — جدید صنعتی انداز میں گرم اور ٹھنڈے مشروبات کی وسیع رینج۔',descFr:'8oz Coffee — ambiance industrielle moderne avec boissons spécialisées variées.',descId:'8oz Coffee — suasana industri modern dengan berbagai minuman specialty.',descTr:'8oz Coffee — modern endüstriyel atmosferde çeşitli özel içecekler.',descRu:'8oz Coffee — современная атмосфера с широким выбором напитков.',lat:24.483762,lng:39.641902},
+  {id:17,icon:'☕',cat:'coffee',nameEn:'Namq Cafe',nameAr:'نمق كافيه',cost:'Varies',instagram:'namq_cafe',img:'photos/namq.jpg',descEn:"Popular 24/7 spot in Sultana Gardens, great for specialty drinks and desserts.",descAr:'وجهة شهيرة في حدائق سلطانة، يتميز بتقديم القهوة والحلويات على مدار الساعة.',descUr:'نمق کافے — سلطانہ گارڈنز میں 24/7 مشہور جگہ۔',descFr:'Namq Café — endroit populaire 24h/24 dans les jardins de Sultana.',descId:'Namq Cafe — tempat populer 24 jam di Taman Sultana.',descTr:'Namq Kafe — Sultana Bahçelerinde 7/24 popüler mekan.',descRu:'Namq Cafe — популярное 24/7 место в садах Султаны.',lat:24.483561,lng:39.572667},
+  {id:18,icon:'☕',cat:'coffee',nameEn:'Tyam Cafe',nameAr:'تيام كافيه',cost:'Varies',instagram:'tyamcafe',img:'photos/tyam.jpg',descEn:"Cozy local favorite named after Mount Tyam, offering high-end roasting.",descAr:'كافيه محلي دافئ سمي على اسم جبل تيام، يقدم تجربة تحميص فاخرة.',descUr:'تیام کافے — جبل تیام کے نام سے منسوب اعلیٰ درجے کی کافی روسٹنگ۔',descFr:'Tyam Café — nommé d\'après le Mont Tyam, torréfaction haut de gamme.',descId:'Tyam Cafe — dinamai Gunung Tyam, pemanggangan kopi berkelas.',descTr:'Tyam Kafe — Tyam Dağı\'ndan adını alan üst düzey kahve kavurma.',descRu:'Tyam Cafe — высококлассная обжарка, названная в честь горы Тайм.',lat:24.463397,lng:39.665244},
+  {id:89,icon:'☕',cat:'coffee',nameEn:'Camel Step',nameAr:'خطوة جمل',cost:'Varies',instagram:'camelstep',img:'photos/camel-step.jpg',descAr:'محمصة قهوة مختصة رائدة تقدم أجود أنواع البن وأدوات تحضير القهوة.',descEn:'A leading specialty coffee roastery offering premium beans and brewing equipment.',descUr:'ایک معروف اسپیشلٹی کافی روسٹری جو بہترین کافی بینز اور تیاری کے آلات فراہم کرتی ہے۔',descFr:'Une torréfaction de café de spécialité de premier plan proposant des grains de qualité supérieure et des équipements de brassage.',descId:'Pemanggangan kopi spesialis terkemuka yang menawarkan biji kopi premium dan peralatan seduh.',descTr:'Birinci sınıf kahve çekirdekleri ve demleme ekipmanları sunan öncü bir özel kahve kavurma evi.',descRu:'Ведущий обжарщик спешелти кофе, предлагающий зерна премиум-класса и оборудование для заваривания.',lat:24.4825,lng:39.5742,infoEn:'',infoAr:''},
+
+  // --- RESTAURANT ---
+  {id:33,icon:'🍗',cat:'restaurant',nameEn:'ALBAIK',nameAr:'البيك',cost:'4-40 SAR',instagram:'albaik',img:'photos/albaik.jpg',descEn:'Iconic Saudi fast-food chain famous for its broasted chicken and sauce.',descAr:'سلسلة مطاعم الوجبات السريعة السعودية الشهيرة بتقديم الدجاج البروست.',descUr:'البیک — مشہور سعودی فاسٹ فوڈ چین، بروسٹ چکن کے لیے مشہور۔',descFr:'ALBAIK — chaine saoudienne iconique celebre pour son poulet braise.',descId:'ALBAIK — jaringan makanan cepat saji ikonik, terkenal ayam panggang.',descTr:'ALBAIK — meshur Suudi fast-food, citir tavuguyla unlu.',descRu:'ALBAIK — культовая саудовская сеть с жареной курицей.',lat:24.471434,lng:39.61035,
+    branches:[
+      {nameEn:'Northern Central Area', nameAr:'المنطقة المركزية الشمالية', lat:24.471434, lng:39.61035},
+      {nameEn:'Al Manar Mall', nameAr:'المنار مول', lat:24.460838, lng:39.584791},
+      {nameEn:'Salam Street', nameAr:'شارع السلام', lat:24.485280, lng:39.533133},
+      {nameEn:'Al Hassan Mall', nameAr:'الحسن مول', lat:24.498057, lng:39.618710},
+      {nameEn:'Noor Mall', nameAr:'النور مول', lat:24.49624, lng:39.59514},
+      {nameEn:'High Speed Train Station', nameAr:'محطة القطار السريع', lat:24.473864, lng:39.700249}
+    ]},
+
+  {id:74,icon:'🍽️',cat:'restaurant',nameEn:'Ghaith Azal Restaurant',nameAr:'مطعم غيث أزال',cost:'5 - 60 SAR',instagram:'ghayth_azal',img:'photos/ghaithazal.jpeg',descAr:'مطعم يقدم المأكولات الشعبية واليمنية الأصيلة، والمشاوي والرز مع اللحم والدجاج في المدينة المنورة.',descEn:'A restaurant serving authentic traditional and Yemeni cuisine, grills, and rice with meat and chicken in Madinah.',descUr:'مدینہ منورہ میں روایتی اور یمنی کھانے، گرلز، اور گوشت و چکن کے ساتھ چاول پیش کرنے والا ایک ریستورانت۔',descFr:'Un restaurant proposant une cuisine traditionnelle et yemenite, des grillades et du riz avec viande et poulet a Medine.',descId:'Restoran yang menyajikan masakan tradisional dan Yaman otentik, panggangan, dan nasi dengan daging serta ayam di Madinah.',descTr:'Medine de otantik geleneksel ve Yemen mutfagi, izgaralar ve etli tavuklu pilav sunan bir restoran.',descRu:'Ресторан аутентичной традиционной и йеменской кухни, гриля и риса с мясом и курицей в Медине.',lat:24.47697,lng:39.59100,infoEn:'25% off grills and rice. Extra 5 SAR off for first 30 daily customers until May 5, 2026.',infoAr:'خصم 25% على المشويات والرز بالإضافة إلى خصم 5 ريال لأول 30 عميل يومياً حتى 5 مايو 2026'},
+
+  {id:49,icon:'🍖',cat:'restaurant',nameEn:'Al Romansiah',nameAr:'مطاعم الرومانسية',cost:'20-80 SAR',instagram:'alromansiahksa',img:'photos/romansiah.jpg',descEn:"Famous for authentic Saudi cuisine like Mandi and Madhbi.",descAr:'مشهور بتقديم المأكولات السعودية الأصيلة مثل المندي والمظبي.',descUr:'الرومانسیہ — مندی اور مظبی کے لیے مشہور۔',descFr:'Al Romansiah — célèbre pour Mandi et Madhbi.',descId:'Al Romansiah — terkenal Mandi dan Madhbi.',descTr:'Romansiah — Mandi ve Madhbi ile ünlü.',descRu:'Аль-Романсия — знаменит Манди и Мазби.',lat:24.4714,lng:39.6455,
+    branches:[
+      {nameEn:'Al Iskan Branch', nameAr:'فرع الإسكان', lat:24.47017, lng:39.64169},
+      {nameEn:'As Salam Branch', nameAr:'فرع السلام', lat:24.46616, lng:39.54707}
+    ]},
+
+  {id:50,icon:'🍗',cat:'restaurant',nameEn:'Fan Al Bait Al Arabi',nameAr:'مطاعم فن البيت العربي',cost:'20-70 SAR',instagram:'albait_alarabi',img:'photos/bait-arabi.jpg',descEn:"Specialized in traditional Arabic and Gulf cuisine, known for Mandi and Madhbi.",descAr:'متخصص في الأكلات العربية والخليجية التقليدية، ويشتهر بتقديم المندي والمظبي.',descUr:'فن البیت العربی — عربی اور خلیجی روایتی کھانوں میں ماہر۔',descFr:'Fan Al Bait — spécialisé dans la cuisine arabe traditionnelle.',descId:'Fan Al Bait — spesialis masakan Arab dan Teluk.',descTr:'Arap Evi Sanatı — Arap ve Körfez mutfağı uzmanı.',descRu:'Фан аль-Байт — арабская и заливная кухня.',lat:24.4970911,lng:39.5854193,
+    branches:[
+      {nameEn:'Beir Uthman Branch', nameAr:'فرع بئر عثمان', lat:24.4970911, lng:39.5854193},
+      {nameEn:'Shuran Branch', nameAr:'فرع شوران', lat:24.3945819, lng:39.635349}
+    ]},
+
+  {id:77,icon:'🚜',cat:'restaurant',nameEn:'Glitter Farm',nameAr:'جليتر فارم',cost:'30 - 50 SAR',instagram:'glitter_farm',img:'photos/glitter-farm.jpg',descAr:'مزرعة ترفيهية عائلية تضم جلسات ريفية ومنطقة ألعاب للأطفال.',descEn:'A family recreational farm featuring rustic seating areas and a children\'s play area.',descUr:'ایک خاندانی تفریحی فارم ہاؤس جس میں دیہی نشستیں اور بچوں کے کھیلنے کا علاقہ ہے۔',descFr:'Une ferme récréative familiale avec des coins salon rustiques et une aire de jeux pour enfants.',descId:'Pertanian rekreasi keluarga yang menampilkan area tempat duduk pedesaan dan taman bermain anak-anak.',descTr:'Rustik oturma alanları ve çocuk oyun alanı içeren aile boyu eğlence çiftliği.',descRu:'Семейная ферма для отдыха с загородными зонами отдыха и детской игровой площадкой.',lat:24.44213,lng:39.62229},
+
+  {id:86,icon:'🍔',cat:'restaurant',nameEn:'Box Burger',nameAr:'بوكس برجر',cost:'23 - 35 SAR',instagram:'burgerbox.sa',img:'photos/box-burger.jpg',descAr:'مطعم متخصص في تقديم برجر اللحم والدجاج المشوي مع البطاطس المتبلة.',descEn:'A restaurant specialized in serving grilled beef and chicken burgers with seasoned fries.',descUr:'گرلڈ بیف اور چکن برگر مع مسالہ دار فرائز پیش کرنے والا ایک ریستورانت۔',descFr:'Restaurant spécialisé dans les burgers grillés.',descId:'Restoran spesialis burger panggang.',descTr:'Izgara burger konusunda uzmanlaşmış restoran.',descRu:'Ресторан, специализирующийся на гриль-бургерах.',lat:24.480346,lng:39.639440,
+    branches:[
+      {nameEn:'Airport Road Branch', nameAr:'فرع العريض', lat:24.480346, lng:39.639440},
+      {nameEn:'Bagdo Branch', nameAr:'فرع البدراني', lat:24.443300, lng:39.683985}
+    ]},
+
+  {id:87,icon:'🍗',cat:'restaurant',nameEn:'Popeyes',nameAr:'بوبايز',cost:'10 - 60 SAR',instagram:'popeyes_saudi',img:'photos/popeyes.jpg',descAr:'سلسلة مطاعم عالمية شهيرة بتقديم الدجاج المقلي المقرمش على طريقة لويزيانا.',descEn:'A famous international restaurant chain serving crispy Louisiana-style fried chicken.',descUr:'لوئیزیانا اسٹائل کرسپی فرائیڈ چکن پیش کرنے والا ریستورانت۔',descFr:'Poulet frit croustillant façon Louisiane.',descId:'Ayam goreng renyah ala Louisiana.',descTr:'Louisiana usulü çıtır kızarmış tavuk.',descRu:'Хрустящая жареная курица в стиле Луизианы.',lat:24.493962,lng:39.617812,
+    branches:[
+      {nameEn:'Al Noor Mall Branch', nameAr:'فرع الشهداء', lat:24.493962, lng:39.617812},
+      {nameEn:'Sultana Road Branch', nameAr:'فرع طريق السلام', lat:24.468125, lng:39.571390}
+    ]},
+
+  {id:90,icon:'🍔',cat:'restaurant',nameEn:'SMISH Burger',nameAr:'سميش برجر',cost:'25 - 50 SAR',instagram:'smish.sa',img:'photos/smish-burger.jpg',descAr:'مطعم متخصص في تقديم برجر اللحم والدجاج المشوي.',descEn:'A restaurant specialized in serving grilled beef and chicken burgers.',descUr:'گرلڈ بیف اور چکن برگر پیش کرنے والا ایک ریستورانت۔',descFr:'Restaurant de burgers grillés (bœuf et poulet).',descId:'Restoran burger sapi dan ayam panggang.',descTr:'Izgara et ve tavuk burgerleri sunan restoran.',descRu:'Ресторан гриль-бургеров (говядина и курица).',lat:24.446233,lng:39.671357},
+{id:99,icon:'🥘',cat:'restaurant',nameEn:'Bait Al Madini (Abu Salem)',nameAr:'مطعم بيت المديني (أبو سالم)',cost:'12 - 50 SAR',instagram:null,img:'photos/bait-almadini.jpg',descAr:'مطعم أصيل يشتهر بتقديم المأكولات المدينية التقليدية: كوزي مديني، كابلي، بخاري، سليق، برياني، إيراني، ورز بحمص.',descEn:'An authentic restaurant famous for traditional Madini dishes: Kozi Madini, Kabli, Bukhari, Saleeg, Biryani, Irani, and Chickpea Rice.',descUr:'مدینہ کے روایتی پکوان: کوزی مدنی، کابلی، بخاری، سلیق، بریانی، ایرانی، اور چنے والے چاول پیش کرنے کے لیے مشہور ریستورانت۔',descFr:'Un restaurant authentique célèbre pour ses plats traditionnels : Kozi Madini, Kabli, Bukhari, Saleeg, Biryani, Irani et riz aux pois chiches.',descId:'Restoran otentik yang terkenal dengan hidangan tradisional Madini: Kozi Madini, Kabli, Bukhari, Saleeg, Biryani, Irani, dan Nasi Kacang Arab.',descTr:'Geleneksel Medine yemekleriyle ünlü otantik bir restoran: Kozi Madini, Kabli, Bukhari, Saleeg, Biryani, Irani ve Nohutlu Pilav.',descRu:'Аутентичный ресторан, знаменитый традиционными мединскими блюдами: кози мадини, кабли, бухари, салиг, бирьяни, ирани и рис с нутом.',lat:24.442721,lng:39.577485,infoEn:'',infoAr:''},
+ {id:100,icon:'🥪',cat:'restaurant',nameEn:'Troja Sandwich',nameAr:'تروجا ساندوتش',cost:'5 - 35 SAR',instagram:null ,img:'photos/troja.jpg',descAr:'مطعم متخصص في تقديم التورتيلا والساندوتشات المتنوعة بنكهات مميزة.',descEn:'A restaurant specialized in serving tortillas and various sandwiches with unique flavors.',descUr:'ٹورٹیلا اور مختلف قسم کے سینڈوچ منفرد ذائقوں کے ساتھ پیش کرنے والا ایک ریستورانت۔',descFr:'Un restaurant spécialisé dans les tortillas et divers sandwichs aux saveurs uniques.',descId:'Restoran yang mengkhususkan diri dalam menyajikan tortilla dan berbagai sandwich dengan rasa yang unik.',descTr:'Benzersiz lezzetlerle tortilla ve çeşitli sandviçler sunan bir restoran.',descRu:'Ресторан, специализирующийся на тортильях и различных сэндвичах с уникальным вкусом.',lat:24.449178,lng:39.677263,
+  branches:[
+    {nameEn:'Al-Badrani Branch', nameAr:'فرع البدراني', lat:24.449178, lng:39.677263},
+    {nameEn:'Shuran Branch', nameAr:'فرع شوران', lat:24.391135, lng:39.612894},
+    {nameEn:'As Salam Branch', nameAr:'فرع العزيزية', lat:24.453121, lng:39.543386}
+  ]
+},
+  {id:101,icon:'🍔',cat:'restaurant',nameEn:'Kushta Burger',nameAr:'كوشتا برجر',cost:'12 - 45 SAR',instagram:'koshta.burger',img:'photos/kushta.jpg',descAr:'مطعم متخصص في تقديم برجر اللحم والدجاج المشوي مع الإضافات المميزة.',descEn:'A restaurant specialized in serving grilled beef and chicken burgers with unique toppings.',descUr:'منفرد ٹاپنگز کے ساتھ گرلڈ بیف اور چکن برگر پیش کرنے والا ایک ریستورانت۔',descFr:'Un restaurant spécialisé dans les burgers de bœuf et de poulet grillés avec des garnitures uniques.',descId:'Restoran yang mengkhususkan diri dalam menyajikan burger sapi dan ayam panggang dengan topping yang unik.',descTr:'Benzersiz malzemelerle ızgara dana eti ve tavuk burgerleri sunan bir restoran.',descRu:'Ресторан, специализирующийся на бургерах из говядины и курицы на гриле с уникальными топпингами.',lat:24.447218,lng:39.677658,
+  branches:[
+    {nameEn:'Al-Badrani Branch', nameAr:'فرع البدراني', lat:24.447218, lng:39.677658},
+    {nameEn:'Shuran Branch', nameAr:'فرع شوران', lat:24.388297, lng:39.613273},
+    {nameEn:'As Salam Branch', nameAr:'فرع العزيزية', lat:24.452953, lng:39.543315},
+    {nameEn:'Airport Road Branch', nameAr:'فرع باقدو', lat:24.489157, lng:39.673962}
+  ]
+},
+{id:102,icon:'🍛',cat:'restaurant',nameEn:'Al Hana Al Raqi Restaurant',nameAr:'مطعم الهناء الراقي',cost:'10 - 40 SAR',instagram:null,img:'photos/alhana.jpg',descAr:'مطعم يقدم المأكولات الشعبية والرز البخاري والمشويات بنكهة تقليدية.',descEn:'A restaurant serving traditional folk food, Bukhari rice, and grills with a traditional flavor.',descUr:'روایتی ذائقے کے ساتھ لوک کھانے، بخاری چاول اور گرلز پیش کرنے والا ایک ریستورانت۔',descFr:'Un restaurant proposant des plats traditionnels, du riz Bukhari et des grillades aux saveurs authentiques.',descId:'Restoran yang menyajikan makanan tradisional, nasi Bukhari, dan panggangan dengan cita rasa tradisional.',descTr:'Geleneksel lezzetlerle yöresel yemekler, Buhari pilavı ve ızgaralar sunan bir restoran.',descRu:'Ресторан традиционной народной кухни, предлагающий рис бухари и гриль с аутентичным вкусом.',lat:24.485978,lng:39.601804,
+  branches:[
+    {nameEn:'An Nasr Branch', nameAr:'فرع حي النصر', lat:24.485978, lng:39.601804},
+    {nameEn:'Al Oyun Branch', nameAr:'فرع حي العيون', lat:24.497321, lng:39.601487},
+    {nameEn:'Al Duwaymah Branch', nameAr:'فرع حي الدويمة', lat:24.445926, lng:39.606437},
+    {nameEn:'Al Arid Branch', nameAr:'فرع حي العريض', lat:24.481912, lng:39.635915},
+    {nameEn:'Al Aziziyah Branch', nameAr:'فرع حي العزيزية', lat:24.426939, lng:39.515638},
+    {nameEn:'Shuran Branch', nameAr:'فرع حي شوران', lat:24.410996, lng:39.666021}
+  ]
+},
+  {id:103,icon:'🌯',cat:'restaurant',nameEn:'Shawarma Ayedh',nameAr:'شاورما عايض',cost:'10 - 25 SAR',instagram:'ayedh_shawarma',img:'photos/shawarma-ayedh.jpg',descAr:'مطعم متخصص في تقديم شاورما الدجاج واللحم بتتبيلة خاصة ونكهة مميزة.',descEn:'A restaurant specialized in serving chicken and meat shawarma with a special seasoning and a unique flavor.',descUr:'چکن اور میٹ شوارما کو خاص مصالحہ جات اور منفرد ذائقے کے ساتھ پیش کرنے والا ریستورانت۔',descFr:'Un restaurant spécialisé dans le shawarma au poulet et à la viande avec un assaisonnement spécial et une saveur unique.',descId:'Restoran yang mengkhususkan diri dalam menyajikan shawarma ayam dan daging dengan bumbu spesial dan cita rasa yang unik.',descTr:'Özel bir terbiye ve eşsiz lezzeti ile tavuk ve et döner sunma konusunda uzmanlaşmış bir restoran.',descRu:'Ресторан, специализирующийся на приготовлении шаурмы из курицы и мяса со специальными приправами и уникальным вкусом.',lat:24.446284,lng:39.619267,infoEn:'',infoAr:''},
+ {id:104,icon:'🧆',cat:'restaurant',nameEn:'Al-Sultan Falafel',nameAr:'طعمية السلطان',cost:'5 - 20 SAR',instagram:'tamyaalsultan',img:'photos/alsultan-falafel.jpg',descAr:'سلسلة مطاعم شهيرة تقدم ساندوتشات الفلافل الطازجة والوجبات السريعة بجودة عالية.',descEn:'A famous restaurant chain serving fresh falafel sandwiches and fast food with high quality.',descUr:'اعلیٰ معیار کے ساتھ تازہ فلافل سینڈوچ اور فاسٹ فوڈ پیش کرنے والا ایک مشہور ریستورانت سلسلہ۔',descFr:'Une célèbre chaîne de restaurants proposant des sandwichs aux falafels frais et de la restauration rapide de haute qualité.',descId:'Rantai restoran terkenal yang menyajikan sandwich falafel segar dan makanan cepat saji dengan kualitas tinggi.',descTr:'Yüksek kalitede taze falafel sandviçleri ve fast food sunan ünlü bir restoran zinciri.',descRu:'Известная сеть ресторанов, предлагающая свежие сэндвичи с фалафелем и фастфуд высокого качества.',lat:24.461727,lng:39.652779,
+  branches:[
+    {nameEn:'Al-Iskan Branch', nameAr:'فرع الإسكان', lat:24.461727, lng:39.652779},
+    {nameEn:'Ad-Difaa Branch', nameAr:'فرع حي الدفاع', lat:24.451654, lng:39.505644},
+    {nameEn:'As-Salam Branch', nameAr:'فرع طريق السلام', lat:24.489329, lng:39.508467},
+    {nameEn:'Airport Road Branch', nameAr:'فرع طريق المطار', lat:24.534634, lng:39.690749}
+  ]
+},
+  {id:105,icon:'🥣',cat:'restaurant',nameEn:'Al-Ahmadi Popular Food',nameAr:'الأحمدي للأكلات الشعبية',cost:'10 - 30 SAR',instagram:null,img:'photos/alahmadi.jpg',descAr:'مطعم شعبي متميز يقدم تشكيلة من الوجبات التقليدية مثل الفول والتميس والمعصوب والكبدة.',descEn:'A distinguished popular restaurant serving a variety of traditional meals such as Foul, Tameez, Masoub, and Liver.',descUr:'فول، تمیز، معصوب اور کلیجی جیسے مختلف روایتی کھانے پیش کرنے والا ایک ممتاز عوامی ریستورانت۔',descFr:'Un restaurant populaire distingué proposant une variété de repas traditionnels tels que le Foul, le Tameez, le Masoub et le foie.',descId:'Restoran populer terkemuka yang menyajikan berbagai hidangan tradisional seperti Foul, Tameez, Masoub, dan Hati.',descTr:'Foul, Tameez, Masoub ve Ciğer gibi çeşitli geleneksel yemekler sunan seçkin bir halk restoranı.',descRu:'Популярный ресторан, предлагающий разнообразные традиционные блюда, такие как фул, тамиз, масуб и печень.',lat:24.474387,lng:39.634353,infoEn:'',infoAr:''},
+  {id:106,icon:'🍳',cat:'restaurant',nameEn:'Qeshta & Moz',nameAr:'قشطة وموز',cost:'10 - 25 SAR',instagram:'qeshta_moz',img:'photos/qeshta-moz.jpg',descAr:'محل متخصص في تقديم وجبات الفطور والعشاء الشعبية مثل المعصوب والعريكة والكبدة.',descEn:'A shop specialized in serving traditional breakfast and dinner meals like Masoub, Areeka, and Liver.',descUr:'ناشتے اور رات کے روایتی کھانے جیسے معصوب، عریکہ اور کلیجی پیش کرنے میں مہارت رکھنے والی دکان۔',descFr:'Un magasin spécialisé dans les petits-déjeuners et dîners traditionnels tels que le Masoub, l\'Areeka et le foie.',descId:'Toko yang mengkhususkan diri dalam menyajikan menu sarapan dan makan malam tradisional seperti Masoub, Areeka, dan Hati.',descTr:'Masoub, Areeka ve Ciğer gibi geleneksel kahvaltı ve akşam yemeği seçenekleri sunan uzman bir dükkan.',descRu:'Магазин, специализирующийся на традиционных завтраках и ужинах, таких как масуб, арика и печень.',lat:24.472717,lng:39.591804,infoEn:'',infoAr:''},
+  // --- SERVICES ---
+  {id:82,icon:'🧺',cat:'services',nameEn:'Al-Manakhah Laundry',nameAr:'مغسلة المناخة',cost:'Varies',instagram:null,img:'photos/sayh-laundry.jpg',descAr:'مغسلة ملابس تقدم خدمات الغسيل والكي في حي السيح.',descEn:'A laundry service providing washing and ironing in the Al-Sayh neighborhood.',descUr:'سیح کے علاقے میں کپڑے دھونے اور استری کی خدمات فراہم کرنے والی لانڈری۔',descFr:'Blanchisserie offrant des services de lavage et repassage.',descId:'Layanan penatu menyediakan jasa cuci dan setrika.',descTr:'Yikama ve ütüleme hizmetleri sunan camasırhane.',descRu:'Прачечная со стиркой и глажкой.',lat:24.47098,lng:39.59462,infoAr:'غسيل جميع أنواع الملابس والبطانيات'},
+
+  {id:88,icon:'🏋️‍♂️',cat:'services',nameEn:'Madinah Sports Club',nameAr:'نادي المدينة الرياضي',cost:'Varies',instagram:'mgc20_30',img:'photos/madinah-club.jpg',descAr:'نادي رياضي متخصص في اللياقة البدنية وكمال الأجسام.',descEn:'A sports club specialized in fitness and bodybuilding.',descUr:'فٹنس اور باڈی بلڈنگ میں مہارت رکھنے والا سپورٹس کلب۔',descFr:'Club de sport spécialisé en fitness.',descId:'Klub olahraga kebugaran dan binaraga.',descTr:'Fitness ve vücut geliştirme spor kulübü.',descRu:'Спортивный клуб фитнеса и бодибилдинга.',lat:24.487194,lng:39.575343},
+
+  {id:83,icon:'💻',cat:'services',nameEn:'Vision and Solutions Est.',nameAr:'مؤسسة رؤية وحلول',cost:'Varies',instagram:null,img:'photos/vision-solutions.jpg',descAr:'محل لبيع أجهزة الكمبيوتر وملحقاته وصيانته.',descEn:'A shop for selling computers, accessories, and maintenance services.',descUr:'کمپیوٹر، لوازمات کی فروخت اور مرمت کی دکان۔',descFr:'Vente et maintenance informatique.',descId:'Penjualan dan servis komputer.',descTr:'Bilgisayar satışı ve teknik servis.',descRu:'Продажа и обслуживание компьютеров.',lat:24.47846,lng:39.58560},
+{id:98,icon:'📱',cat:'services',nameEn:'Five G',nameAr:'فايف جي',cost:'Varies',instagram:'fivegtelecome',img:'photos/fiveg.jpg',descAr:'متجر متخصص في بيع وصيانة الهواتف الذكية وتقديم أحدث ملحقات الجوال.',descEn:'A shop specialized in selling and maintaining smartphones and providing the latest mobile accessories.',descUr:'اسمارٹ فونز کی فروخت اور مرمت اور جدید ترین موبائل لوازمات فراہم کرنے میں مہارت رکھنے والی دکان۔',descFr:'Un magasin spécialisé dans la vente et la maintenance de smartphones et la fourniture des derniers accessoires mobiles.',descId:'Toko yang mengkhususkan diri dalam menjual dan merawat smartphone serta menyediakan aksesori seluler terbaru.',descTr:'Akıllı telefon satışı ve bakımı ile en yeni mobil aksesuarların sağlanması konusunda uzmanlaşmış bir mağaza.',descRu:'Магазин, специализирующийся на продаже и обслуживании смартфонов и предоставлении новейших мобильных аксессуаров.',lat:24.477043,lng:39.590613,infoEn:'',infoAr:''},
+  {id:91,icon:'📦',cat:'services',nameEn:'Sending Point',nameAr:'نقطة ارسال',cost:'Varies',instagram:'sendingpoint',img:'photos/sending-point.jpg',descAr:'مركز لخدمات الشحن واللوجستيات محلياً ودولياً.',descEn:'A shipping and logistics service center for local and international parcels.',descUr:'مقامی اور بین الاقوامی پارسل کے لیے شپنگ سینٹر۔',descFr:'Services d\'expédition locaux et internationaux.',descId:'Layanan pengiriman lokal dan internasional.',descTr:'Yerel ve uluslararası nakliye hizmetleri.',descRu:'Услуги местной и международной доставки.',lat:24.43518,lng:39.67674},
+{id:92,icon:'✨',cat:'services',nameEn:'Al-Fares Mobile Polishing',nameAr:'مغسلة الفارس المتنقلة',cost:'95 SAR',instagram:null,img:'photos/alfares-mobile.jpg',descAr:'خدمة متنقلة متخصصة في تلميع السيارات (بوليش) في موقع العميل، ولا تقدم خدمة الغسيل. 0536086116',descEn:'A mobile service specialized in car polishing at the customer\'s location; washing services are not provided. 0536086116',descUr:'صرف گاہک کے مقام پر کار پالش کرنے میں مہارت رکھنے والی موبائل سروس؛ دھونے کی خدمات فراہم نہیں کی جاتیں۔',descFr:'Un service mobile spécialisé dans le polissage de voitures chez le client ; les services de lavage ne sont pas fournis.',descId:'Layanan panggilan yang mengkhususkan diri dalam pemolesan mobil di lokasi pelanggan; tidak menyediakan layanan cuci.',descTr:'Müşterinin bulunduğu yerde araç parlatma (polisaj) konusunda uzmanlaşmış mobil hizmet; yıkama hizmeti verilmemektedir.',descRu:'Мобильная служба, специализирующаяся на полировке автомобилей на дому у клиента; услуги мойки не предоставляются.',lat:0,lng:0,infoEn:'Specialized in polishing only. Mobile service covering Madinah.',infoAr:'متخصصون في التلميع فقط. خدمة متنقلة تغطي المدينة المنورة'},
+{id:107,icon:'🛠️',cat:'services',nameEn:'MOTOR TEC',nameAr:'MOTOR TEC ورشة متنقلة',cost:'Varies',instagram:'motortec3',img:'photos/motortec.jpg',descAr:'ورشة صيانة سيارات متنقلة متخصصة في تغيير الزيوت والصيانة السريعة، للتواصل: 0530507714',descEn:'A mobile car maintenance workshop specialized in oil changes and quick service, contact: 0530507714',descUr:'موبائل کار مینٹیننس ورکشاپ جو تیل کی تبدیلی اور فوری سروس میں مہارت رکھتی ہے، رابطہ: 0530507714',descFr:'Un atelier mobile de maintenance automobile spécialisé dans la vidange et le service rapide, contact : 0530507714',descId:'Bengkel perawatan mobil panggilan yang mengkhususkan diri dalam ganti oli dan servis cepat, kontak: 0530507714',descTr:'Yağ değişimi ve hızlı servis konusunda uzmanlaşmış mobil araç bakım atölyesi, iletişim: 0530507714',descRu:'Мобильная мастерская по техническому обслуживанию автомобилей, специализирующаяся на замене масла и быстром сервисе, контакт: 0530507714',lat:0,lng:0,infoEn:'Mobile service in Madinah.',infoAr:'خدمة متنقلة داخل المدينة المنورة'},
+  {id:97,icon:'🦷',cat:'clinic',nameEn:'Elite Dental Center',nameAr:'إيليت لطب الأسنان',cost:'Varies',instagram:'elite__dentistry',img:'photos/elite-dental.jpg',descAr:'مركز طبي متخصص في تقديم خدمات طب وتجميل الأسنان بأحدث التقنيات.',descEn:'A medical center specialized in providing dental and cosmetic services using the latest technologies.',descUr:'جدید ترین ٹیکنالوجی کا استعمال کرتے ہوئے دانتوں اور کاسمیٹک خدمات فراہم کرنے میں مہارت رکھنے والا طبی مرکز۔',descFr:'Un centre médical spécialisé dans la prestation de services dentaires et cosmétiques utilisant les dernières technologies.',descId:'Pusat medis yang mengkhususkan diri dalam menyediakan layanan gigi dan kosmetik menggunakan teknologi terbaru.',descTr:'En son teknolojileri kullanarak diş ve kozmetik hizmetleri sağlama konusunda uzmanlaşmış bir tıp merkezi.',descRu:'Медицинский центр, специализирующийся на оказании стоматологических и косметических услуг с использованием новейших технологий.',lat:24.468482,lng:39.664205,
+  branches:[
+    {nameEn:'Bagdo Branch', nameAr:'فرع الدائري الثاني', lat:24.468482007795956, lng:39.664205247621304},
+    {nameEn:'As Salam Branch', nameAr:'فرع شارع الإمام مسلم', lat:24.460445209233793, lng:39.54066688571692}
+  ]
+},
+  // --- TRANSPORT ---
+  {id:80,icon:'🚗',cat:'transport',nameEn:'Al-Ruhaili Car Rental',nameAr:'مكتب الرحيلي لتأجير السيارات',cost:'120 - 350 SAR',instagram:null,img:'photos/alruhaili-cars.jpg',descAr:'مكتب تأجير سيارات لديه فرعين في المدينة ولا يوجد له فرع في المطار.',descEn:'A car rental office with two branches in Madinah; no airport branch.',descUr:'گاڑیوں کے کرایے کا دفتر، مدینہ میں دو شاخیں، ایئرپورٹ پر نہیں۔',descFr:'Location de voitures, deux agences à Médine.',descId:'Sewa mobil, dua cabang di Madinah.',descTr:'Araç kiralama, Medine\'de iki şube.',descRu:'Прокат авто, два филиала в Медине.',lat:24.472932,lng:39.646826,
+    branches:[
+      {nameEn:'Khalid ibn Alwaleed Rd', nameAr:'فرع طريق خالد بن الوليد', lat:24.472932, lng:39.646826},
+      {nameEn:'Al-Aziziyah Branch', nameAr:'فرع العزيزية', lat:24.488565, lng:39.574362}
+    ]},
+{id:96,icon:'💅',cat:'pharmacy',nameEn:'Lavender Care',nameAr:'لافندر للعناية',cost:'Varies',instagram:'lavender.ca',img:'photos/lavender-care.jpg',descAr:'مركز متخصص في العناية والجمال وتقديم الخدمات النسائية المتكاملة.',descEn:'A center specialized in care, beauty, and providing integrated women’s services.',descUr:'دیکھ بھال، خوبصورتی اور خواتین کی مربوط خدمات فراہم کرنے میں مہارت رکھنے والا مرکز۔',descFr:'Un centre spécialisé dans les soins, la beauté et la prestation de services intégrés aux femmes.',descId:'Pusat yang mengkhususkan diri dalam perawatan, kecantikan, dan penyediaan layanan wanita terpadu.',descTr:'Bakım, güzellik ve entegre kadın hizmetleri sunma konusunda uzmanlaşmış bir merkez.',descRu:'Центр, специализирующийся на уходе, красоте и предоставлении комплексных женских услуг.',lat:24.447024,lng:39.540494,infoEn:'',infoAr:''},
+  // --- MARKET ---
+  {id:84,icon:'👔',cat:'shopping',nameEn:'Al-Arees Mens Wear',nameAr:'العريس للملابس الرجالية',cost:'Varies',instagram:null,img:'photos/al-arees.jpg',descAr:'متجر متخصص في بيع الملابس الرجالية الجاهزة والمستلزمات الرجالية.',descEn:'A store specialized in selling ready-made mens clothing and accessories.',descUr:'تیار مردانہ ملبوسات کی فروخت کا اسٹور۔',descFr:'Magasin de vêtements pour hommes.',descId:'Toko pakaian pria.',descTr:'Erkek giyim mağazası.',descRu:'Магазин мужской одежды.',lat:24.458061,lng:39.654774,infoAr:'ثياب، أشمغة، ملابس داخلية رجالية، أحذية'},
+{id:94,icon:'👟',cat:'shopping',nameEn:'Glacia Shoes',nameAr:'جلاسيا شوز',cost:'Varies',instagram:'galassiashoes',img:'photos/glacia-shoes.jpg',descAr:'متجر يقدم تشكيلة متنوعة من الأحذية الرياضية والعصرية.',descEn:'A store offering a diverse collection of athletic and modern footwear.',descUr:'ایتھلیٹک اور جدید جوتوں کا متنوع مجموعہ پیش کرنے والا اسٹور۔',descFr:'Un magasin proposant une collection diversifiée de chaussures de sport et modernes.',descId:'Toko yang menawarkan beragam koleksi alas kaki atletik dan modern.',descTr:'Çeşitli atletik ve modern ayakkabı koleksiyonu sunan bir mağaza.',descRu:'Магазин, предлагающий разнообразную коллекцию спортивной и современной обуви.',lat:24.521498,lng:39.596263,infoEn:'',infoAr:''},
+{id:93,icon:'👟',cat:'shopping',nameEn:'Special Shoes',nameAr:'الأحذية الخاصة',cost:'Varies',instagram:'special_shoes',img:'photos/special-shoes.jpg',descAr:'متجر متخصص في بيع الأحذية الرياضية والرسمية ومستلزماتها.',descEn:'A store specialized in selling athletic and formal shoes and their accessories.',descUr:'ایتھلیٹک اور رسمی جوتوں اور ان کے لوازمات کی فروخت میں مہارت رکھنے والا اسٹور۔',descFr:'Un magasin spécialisé dans la vente de chaussures de sport et de ville et de leurs accessoires.',descId:'Toko yang mengkhususkan diri dalam menjual sepatu olahraga dan formal beserta aksesorisnya.',descTr:'Spor ve resmi ayakkabı ile aksesuarlarının satışı konusunda uzmanlaşmış bir mağaza.',descRu:'Магазин, специализирующийся на продаже спортивной и классической обуви и аксессуаров.',lat:24.479965,lng:39.645401,infoEn:'',infoAr:''},
+{id:95,icon:'👟',cat:'shopping',nameEn:'Baseel Shoes',nameAr:'بسيل للأحذية',cost:'Varies',instagram:'besil.shoes',img:'photos/baseel-shoes.jpg',descAr:'متجر متخصص في الأحذية الرجالية والشرقية والمستلزمات الجلدية.',descEn:'A store specialized in men\'s and oriental shoes and leather accessories.',descUr:'مردانہ اور مشرقی جوتوں اور چمڑے کے لوازمات میں مہارت رکھنے والا اسٹور۔',descFr:'Un magasin spécialisé dans les chaussures pour hommes et orientales et les accessoires en cuir.',descId:'Toko yang mengkhususkan diri dalam sepatu pria dan oriental serta aksesori kulit.',descTr:'Erkek ve oryantal ayakkabılar ile deri aksesuarlar konusunda uzmanlaşmış bir mağaza.',descRu:'Магазин, специализирующийся на мужской и восточной обуви, а также кожаных аксессуарах.',lat:24.428193,lng:39.586631,
+  branches:[
+    {nameEn:'Aliat Mall Branch', nameAr:'فرع ممشى القصواء', lat:24.42819368679254, lng:39.586631085965784},
+    {nameEn:'Shuran Branch', nameAr:'فرع الدائري الثاني', lat:24.429380099111963, lng:39.65051188828135}
+  ]
+},
+  {id:85,icon:'🛒',cat:'market',nameEn:'Abyati Stores',nameAr:'متاجر أبياتي',cost:'Varies',instagram:null,img:'photos/abyati.jpg',descAr:'سوبر ماركت مواد غذائية يوفر الاحتياجات المنزلية الاستهلاكية.',descEn:'A food supermarket providing household consumer needs.',descUr:'غذائی اشیاء اور گھریلو ضروریات کا سپر مارکیٹ۔',descFr:'Supermarché de produits alimentaires.',descId:'Supermarket bahan makanan.',descTr:'Gıda süpermarketi.',descRu:'Продуктовый супермаркет.',lat:24.487682,lng:39.616842,infoAr:'عروض وتخفضيات مستمرة'}
+];
+
+
+let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
+const ratingsCache = {}; // placeId -> {rating, count} fetched from backend
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// Show Chrome recommendation to Samsung Browser users
+if(navigator.userAgent.includes('SamsungBrowser')){
+  document.getElementById('samsungBanner').style.display='block';
+}
+
+// ── iOS Install Guide ──────────────────────────────────────────────────────────
+const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isInStandaloneMode = window.navigator.standalone === true;
+
+if(isIos && !isInStandaloneMode){
+  // Show iOS install banner after 3 seconds
+  // Only show once per session
+  if(!sessionStorage.getItem('ios_banner_shown')){
+    setTimeout(() => {
+      const banner = document.getElementById('installBanner');
+      if(banner){
+        // Change banner text for iOS
+        const ibText = banner.querySelector('.ib-text');
+        if(ibText) ibText.innerHTML = '📱 <strong>Add to Home Screen</strong> for the best experience';
+        const ibBtn = banner.querySelector('.ib-btn');
+        if(ibBtn){ ibBtn.textContent = 'How?'; ibBtn.onclick = openIosModal; }
+        banner.style.display = 'flex';
+        sessionStorage.setItem('ios_banner_shown', '1');
+      }
+    }, 3000);
+  }
+}
+
+function openIosModal(){
+  const lang = curLang || 'en';
+  const titles = {"en":"Install Madinah Guide","ar":"تثبيت دليل المدينة","ur":"ایپ انسٹال کریں","fr":"Installer Madinah Guide","id":"Pasang Madinah Guide","tr":"Uygulamayı Yükle","ru":"Установить приложение"};
+  const subs   = {"en":"Add to your home screen for the best experience","ar":"أضف للشاشة الرئيسية للحصول على أفضل تجربة","ur":"بہترین تجربے کے لیے ہوم اسکرین پر شامل کریں","fr":"Ajoutez à votre écran d'accueil","id":"Tambahkan ke layar utama","tr":"Ana ekrana ekle","ru":"Добавьте на главный экран"};
+  const step1  = {"en":"Tap the <strong>Share</strong> button ⬆️ at the bottom of Safari","ar":"اضغط على زر <strong>مشاركة</strong> ⬆️ في أسفل Safari","ur":"Safari کے نچلے حصے میں <strong>Share</strong> بٹن ⬆️ دبائیں","fr":"Appuyez sur <strong>Partager</strong> ⬆️ en bas de Safari","id":"Ketuk tombol <strong>Bagikan</strong> ⬆️ di bawah Safari","tr":"Safari'nin altındaki <strong>Paylaş</strong> ⬆️ düğmesine dokunun","ru":"Нажмите кнопку <strong>Поделиться</strong> ⬆️ внизу Safari"};
+  const step2  = {"en":"Scroll down and tap <strong>Add to Home Screen</strong> 📱","ar":"مرر للأسفل واضغط <strong>إضافة للشاشة الرئيسية</strong> 📱","ur":"نیچے اسکرول کریں اور <strong>Add to Home Screen</strong> 📱 دبائیں","fr":"Faites défiler et appuyez sur <strong>Sur l'écran d'accueil</strong> 📱","id":"Gulir ke bawah dan ketuk <strong>Tambahkan ke Layar Utama</strong> 📱","tr":"Aşağı kaydırın ve <strong>Ana Ekrana Ekle</strong> 📱 seçeneğine dokunun","ru":"Прокрутите вниз и нажмите <strong>На экран Домой</strong> 📱"};
+  const step3  = {"en":"Tap <strong>Add</strong> in the top right corner ✅","ar":"اضغط <strong>إضافة</strong> في الزاوية العلوية اليمنى ✅","ur":"اوپر دائیں کونے میں <strong>Add</strong> دبائیں ✅","fr":"Appuyez sur <strong>Ajouter</strong> en haut à droite ✅","id":"Ketuk <strong>Tambahkan</strong> di pojok kanan atas ✅","tr":"Sağ üst köşedeki <strong>Ekle</strong> düğmesine dokunun ✅","ru":"Нажмите <strong>Добавить</strong> в правом верхнем углу ✅"};
+  const btns   = {"en":"Got it!","ar":"فهمت!","ur":"سمجھ گیا!","fr":"Compris!","id":"Mengerti!","tr":"Anladım!","ru":"Понятно!"};
+
+  document.getElementById('iosModalTitle').textContent = titles[lang]||titles.en;
+  document.getElementById('iosModalSub').textContent   = subs[lang]||subs.en;
+  document.getElementById('iosStep1').innerHTML        = step1[lang]||step1.en;
+  document.getElementById('iosStep2').innerHTML        = step2[lang]||step2.en;
+  document.getElementById('iosStep3').innerHTML        = step3[lang]||step3.en;
+  document.getElementById('iosModalBtn').textContent   = btns[lang]||btns.en;
+
+  const modal = document.getElementById('iosModal');
+  modal.style.display = 'flex';
+}
+function closeIosModal(){
+  document.getElementById('iosModal').style.display = 'none';
+  document.getElementById('installBanner').style.display = 'none';
+}
+
+// Request visitor location silently — used to give accurate distances in AI answers
+function requestLocation(){
+  if(!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    pos => { userLat=pos.coords.latitude; userLng=pos.coords.longitude; console.log('Location obtained ✓'); },
+    ()  => { console.log('Location not shared — using Madinah centre as default'); },
+    { timeout: 8000, maximumAge: 300000 }
+  );
+}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;setTimeout(()=>{document.getElementById('installBanner').style.display='flex';},4000);});
+document.getElementById('installBtn').onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installBanner').style.display='none';};
+
+function chooseLang(lang){
+  curLang=lang; localStorage.setItem('mg_lang',lang);
+  const t=T[lang]||T.en; const rtl=lang==='ar'||lang==='ur';
+  document.documentElement.dir=rtl?'rtl':'ltr'; document.documentElement.lang=lang;
+  ['bannerTitle','bannerSub','wlcTitle','wlcSub','placesTitle','placesSub','callTitle','callSub','callBtnLbl','callFree','bnl-plan','bnl-places','bnl-call'].forEach(id=>{
+    const map={bannerTitle:t.banner,bannerSub:t.bannerSub,wlcTitle:t.wlcTitle,wlcSub:t.wlcSub,placesTitle:t.placesTitle,placesSub:t.placesSub,callTitle:t.callTitle,callSub:t.callSub,callBtnLbl:t.callBtn,callFree:t.callFree,'bnl-plan':t.bnPlan,'bnl-places':t.bnPlaces,'bnl-call':t.bnCall};
+    const el=document.getElementById(id); if(el) el.textContent=map[id]||'';
+  });
+  // Prayer tab label per language
+  const prayerLabels={en:'Prayer',ar:'الصلاة',ur:'نماز',fr:'Prière',id:'Sholat',tr:'Namaz',ru:'Намаз'};
+  const pEl=document.getElementById('bnl-prayer'); if(pEl) pEl.textContent=prayerLabels[lang]||'Prayer';
+  const eventsLabels={en:'Events',ar:'الفعاليات',ur:'تقریبات',fr:'Événements',id:'Acara',tr:'Etkinlikler',ru:'События'};
+  const eEl=document.getElementById('bnl-events'); if(eEl) eEl.textContent=eventsLabels[lang]||'Events';
+  document.getElementById('callNowBtn').textContent=t.callNow;
+  document.getElementById('userInput').placeholder=t.placeholder;
+  document.getElementById('userInput').dir=rtl?'rtl':'ltr';
+  t.fc.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'t');if(e)e.textContent=v;});
+  t.fd.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'d');if(e)e.textContent=v;});
+  // Transport card (7th) — always in English label from catLabels handled by quickCat
+  const e7t=document.getElementById('fc7t'); if(e7t) e7t.textContent=t.fc[6]||'Transport';
+  const e7d=document.getElementById('fc7d'); if(e7d) e7d.textContent=t.fd[6]||'Tours & buses';
+  document.getElementById('langScreen').classList.add('gone');
+  document.getElementById('app').classList.add('visible');
+  fetchAllRatings().then(renderPlaces);
+  fetchOffers();
+  fetchFlashOffers();
+  requestLocation();
+}
+
+// ══ EVENTS ════════════════════════════════════════════════════════════════════
+const EVENT_CATS = {
+  sport:   {en:'Sport',    ar:'رياضة', icon:'🏃'},
+  culture: {en:'Culture',  ar:'ثقافة', icon:'🎭'},
+  forum:   {en:'Forum',    ar:'منتدى', icon:'🎤'},
+  heritage:{en:'Heritage', ar:'تراث',  icon:'🏛️'},
+  food:    {en:'Food',     ar:'طعام',  icon:'🍽️'},
+  other:   {en:'Other',    ar:'أخرى',  icon:'✨'},
+};
+const EVENT_CAT_ICONS = {sport:'🏃',culture:'🎭',forum:'🎤',heritage:'🏛️',food:'🍽️',other:'✨'};
+let allEvents=[], curEventCat='all';
+
+async function loadEvents(){
+  const list=document.getElementById('eventsList');
+  try{
+    const r=await fetch(`${BACKEND}/events`);
+    const d=await r.json();
+    if(!d.success) throw new Error(d.error);
+    allEvents=d.events||[];
+    renderEvents();
+  }catch(e){
+    const empty={en:'No events right now — check back soon!',ar:'لا توجد فعاليات حالياً',ur:'ابھی کوئی ایونٹ نہیں',fr:'Aucun événement pour le moment',id:'Tidak ada acara saat ini',tr:'Şu an etkinlik yok',ru:'Пока нет мероприятий'};
+    list.innerHTML=`<div style="text-align:center;padding:3rem 1rem;color:#aaa"><div style="font-size:40px;margin-bottom:0.75rem">📅</div><div style="font-size:14px">${empty[curLang]||empty.en}</div></div>`;
+  }
+}
+
+function filterEvents(el,cat){
+  curEventCat=cat;
+  document.querySelectorAll('#eventsPills .cat-pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  renderEvents();
+}
+
+function renderEvents(){
+  const list=document.getElementById('eventsList');
+  const lang=curLang; const rtl=lang==='ar'||lang==='ur';
+  const now=new Date();
+  const filtered=curEventCat==='all'?allEvents:allEvents.filter(e=>e.category===curEventCat);
+  const sorted=[...filtered].sort((a,b)=>new Date(a.start_date)-new Date(b.start_date));
+
+  if(!sorted.length){
+    const empty={en:'No events in this category',ar:'لا توجد فعاليات في هذا التصنيف',ur:'اس زمرے میں کوئی ایونٹ نہیں',fr:'Aucun événement dans cette catégorie',id:'Tidak ada acara di kategori ini',tr:'Bu kategoride etkinlik yok',ru:'В этой категории нет мероприятий'};
+    list.innerHTML=`<div style="text-align:center;padding:3rem 1rem;color:#aaa"><div style="font-size:36px;margin-bottom:0.75rem">🔍</div><div style="font-size:13px">${empty[lang]||empty.en}</div></div>`;
+    return;
+  }
+  list.innerHTML='';
+  sorted.forEach(ev=>{
+    const title=(rtl&&ev.title_ar)?ev.title_ar:ev.title_en;
+    const titleAlt=rtl?ev.title_en:ev.title_ar;
+    const desc=(rtl&&ev.desc_ar)?ev.desc_ar:ev.desc_en;
+    const catInfo=EVENT_CATS[ev.category]||EVENT_CATS.other;
+    const catLabel=lang==='ar'?catInfo.ar:catInfo.en;
+    const icon=EVENT_CAT_ICONS[ev.category]||'✨';
+    const startDate=new Date(ev.start_date);
+    const endDate=ev.end_date?new Date(ev.end_date):null;
+    const isPast=endDate?endDate<now:startDate<now;
+    const isToday=startDate.toDateString()===now.toDateString();
+    const dateOpts={day:'numeric',month:'short'};
+    const locale=lang==='ar'?'ar-SA':lang==='ru'?'ru-RU':lang==='tr'?'tr-TR':'en-US';
+    const dateStr=startDate.toLocaleDateString(locale,dateOpts);
+    const endStr=endDate?' → '+endDate.toLocaleDateString(locale,dateOpts):'';
+    const todayLabel={en:'Today',ar:'اليوم',ur:'آج',fr:"Aujourd'hui",id:'Hari ini',tr:'Bugün',ru:'Сегодня'};
+    const pastLabel={en:'Ended',ar:'انتهت',ur:'ختم',fr:'Terminé',id:'Selesai',tr:'Bitti',ru:'Завершено'};
+    const dateBadge=isPast?`<div class="event-date-badge" style="background:#f0f0f0;color:#999">${pastLabel[lang]||pastLabel.en}</div>`:isToday?`<div class="event-date-badge" style="background:#1D9E75;color:#fff">${todayLabel[lang]||todayLabel.en}</div>`:`<div class="event-date-badge">${dateStr}</div>`;
+    const imgHtml=ev.img?`<div class="event-img" style="padding:0"><img src="${ev.img}" alt="${ev.title_en}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span style=\\'font-size:50px\\'>${icon}</span>'"/></div>`:`<div class="event-img">${icon}</div>`;
+    const card=document.createElement('div');
+    card.className='event-card';
+    card.style.opacity=isPast?'0.6':'1';
+    card.onclick=()=>openEventModal(ev);
+    card.innerHTML=`<div style="position:relative">${imgHtml}<div class="event-cat-badge">${icon} ${catLabel}</div>${dateBadge}</div><div class="event-body"><div class="event-title">${title}</div>${titleAlt?`<div class="event-title-ar">${titleAlt}</div>`:''}<div class="event-meta"><span>📅 ${dateStr}${endStr}</span>${ev.location_en?`<span>📍 ${rtl&&ev.location_ar?ev.location_ar:ev.location_en}</span>`:''}<span style="color:${ev.cost?'#BA7517':'#0F6E56'};font-weight:600">${ev.cost||'Free'}</span></div>${desc?`<div style="font-size:12px;color:#888;margin-top:6px;line-height:1.5">${desc.slice(0,100)}${desc.length>100?'…':''}</div>`:''}</div>`;
+    list.appendChild(card);
+  });
+}
+
+function openEventModal(ev){
+  const lang=curLang; const rtl=lang==='ar'||lang==='ur';
+  const icon=EVENT_CAT_ICONS[ev.category]||'✨';
+  const catInfo=EVENT_CATS[ev.category]||EVENT_CATS.other;
+  const catLabel=lang==='ar'?catInfo.ar:catInfo.en;
+  const desc=(rtl&&ev.desc_ar)?ev.desc_ar:ev.desc_en;
+  const locale=lang==='ar'?'ar-SA':lang==='ru'?'ru-RU':lang==='tr'?'tr-TR':'en-US';
+  const dateOpts={weekday:'long',day:'numeric',month:'long',year:'numeric'};
+  const dateStr=new Date(ev.start_date).toLocaleDateString(locale,dateOpts);
+  const endStr=ev.end_date?' — '+new Date(ev.end_date).toLocaleDateString(locale,dateOpts):'';
+  const heroHtml=ev.img?`<div style="margin:-1rem -1.25rem 1rem;height:200px;overflow:hidden;border-radius:14px 14px 0 0"><img src="${ev.img}" style="width:100%;height:100%;object-fit:cover"/></div>`:`<div style="margin:-1rem -1.25rem 1rem;height:160px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:64px;border-radius:14px 14px 0 0">${icon}</div>`;
+  const mapsUrl=ev.lat&&ev.lng?`https://www.google.com/maps/dir/?api=1&destination=${ev.lat},${ev.lng}&destination_place_name=${encodeURIComponent(ev.location_en||ev.title_en)}`:ev.location_en?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((ev.location_en||ev.title_en)+' Madinah Saudi Arabia')}`:null;
+  document.getElementById('placeModalContent').innerHTML=`
+    ${heroHtml}
+    <div style="display:inline-flex;align-items:center;gap:6px;background:#E1F5EE;color:#085041;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:0.75rem">${icon} ${catLabel}</div>
+    <div style="font-size:19px;font-weight:700;color:#1a1a1a;margin-bottom:3px">${ev.title_en}</div>
+    ${ev.title_ar?`<div style="font-size:14px;color:#888;direction:rtl;margin-bottom:0.75rem">${ev.title_ar}</div>`:''}
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:1rem">
+      <div style="font-size:13px;color:#555;display:flex;gap:8px"><span>📅</span><span>${dateStr}${endStr}</span></div>
+      ${ev.location_en?`<div style="font-size:13px;color:#555;display:flex;gap:8px"><span>📍</span><span>${rtl&&ev.location_ar?ev.location_ar:ev.location_en}</span></div>`:''}
+      <div style="font-size:13px;font-weight:600;color:${ev.cost?'#BA7517':'#0F6E56'}">${ev.cost||'✅ Free entry'}</div>
+    </div>
+    ${desc?`<p style="font-size:14px;color:#555;line-height:1.65;margin-bottom:1rem">${desc}</p>`:''}
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${ev.register_url?`<a href="${ev.register_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#1D9E75;color:#fff;border-radius:13px;font-size:14px;font-weight:600;text-decoration:none">🎟️ Register / Book</a>`:''}
+      ${mapsUrl?`<a href="${mapsUrl}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#085041;color:#fff;border-radius:13px;font-size:15px;font-weight:600;text-decoration:none">🗺️ Get directions</a>`:''}
+    </div>`;
+  document.getElementById('placeModal').classList.add('open');
+}
+
+function showTab(tab){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.add('hidden'));
+  document.querySelectorAll('.bn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pane-'+tab).classList.remove('hidden');
+  document.getElementById('bn-'+tab).classList.add('on');
+  if(tab==='prayer') loadPrayer();
+  if(tab==='events') loadEvents();
+}
+
+function hideWelcome(){
+  const ws=document.getElementById('welcomeScreen'); if(ws) ws.style.display='none';
+  document.getElementById('chipsRow').style.display='flex';
+}
+function addMsg(role,text){
+  hideWelcome();
+  const msgs=document.getElementById('messages');
+  const av=role==='user'?(curLang==='ar'?'أنا':curLang==='ur'?'میں':'Me'):'🕌';
+  const div=document.createElement('div'); div.className='msg '+(role==='user'?'user':'ai');
+  // Detect if this AI reply should use location links
+  const useLocation = role==='ai' && isLocationSeeking(chatHistory.slice(-2).find(m=>m.role==='user')?.content||'');
+  const bubbleContent = role==='user'
+    ? text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    : renderReply(text, useLocation);
+  div.innerHTML=`<div class="msg-av">${av}</div><div class="bubble">${bubbleContent}</div>`;
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
+}
+function showTyping(){hideWelcome();const div=document.createElement('div');div.className='msg ai';div.id='typ';div.innerHTML='<div class="msg-av">🕌</div><div class="typing"><span></span><span></span><span></span></div>';const m=document.getElementById('messages');m.appendChild(div);m.scrollTop=m.scrollHeight;}
+function removeTyping(){const e=document.getElementById('typ');if(e)e.remove();}
+
+// Offer-seeking keywords in all 7 languages
+const OFFER_KEYWORDS = [
+  // English
+  'discount','offer','deal','cheap','save','budget','affordable','best price','promotion','sale','off',
+  // Arabic
+  'خصم','عرض','عروض','رخيص','توفير','ميزانية','أرخص','تخفيض','تنزيلات','وفر',
+  // Urdu
+  'رعایت','آفر','سستا','بچت','ڈسکاؤنٹ','سیل',
+  // French
+  'réduction','offre','promotion','pas cher','économie','rabais',
+  // Indonesian
+  'diskon','promo','murah','hemat','penawaran','tawaran',
+  // Turkish
+  'indirim','teklif','ucuz','tasarruf','kampanya','promosyon',
+  // Russian
+  'скидка','акция','дешево','предложение','экономия','распродажа',
+];
+
+function isOfferSeeking(text){
+  const low = text.toLowerCase();
+  return OFFER_KEYWORDS.some(w => low.includes(w));
+}
+
+function detectType(text){
+  if(detectedType)return;
+  const to=['tourist','tourism','sightseeing','vacation','holiday'];
+  const low=text.toLowerCase();
+  const t=T[curLang]||T.en;
+  if(to.some(w=>low.includes(w))){detectedType='tourist';const b=document.getElementById('visitorBadge');b.textContent=t.tourist;b.className='visitor-badge vb-t';}
+}
+
+async function sendMessage(){
+  const input=document.getElementById('userInput');
+  const text=input.value.trim();
+  if(!text||isTyping)return;
+  input.value='';input.style.height='auto';
+  isTyping=true;document.getElementById('sendBtn').disabled=true;
+
+  // Extract clean display text — strip verified info block and nearby context
+  // so visitor only sees the natural question, not the raw technical message
+  let displayText = text;
+  const verifiedMarkers = [
+    'VERIFIED INFORMATION',
+    'المعلومات الموثقة',
+    'INFORMATIONS VÉRIFIÉES',
+    'INFORMASI TERVERIFIKASI',
+    'DOĞRULANMIŞ BİLGİ',
+    'ПРОВЕРЕННАЯ ИНФОРМАЦИЯ',
+    'تصدیق شدہ معلومات',
+    'Nearby places from our verified database',
+    'My current position is',
+    'موقعي الحالي',
+  ];
+  for(const marker of verifiedMarkers){
+    const markerIdx = displayText.indexOf(marker);
+    if(markerIdx !== -1){
+      // Keep only the part before the technical block
+      displayText = displayText.substring(0, markerIdx).trim();
+      break;
     }
-  } catch(e) {
-    document.getElementById('sdot').className = 'sdot sdot-r';
-    document.getElementById('statusLbl').textContent = 'Backend offline — try again in 30s';
+  }
+  // Also strip anything after double newline (technical context block)
+  const doubleNewline = displayText.indexOf('\n\n');
+  if(doubleNewline !== -1) displayText = displayText.substring(0, doubleNewline).trim();
+  if(!displayText) displayText = text.split('\n')[0].trim();
+
+  addMsg('user', displayText);
+  detectType(text);
+
+  // If visitor is looking for offers/discounts — prepend offer context to their message
+  let messageToSend = text;
+  if(isOfferSeeking(text) && (allFlashOffers.length > 0 || allOffers.length > 0)){
+    const offerHint = allFlashOffers.length > 0
+      ? `[Context: visitor is looking for deals. We have ${allFlashOffers.length} active flash deal(s) and ${allOffers.length} promotion(s) right now — prioritize these in your response]`
+      : `[Context: visitor is looking for deals. We have ${allOffers.length} active promotion(s) — prioritize these]`;
+    messageToSend = text + '\n\n' + offerHint;
+  }
+
+  chatHistory.push({role:'user',content:messageToSend});
+  showTyping();
+  const ratingStr = (p) => { const rv=ratingsCache[p.id]; return rv&&rv.count>0?`★${rv.rating}(${rv.count} reviews)`:''; };
+  const placeList = (cat) => PLACES.filter(p=>p.cat===cat).map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}${ratingStr(p)?' '+ratingStr(p):''} — ${p.descEn}`).join('\n');
+  // Build verified info context — includes full infoEn/infoAr for places that have it
+  const infoList = (cat) => PLACES.filter(p=>p.cat===cat).map(p=>{
+    const info = p.infoEn ? `\n   VERIFIED INFO: ${p.infoEn}` : '';
+    return `• ${p.nameEn} (${p.nameAr}) — ${p.cost}${ratingStr(p)?' '+ratingStr(p):''}${info}`;
+  }).join('\n');
+
+  // ── Detect which category the visitor is asking about ──────────────────────
+  const msgLow = text.toLowerCase();
+  const catKeywords = {
+    restaurant: ['food','eat','restaurant','lunch','dinner','meal','hungry','burger','chicken','grill','shawarma','mandi','biryani','falafel','sandwich','مطعم','اكل','غداء','عشاء','برگر','دجاج','مشوي','شاورما','مندي','فلافل','khaana','manger','makan','yemek','еда'],
+    coffee:     ['coffee','cafe','كافيه','قهوة','كفة','cappuccino','latte','espresso','kahve','кофе'],
+    market:     ['market','supermarket','grocery','سوق','بقالة','pasar','рынок','bazar'],
+    shopping:   ['shop','shopping','clothes','shoes','shoe','footwear','clothing','wear','outfit','sneakers','sandals','boots','ملابس','أحذية','حذاء','تسوق','رجالية','ثياب','pakaian','sepatu','vêtement','chaussures','одежда','обувь','ayakkabı','giyim'],
+    transport:  ['car','rent','taxi','transport','سيارة','تأجير','araç','автомобиль','transportasi'],
+    services:   ['laundry','gym','fitness','computer','polish','maintenance','phone','mobile','shipping','delivery','dental','teeth','beauty','غسيل','صالة','كمبيوتر','تلميع','صيانة','شحن','أسنان','جمال','layanan','hizmet','услуга'],
+    clinic:     ['dental','teeth','clinic','doctor','dentist','أسنان','عيادة','طبيب','dişçi','стоматолог'],
+    pharmacy:   ['beauty','salon','spa','care','women','ladies','تجميل','صالون','نساء','عناية','güzellik','красота'],
+  };
+
+  let detectedCat = null;
+  for(const [cat, words] of Object.entries(catKeywords)){
+    if(words.some(w => msgLow.includes(w))){ detectedCat = cat; break; }
+  }
+
+  // ── Filter offers to only those matching detected category ─────────────────
+  const relevantPlaceIds = detectedCat
+    ? PLACES.filter(p => p.cat === detectedCat).map(p => p.id)
+    : null; // null = show all offers
+
+  const filterOffers = (offers) => relevantPlaceIds
+    ? offers.filter(o => relevantPlaceIds.includes(o.place_id))
+    : offers;
+
+  const relevantFlash  = filterOffers(allFlashOffers);
+  const relevantOffers = filterOffers(allOffers);
+
+  // Build offers context — only relevant to detected category
+  const offersCtx = (() => {
+    const parts = [];
+
+    if(relevantFlash.length > 0){
+      parts.push('⚡ FLASH DEALS — LIMITED QUANTITY (tell customer to tap Claim Now!):');
+      relevantFlash.forEach(o => {
+        parts.push(`• ${o.place_name_en}: "${o.title_en}" — ${o.offer_price} SAR${o.original_price?' (was '+o.original_price+' SAR)':''} — ${o.remaining_qty} of ${o.total_qty} left — expires ${new Date(o.valid_until).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
+      });
+    }
+
+    if(relevantOffers.length > 0){
+      parts.push('\n🎁 CURRENT PROMOTIONS:');
+      relevantOffers.forEach(o => {
+        parts.push(`• ${o.place_name_en}: "${o.title_en}"${o.discount?' — '+o.discount:''} — valid until ${new Date(o.valid_until).toLocaleDateString()}`);
+      });
+    }
+
+    // If no offers match the category — explicitly tell AI not to mention unrelated offers
+    if(parts.length === 0 && detectedCat){
+      return `\n\n(No active offers for ${detectedCat} right now — do NOT mention offers from other categories)`;
+    }
+
+    return parts.length > 0
+      ? '\n\n' + parts.join('\n')
+      : '\n\n(No active offers at the moment)';
+  })();
+
+  const bizContext = `
+
+MADINAH GUIDE — VERIFIED PLACES & LIVE OFFERS:
+Recommend from this list. Use exact English names so they become tappable links.
+
+🍽️ RESTAURANTS:
+${placeList('restaurant')}
+
+☕ CAFES:
+${placeList('coffee')}
+
+🛒 MARKETS:
+${placeList('market')}
+
+🚗 TRANSPORT:
+${placeList('transport')}
+
+🛎️ SERVICES:
+${placeList('services')}
+
+🛍️ SHOPPING:
+${placeList('shopping')}
+
+🏥 CLINIC:
+${placeList('clinic')}
+
+💅 BEAUTY & PHARMACY:
+${placeList('pharmacy')}
+
+🏨 HOTELS (not listed yet): Anwar Al Madinah Mövenpick, Pullman Zamzam, Hilton Madinah, Dar Al Tawfiq.
+
+⚠️ STRICT OFFERS RULE — CRITICAL:
+You MUST ONLY mention offers that are explicitly listed below.
+Do NOT invent, guess, or assume any offers exist.
+Do NOT mention offers from your training data.
+If the list below says "No active offers" — tell the visitor there are no current offers.
+${offersCtx}
+
+REMEMBER: If an offer is not in the list above, it does NOT exist. Never say a place "has an offer" unless it is listed above.`;
+  try{
+    const r=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.slice(-10),language:curLang,visitorType:detectedType,bizContext,userLat,userLng})});
+    const d=await r.json();
+    if(!d.success)throw new Error(d.detail||d.error);
+    const reply=d.reply||'Sorry, please try again.';
+    chatHistory.push({role:'assistant',content:reply});
+    removeTyping();addMsg('ai',reply);detectType(reply);
+    speak(reply);
+  }catch(e){removeTyping();addMsg('ai','Sorry, I could not connect. Please try again or call a local guide.');}
+  isTyping=false;document.getElementById('sendBtn').disabled=false;
+}
+
+// ── Convert place names in AI reply to tappable Google Maps links ─────────────
+// Keywords indicating visitor wants location/directions not profile
+const LOCATION_KEYWORDS = [
+  'closest','nearest','near','nearby','where is','directions','how to get','location','distance','far',
+  'أقرب','القريب','قريب','أين','اتجاهات','كيف أصل','موقع','مسافة',
+  'قریب','فاصلہ','راستہ','کہاں',
+  'plus proche','pres','ou','itineraire','comment aller',
+  'terdekat','dekat','lokasi','arah','cara ke',
+  'en yakin','yakin','nerede','yol tarifi',
+  'blizhayshiy','ryadom','gde','marshrut',
+];
+
+function isLocationSeeking(text){
+  const low = text.toLowerCase();
+  return LOCATION_KEYWORDS.some(w => low.includes(w));
+}
+
+function linkifyPlaces(text, forceLocation) {
+  let result = text;
+  const sorted = [...PLACES].sort((a,b) => b.nameEn.length - a.nameEn.length);
+  sorted.forEach(p => {
+    const useLocation = forceLocation || false;
+    const enRegex = new RegExp(p.nameEn.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
+    result = result.replace(enRegex, useLocation
+      ? `[[LOC:${p.nameEn}|${p.id}]]`
+      : `[[PLACE:${p.nameEn}|${p.id}]]`
+    );
+    if(p.nameAr) {
+      const arRegex = new RegExp(p.nameAr.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
+      result = result.replace(arRegex, useLocation
+        ? `[[LOC:${p.nameAr}|${p.id}]]`
+        : `[[PLACE:${p.nameAr}|${p.id}]]`
+      );
+    }
+  });
+  return result;
+}
+
+function renderReply(text, forceLocation) {
+  const linked = linkifyPlaces(text, forceLocation);
+  const escaped = linked
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  // Profile links — open place modal
+  const withProfile = escaped.replace(/\[\[PLACE:([^|]+)\|(\d+)\]\]/g,
+    (_, label, id) =>
+      `<span onclick="openPlaceById(${id})" style="color:#085041;font-weight:600;cursor:pointer;border-bottom:1.5px solid #1D9E75;white-space:nowrap;display:inline-flex;align-items:center;gap:3px">📍 ${label}</span>`
+  );
+
+  // Location links — open Google Maps
+  const withLocation = withProfile.replace(/\[\[LOC:([^|]+)\|(\d+)\]\]/g,
+    (_, label, id) => {
+      const p = PLACES.find(pl => pl.id == id);
+      if(!p || !p.lat) return label;
+      const url = 'https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lng+'&destination_place_name='+encodeURIComponent(p.nameEn);
+      return '<a href="'+url+'" target="_blank" style="color:#085041;font-weight:600;text-decoration:none;border-bottom:1.5px solid #1D9E75;white-space:nowrap">🗺️ '+label+'</a>';
+    }
+  );
+
+  const withBold = withLocation.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  return withBold;
+}
+
+function openPlaceById(id){
+  const p = PLACES.find(pl => pl.id === id);
+  if(p) openModal(p);
+}
+
+function quickSend(key){
+  const t=T[curLang]||T.en;
+  document.getElementById('userInput').value=t.chips[key]||key;
+  showTab('plan');sendMessage();
+}
+
+function quickCat(cat){
+  // Find nearest place in this category to the visitor
+  const placesInCat = PLACES.filter(p => p.cat === cat && p.lat && p.lng);
+  if(!placesInCat.length){ showTab('places'); filterPlaces(document.querySelector('.cat-pill'), cat); return; }
+
+  const visitorLat = userLat || MADINAH_LAT;
+  const visitorLng = userLng || MADINAH_LNG;
+
+  // Sort by distance from visitor, pick closest
+  const sorted = placesInCat
+    .map(p => ({ ...p, dist: haversineKm(visitorLat, visitorLng, p.lat, p.lng) }))
+    .sort((a,b) => a.dist - b.dist);
+  const nearest = sorted[0];
+
+  // Category labels per language
+  const catLabels = {
+    restaurant: {en:'restaurants',  ar:'المطاعم',      ur:'ریستوران',   fr:'restaurants',  id:'restoran',    tr:'restoranlar', ru:'рестораны'},
+    coffee:     {en:'cafes',        ar:'المقاهي',      ur:'کافے',       fr:'cafés',        id:'kafe',        tr:'kafeler',     ru:'кафе'},
+    market:     {en:'markets',      ar:'الأسواق',      ur:'بازار',      fr:'marchés',      id:'pasar',       tr:'pazarlar',    ru:'рынки'},
+    hotel:      {en:'hotels',       ar:'الفنادق',      ur:'ہوٹل',       fr:'hôtels',       id:'hotel',       tr:'oteller',     ru:'отели'},
+    shopping:   {en:'shopping',     ar:'التسوق',       ur:'شاپنگ',      fr:'shopping',     id:'belanja',     tr:'alisveris',   ru:'шопинг'},
+    pharmacy:   {en:'pharmacies',   ar:'الصيدليات',    ur:'فارمیسی',    fr:'pharmacies',   id:'apotek',      tr:'eczaneler',   ru:'аптеки'},
+    salon:      {en:'salons',       ar:'الصالونات',    ur:'سیلون',      fr:'salons',       id:'salon',       tr:'salonlar',    ru:'салоны'},
+    clinic:     {en:'clinics',      ar:'العيادات',     ur:'کلینک',      fr:'cliniques',    id:'klinik',      tr:'klinikler',   ru:'клиники'},
+    transport:  {en:'transport',    ar:'وسائل التنقل', ur:'ٹرانسپورٹ', fr:'transport',    id:'transportasi',tr:'ulasim',      ru:'транспорт'},
+  };
+  const catLabel = (catLabels[cat]||catLabels.mosque)[curLang] || (catLabels[cat]||catLabels.mosque).en;
+
+  // Build question in visitor language
+  const rtl = curLang==='ar'||curLang==='ur';
+  const nearestName = rtl && nearest.nameAr ? nearest.nameAr : nearest.nameEn;
+  const fmtDist = (km) => km < 1 ? `${Math.round(km*1000)}m` : `${km.toFixed(1)}km`;
+
+  // All places in this category with distances
+  const placeLines = sorted.slice(0, 8).map(p => {
+    const name = rtl && p.nameAr ? p.nameAr : p.nameEn;
+    return `- ${p.nameEn} (${p.nameAr||''}) — ${fmtDist(p.dist)} from me`;
+  }).join('\n');
+
+  const questions = {
+    en: `What ${catLabel} in Madinah are worth visiting? Here are the ones in our verified database with distances from my current location:
+${placeLines}
+
+Please recommend them in order of proximity and give brief info about each.`,
+    ar: `ما هي ${catLabel} في المدينة المنورة التي تستحق الزيارة؟ إليك القائمة من قاعدة بياناتنا مع المسافات من موقعي:
+${placeLines}
+
+رتبها حسب القرب وأعط معلومات مختصرة عن كل مكان.`,
+    ur: `مدینہ منورہ میں کون سے ${catLabel} دیکھنے کے لائق ہیں؟ ہمارے ڈیٹا بیس سے فاصلوں کے ساتھ:
+${placeLines}
+
+قریبی ترتیب میں سفارش کریں اور ہر جگہ کے بارے میں مختصر معلومات دیں۔`,
+    fr: `Quels ${catLabel} à Médine méritent une visite ? Voici ceux de notre base vérifiée avec les distances depuis ma position :
+${placeLines}
+
+Recommandez-les par ordre de proximité avec une brève info sur chacun.`,
+    id: `${catLabel} apa saja di Madinah yang layak dikunjungi? Berikut daftar dari database kami dengan jarak dari lokasi saya:
+${placeLines}
+
+Rekomendasikan berdasarkan kedekatan dan berikan info singkat tentang masing-masing.`,
+    tr: `Medine'de hangi ${catLabel} ziyaret etmeye değer? Konumumdan mesafelerle birlikte doğrulanmış listemiz:
+${placeLines}
+
+Yakınlık sırasına göre önerin ve her biri hakkında kısa bilgi verin.`,
+    ru: `Какие ${catLabel} в Медине стоит посетить? Вот список из нашей базы с расстояниями от моего местоположения:
+${placeLines}
+
+Порекомендуйте их в порядке близости с кратким описанием каждого.`,
+  };
+
+  document.getElementById('userInput').value = questions[curLang] || questions.en;
+  showTab('plan');
+  sendMessage();
+}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+
+// ── Live ratings from visitor reviews ─────────────────────────────────────────
+async function fetchAllRatings(){
+  try{
+    // Fetch ratings for all places in parallel
+    const results = await Promise.allSettled(
+      PLACES.map(p =>
+        fetch(`${BACKEND}/app/places/${p.id}/reviews`)
+          .then(r=>r.json())
+          .then(d=>{ if(d.success && d.count > 0) ratingsCache[p.id]={rating:d.rating, count:d.count}; })
+      )
+    );
+  } catch(e){ console.warn('Ratings fetch error:', e); }
+}
+
+function filterPlaces(el,cat){
+  curCat=cat;
+  document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  renderPlaces();
+  renderFlashBanner();
+  renderOffersBanner();
+}
+
+function renderPlaces(){
+  const list=document.getElementById('placesList');
+  const lang=curLang;
+  const COMMERCIAL_CATS = ['restaurant','coffee','market','hotel','shopping','pharmacy','salon','clinic','transport','services'];
+  const visiblePlaces = PLACES.filter(p => COMMERCIAL_CATS.includes(p.cat));
+  const filtered = curCat==='all' ? visiblePlaces : PLACES.filter(p=>p.cat===curCat);
+  list.innerHTML='';
+  filtered.forEach(p=>{
+    const rtl=lang==='ar'||lang==='ur';
+    const name=(rtl&&p.nameAr)?p.nameAr:p.nameEn;
+    const nameAlt=(rtl)?p.nameEn:p.nameAr;
+    const desc = (()=>{
+      if(lang==='ar' && p.descAr) return p.descAr;
+      if(lang==='ur' && p.descUr) return p.descUr;
+      if(lang==='fr' && p.descFr) return p.descFr;
+      if(lang==='id' && p.descId) return p.descId;
+      if(lang==='tr' && p.descTr) return p.descTr;
+      if(lang==='ru' && p.descRu) return p.descRu;
+      return p.descEn;
+    })();
+    const div=document.createElement('div');div.className='place-card';div.onclick=()=>openModal(p);
+    const imgHtml = p.img
+      ? `<div class="place-img" style="padding:0;background:#e0e0e0"><img src="${p.img}" alt="${p.nameEn}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.innerHTML='<span style=\\'font-size:44px;display:flex;align-items:center;justify-content:center;height:100%\\'>${p.icon}</span>'"/></div>`
+      : `<div class="place-img">${p.icon}</div>`;
+    const rv = ratingsCache[p.id];
+    const ratingHtml = rv && rv.count > 0
+      ? `<span class="place-rating">★ ${rv.rating} <span style="font-weight:400;color:#aaa">(${rv.count})</span></span>`
+      : '';
+    div.innerHTML=`${imgHtml}<div class="place-body"><div class="place-name">${name}</div>${nameAlt?`<div class="place-name-ar">${nameAlt}</div>`:''}<div class="place-meta"><span class="place-cost">${p.cost}</span>${ratingHtml}${p.instagram?`<span style="font-size:11px;color:#534AB7">📸 @${p.instagram}</span>`:''}</div><div class="place-desc">${desc}</div></div>`;
+    list.appendChild(div);
+  });
+}
+
+function openModal(p){
+  const lang=curLang;const rtl=lang==='ar'||lang==='ur';
+  const name=(rtl&&p.nameAr)?p.nameAr:p.nameEn;
+  const desc = (()=>{
+    if(lang==='ar' && p.descAr) return p.descAr;
+    if(lang==='ur' && p.descUr) return p.descUr;
+    if(lang==='fr' && p.descFr) return p.descFr;
+    if(lang==='id' && p.descId) return p.descId;
+    if(lang==='tr' && p.descTr) return p.descTr;
+    if(lang==='ru' && p.descRu) return p.descRu;
+    return p.descEn;
+  })();
+
+  // Build directions section — branch picker if multiple outlets, single button otherwise
+  const dirLabel = {en:'Get directions',ar:'احصل على الاتجاهات',ur:'راستہ دیکھیں',fr:'Itinéraire',id:'Petunjuk arah',tr:'Yol tarifi',ru:'Маршрут'};
+  const branchLabel = {en:'Choose a branch',ar:'اختر الفرع',ur:'شاخ منتخب کریں',fr:'Choisir une succursale',id:'Pilih cabang',tr:'Şube seçin',ru:'Выберите филиал'};
+
+  let directionsHtml = '';
+  // Transport routes display
+  if(p.routes && p.routes.length > 0){
+    const routeBtns = p.routes.map(r => {
+      const rName = (rtl && r.nameAr) ? r.nameAr : r.nameEn;
+      const stops = r.stops.join(' → ');
+      return `<div style="background:#f5f5f0;border-radius:11px;padding:11px 14px;border:1px solid #e0e0e0">
+        <div style="font-size:13px;font-weight:600;color:#085041;margin-bottom:4px">${rName}</div>
+        <div style="font-size:11px;color:#888;line-height:1.5">📍 ${stops}</div>
+      </div>`;
+    }).join('');
+    const bookUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&destination_place_name=${encodeURIComponent(p.nameEn)}`;
+    directionsHtml = `
+      <div style="font-size:13px;font-weight:600;color:#888;margin-bottom:8px">${curLang==='ar'?'المسارات':'Routes'}</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">${routeBtns}</div>
+      <a href="${bookUrl}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#085041;color:#fff;border-radius:13px;font-size:14px;font-weight:600;text-decoration:none">🗺️ ${dirLabel[lang]||dirLabel.en}</a>`;
+  } else if(p.branches && p.branches.length > 1){
+    // Branch picker — show all branches as individual direction buttons
+    const branchBtns = p.branches.map(b => {
+      const bName = (rtl && b.nameAr) ? b.nameAr : b.nameEn;
+      const bUrl  = `https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lng}&destination_place_name=${encodeURIComponent(b.nameEn+' Madinah')}`;
+      return `<a href="${bUrl}" target="_blank"
+        style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:#f5f5f0;border-radius:11px;text-decoration:none;border:1px solid #e0e0e0">
+        <span style="font-size:18px">📍</span>
+        <span style="font-size:13px;font-weight:600;color:#1a1a1a;flex:1">${bName}</span>
+        <span style="font-size:12px;color:#085041;font-weight:600">→</span>
+      </a>`;
+    }).join('');
+    directionsHtml = `
+      <div style="font-size:13px;font-weight:600;color:#888;margin-bottom:8px">${branchLabel[lang]||branchLabel.en}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">${branchBtns}</div>`;
+  } else {
+    // Single location — one directions button
+    const mapsUrl    = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&destination_place_name=${encodeURIComponent(p.nameEn)}`;
+    const mapsSearch = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.nameEn+' Madinah Saudi Arabia')}`;
+    const url = p.lat&&p.lng ? mapsUrl : mapsSearch;
+    directionsHtml = `<a href="${url}" target="_blank"
+      style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#085041;color:#fff;border-radius:13px;font-size:15px;font-weight:600;text-decoration:none">
+      🗺️ ${dirLabel[lang]||dirLabel.en}
+    </a>`;
+  }
+
+  const heroImg = p.img
+    ? `<div style="margin:-1rem -1.25rem 1rem;height:200px;overflow:hidden;border-radius:14px 14px 0 0"><img src="${p.img}" alt="${p.nameEn}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=\\'height:200px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:64px\\'>${p.icon}</div>'"/></div>`
+    : `<div style="height:160px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:64px;margin:-1rem -1.25rem 1rem;border-radius:14px 14px 0 0">${p.icon}</div>`;
+
+  const branchCount = p.branches?.length > 1
+    ? `<span style="font-size:11px;background:#E1F5EE;color:#085041;padding:3px 9px;border-radius:10px;font-weight:600">${p.branches.length} ${lang==='ar'?'فروع':lang==='tr'?'şube':lang==='ru'?'филиала':'branches'}</span>`
+    : '';
+
+  document.getElementById('placeModalContent').innerHTML=`
+    ${heroImg}
+    <div style="font-size:19px;font-weight:700;color:#1a1a1a;margin-bottom:3px">${p.nameEn}</div>
+    ${p.nameAr?`<div style="font-size:14px;color:#888;direction:rtl;text-align:right;margin-bottom:0.75rem">${p.nameAr}</div>`:''}
+    <div style="display:flex;gap:8px;margin-bottom:0.85rem;flex-wrap:wrap;align-items:center">
+      <span style="font-size:13px;color:#0F6E56;font-weight:600">${p.cost}</span>
+      ${(()=>{const rv=ratingsCache[p.id];return rv&&rv.count>0?`<span style="font-size:13px;color:#BA7517;font-weight:600">★ ${rv.rating} <span style="font-weight:400;color:#aaa;font-size:12px">(${rv.count} ${curLang==='ar'?'تقييم':curLang==='tr'?'yorum':curLang==='ru'?'отзывов':'reviews'})</span></span>`:'';})()}
+      ${branchCount}
+      ${p.instagram?`<span style="font-size:13px;color:#534AB7">📸 @${p.instagram}</span>`:''}
+    </div>
+    <p style="font-size:14px;color:#555;line-height:1.65;margin-bottom:1rem">${desc}</p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${directionsHtml}
+      ${p.instagram?`
+      <a href="https://instagram.com/${p.instagram}" target="_blank"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#EEEDFE;color:#534AB7;border-radius:13px;font-size:14px;font-weight:600;text-decoration:none">
+        📸 Follow on Instagram
+      </a>`:''}
+      <button onclick="askPlace('${p.nameEn}', '${p.nameAr||''}', ${p.id})"
+        style="width:100%;padding:13px;background:#E1F5EE;color:#085041;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">
+        ✨ Explore nearby places
+      </button>
+    </div>
+
+    <!-- OFFERS SECTION -->
+    <div id="placeOffers" style="margin-top:1rem;display:none">
+      <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:0.65rem">🎁 Current Offers</div>
+      <div id="placeOffersList"></div>
+    </div>
+
+    <!-- REVIEWS SECTION -->
+    <div style="margin-top:1.25rem">
+      <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:0.75rem">⭐ Reviews</div>
+      <div id="reviewsList" style="display:flex;flex-direction:column;gap:0.65rem">
+        <div style="color:#aaa;font-size:13px">Loading reviews…</div>
+      </div>
+      <div id="reviewFormWrap" style="margin-top:1rem"></div>
+    </div>`;
+
+  document.getElementById('placeModal').classList.add('open');
+  loadReviews(p.id);
+  loadPlaceOffers(p.id);
+}
+
+// ── Nearby places with distances ──────────────────────────────────────────────
+function haversineKm(lat1, lng1, lat2, lng2){
+  const R = 6371;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLng = (lng2-lng1) * Math.PI/180;
+  const a = Math.sin(dLat/2)**2 +
+            Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+            Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function buildNearbyContext(fromPlace){
+  if(!fromPlace?.lat || !fromPlace?.lng) return '';
+
+  // Calculate distance from visitor's current position to this place
+  const visitorLat = userLat || MADINAH_LAT;
+  const visitorLng = userLng || MADINAH_LNG;
+  const distToPlace = haversineKm(visitorLat, visitorLng, fromPlace.lat, fromPlace.lng);
+
+  const COMMERCIAL_CATS = ['restaurant','coffee','market','hotel','shopping','pharmacy','salon','clinic','transport','services'];
+
+  // Find nearby commercial places sorted by distance from this place (within 3km)
+  const nearby = PLACES
+    .filter(p => p.id !== fromPlace.id && p.lat && p.lng && COMMERCIAL_CATS.includes(p.cat))
+    .map(p => ({
+      ...p,
+      distFromPlace:   haversineKm(fromPlace.lat, fromPlace.lng, p.lat, p.lng),
+      distFromVisitor: haversineKm(visitorLat, visitorLng, p.lat, p.lng),
+    }))
+    .filter(p => p.distFromPlace <= 3)
+    .sort((a,b) => a.distFromPlace - b.distFromPlace)
+    .slice(0, 8);
+
+  if(!nearby.length) return '';
+
+  const fmtDist = (km) => km < 1
+    ? `${Math.round(km * 1000)}m`
+    : `${km.toFixed(1)}km`;
+
+  const placeLines = nearby.map(p =>
+    `- ${p.nameEn} (${p.nameAr}) — ${fmtDist(p.distFromPlace)} away, visitor is ${fmtDist(p.distFromVisitor)} from it`
+  ).join('\n');
+
+  return `\n\nMy current position is ${fmtDist(distToPlace)} from ${fromPlace.nameEn}.\nNearby places from our verified database:\n${placeLines}\n\nPlease recommend these based on proximity and suggest a walking order.`;
+}
+
+function askPlace(nameEn, nameAr, placeId){
+  document.getElementById('placeModal').classList.remove('open');
+  const rtl = curLang==='ar'||curLang==='ur';
+  const placeName = rtl && nameAr ? nameAr : nameEn;
+
+  // Find the place and check if it has verified info
+  const place = PLACES.find(p => p.id === placeId);
+  const hasInfo = place && (place.infoEn || place.infoAr);
+
+  if(hasInfo){
+    // Build a structured message with the verified info embedded
+    const verifiedInfo = (rtl && place.infoAr) ? place.infoAr : (place.infoEn || place.infoAr);
+    const infoLabel = {
+      en:'VERIFIED INFORMATION — use only this, do not add anything else:',
+      ar:'المعلومات الموثقة — استخدم هذه فقط، لا تضف شيئاً آخر:',
+      ur:'تصدیق شدہ معلومات — صرف یہی استعمال کریں:',
+      fr:'INFORMATIONS VÉRIFIÉES — utilisez uniquement ceci:',
+      id:'INFORMASI TERVERIFIKASI — gunakan hanya ini:',
+      tr:'DOĞRULANMIŞ BİLGİ — yalnızca bunu kullanın:',
+      ru:'ПРОВЕРЕННАЯ ИНФОРМАЦИЯ — используйте только это:',
+    };
+    // Build nearby places list with distances from current place
+    const nearbyContext = buildNearbyContext(place);
+    const question = {
+      en:`Tell me about ${nameEn} and what other places nearby are worth visiting?`,
+      ar:`أخبرني عن ${nameAr||nameEn} وما هي الأماكن القريبة التي تستحق الزيارة؟`,
+      ur:`مجھے ${nameEn} کے بارے میں بتائیں اور قریب میں کون سی جگہیں دیکھنے کے قابل ہیں؟`,
+      fr:`Parlez-moi de ${nameEn} et quels endroits proches méritent une visite ?`,
+      id:`Ceritakan tentang ${nameEn} dan tempat apa saja di sekitarnya yang layak dikunjungi?`,
+      tr:`${nameEn} hakkında bilgi ver ve yakınında görülmeye değer başka yerler neler?`,
+      ru:`Расскажи мне о ${nameEn} и какие места рядом стоит посетить?`,
+    };
+    const msg = `${question[curLang]||question.en}${nearbyContext}
+
+${infoLabel[curLang]||infoLabel.en}
+${verifiedInfo}`;
+    document.getElementById('userInput').value = msg;
+  } else {
+    // No verified info — ask about place + nearby
+    const nearbyContext = buildNearbyContext(place);
+    const question = {
+      en:`Tell me about ${nameEn} and what other places nearby are worth visiting?`,
+      ar:`أخبرني عن ${nameAr||nameEn} وما هي الأماكن القريبة التي تستحق الزيارة؟`,
+      ur:`مجھے ${nameEn} کے بارے میں بتائیں اور قریب میں کون سی جگہیں دیکھنے کے قابل ہیں؟`,
+      fr:`Parlez-moi de ${nameEn} et quels endroits proches méritent une visite ?`,
+      id:`Ceritakan tentang ${nameEn} dan tempat apa saja di sekitarnya yang layak dikunjungi?`,
+      tr:`${nameEn} hakkında bilgi ver ve yakınında görülmeye değer başka yerler neler?`,
+      ru:`Расскажи мне о ${nameEn} и какие места рядом стоит посетить?`,
+    };
+    document.getElementById('userInput').value = `${question[curLang]||question.en}${nearbyContext}`;
+  }
+  showTab('plan');
+  sendMessage();
+}
+
+document.getElementById('placeModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+document.getElementById('langModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+
+// ── REVIEWS ───────────────────────────────────────────────────────────────────
+const REVIEWED_KEY = 'mg_reviewed'; // localStorage key
+
+function getReviewed(){
+  try{ return JSON.parse(localStorage.getItem(REVIEWED_KEY)||'{}'); }
+  catch(e){ return {}; }
+}
+function markReviewed(placeId){
+  const r=getReviewed(); r['place_'+placeId]=true;
+  localStorage.setItem(REVIEWED_KEY, JSON.stringify(r));
+}
+function hasReviewed(placeId){ return !!getReviewed()['place_'+placeId]; }
+
+async function loadReviews(placeId){
+  const list = document.getElementById('reviewsList');
+  if(!list) return;
+  try{
+    const r = await fetch(`${BACKEND}/app/places/${placeId}/reviews`);
+    const d = await r.json();
+    if(!d.success) throw new Error(d.error);
+
+    const t = T[curLang]||T.en;
+    const reviews = d.reviews || [];
+
+    if(reviews.length === 0){
+      list.innerHTML = `<div style="color:#aaa;font-size:13px;padding:0.5rem 0">${curLang==='ar'?'لا توجد تقييمات بعد':'No reviews yet — be the first!'}</div>`;
+    } else {
+      list.innerHTML = reviews.slice(0,8).map(rv => {
+        const stars = '★'.repeat(rv.stars) + '☆'.repeat(5-rv.stars);
+        const isAr  = curLang==='ar'||curLang==='ur';
+        const comment = (isAr && rv.comment_ar) ? rv.comment_ar : rv.comment;
+        const badge = rv.is_seeded
+          ? `<span style="font-size:10px;background:#E1F5EE;color:#085041;padding:2px 7px;border-radius:8px;font-weight:600">${curLang==='ar'?'موثق':'Verified'}</span>`
+          : '';
+        const date = new Date(rv.created_at).toLocaleDateString(curLang==='ar'?'ar-SA':'en-US',{month:'short',year:'numeric'});
+        return `<div style="background:#f9f9f9;border-radius:12px;padding:0.75rem;border:1px solid #eee">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+            <span style="font-size:13px;font-weight:600;color:#1a1a1a">${rv.visitor_name}</span>
+            ${rv.nationality?`<span style="font-size:11px;color:#aaa">${rv.nationality}</span>`:''}
+            ${badge}
+            <span style="margin-left:auto;font-size:11px;color:#aaa">${date}</span>
+          </div>
+          <div style="color:#BA7517;font-size:13px;margin-bottom:4px">${stars}</div>
+          ${comment?`<div style="font-size:13px;color:#555;line-height:1.5">${comment}</div>`:''}
+        </div>`;
+      }).join('');
+    }
+
+    // Show rating summary if any reviews
+    if(d.count > 0){
+      const summary = document.createElement('div');
+      summary.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:0.75rem';
+      summary.innerHTML = `<span style="font-size:24px;font-weight:700;color:#1a1a1a">${d.rating}</span><span style="color:#BA7517;font-size:18px">${'★'.repeat(Math.round(d.rating))}${'☆'.repeat(5-Math.round(d.rating))}</span><span style="font-size:12px;color:#888">(${d.count} ${curLang==='ar'?'تقييم':curLang==='tr'?'yorum':curLang==='ru'?'отзывов':'reviews'})</span>`;
+      list.insertBefore(summary, list.firstChild);
+    }
+
+    // Review form
+    renderReviewForm(placeId);
+
+  } catch(e){
+    list.innerHTML = `<div style="color:#aaa;font-size:13px">Could not load reviews</div>`;
+    renderReviewForm(placeId);
   }
 }
 
-// ─── Check saved session ──────────────────────────────────────────────────────
-function checkSession() {
-  const token = sessionStorage.getItem('agent_token');
-  const agent = sessionStorage.getItem('agent_data');
-  if (token && agent) {
-    showWelcome(JSON.parse(agent));
-  }
-}
+function renderReviewForm(placeId){
+  const wrap = document.getElementById('reviewFormWrap');
+  if(!wrap) return;
 
-// ─── Login ────────────────────────────────────────────────────────────────────
-async function doLogin() {
-  const phone    = document.getElementById('phone').value.trim();
-  const password = document.getElementById('password').value;
-  const errMsg   = document.getElementById('errMsg');
-
-  errMsg.className = 'msg';
-  errMsg.textContent = '';
-
-  if (!phone || !password) {
-    showErr('Please enter your phone number and password.');
+  if(hasReviewed(placeId)){
+    wrap.innerHTML = `<div style="text-align:center;font-size:13px;color:#888;padding:0.75rem;background:#f5f5f0;border-radius:12px">${curLang==='ar'?'✅ لقد أضفت تقييمك لهذا المكان':'✅ You already reviewed this place'}</div>`;
     return;
   }
 
-  // set loading state
-  document.getElementById('loginBtn').disabled = true;
-  document.getElementById('spin').style.display = 'block';
-  document.getElementById('loginLbl').textContent = 'Logging in…';
+  const t = T[curLang]||T.en;
+  const labels = {
+    en:{title:'Leave a review',name:'Your name',nationality:'Country (optional)',comment:'Your comment (optional)',submit:'Submit review',placeholder:'Share your experience…'},
+    ar:{title:'أضف تقييمك',name:'اسمك',nationality:'الدولة (اختياري)',comment:'تعليقك (اختياري)',submit:'إرسال التقييم',placeholder:'شاركنا تجربتك…'},
+    ur:{title:'تبصرہ لکھیں',name:'آپ کا نام',nationality:'ملک (اختیاری)',comment:'تبصرہ (اختیاری)',submit:'تبصرہ جمع کریں',placeholder:'اپنا تجربہ لکھیں…'},
+    fr:{title:'Laisser un avis',name:'Votre nom',nationality:'Pays (optionnel)',comment:'Commentaire (optionnel)',submit:'Soumettre',placeholder:'Partagez votre expérience…'},
+    id:{title:'Tulis ulasan',name:'Nama Anda',nationality:'Negara (opsional)',comment:'Komentar (opsional)',submit:'Kirim ulasan',placeholder:'Bagikan pengalaman Anda…'},
+    tr:{title:'Yorum yaz',name:'Adınız',nationality:'Ülke (isteğe bağlı)',comment:'Yorum (isteğe bağlı)',submit:'Yorum gönder',placeholder:'Deneyiminizi paylaşın…'},
+    ru:{title:'Оставить отзыв',name:'Ваше имя',nationality:'Страна (необязательно)',comment:'Комментарий (необязательно)',submit:'Отправить отзыв',placeholder:'Поделитесь впечатлениями…'},
+  };
+  const L = labels[curLang]||labels.en;
+  const rtl = curLang==='ar'||curLang==='ur';
 
-  try {
-    const res  = await fetch(BACKEND + '/auth/agent/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, password }),
-    });
-    const data = await res.json();
+  wrap.innerHTML = `
+    <div style="border-top:1px solid #eee;padding-top:1rem;margin-top:0.5rem" dir="${rtl?'rtl':'ltr'}">
+      <div style="font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:0.75rem">${L.title}</div>
+      <!-- Stars -->
+      <div style="display:flex;gap:8px;margin-bottom:0.85rem" id="starPicker">
+        ${[1,2,3,4,5].map(i=>`<span onclick="setStars(${i})" data-star="${i}" style="font-size:28px;cursor:pointer;color:#ddd;transition:color 0.1s">★</span>`).join('')}
+      </div>
+      <input id="rvName" placeholder="${L.name}" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;margin-bottom:8px;font-family:inherit;outline:none" dir="${rtl?'rtl':'ltr'}"/>
+      <input id="rvNationality" placeholder="${L.nationality}" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;margin-bottom:8px;font-family:inherit;outline:none" dir="${rtl?'rtl':'ltr'}"/>
+      <textarea id="rvComment" placeholder="${L.placeholder}" rows="3" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit;resize:none;outline:none;margin-bottom:10px" dir="${rtl?'rtl':'ltr'}"></textarea>
+      <button onclick="submitReview(${placeId})" style="width:100%;padding:12px;background:#085041;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer" id="rvSubmitBtn">${L.submit}</button>
+      <div id="rvMsg" style="margin-top:8px;font-size:13px;text-align:center"></div>
+    </div>`;
+}
 
-    if (data.success && data.token) {
-      // save to session storage
-      sessionStorage.setItem('agent_token', data.token);
-      sessionStorage.setItem('agent_data', JSON.stringify(data.agent));
-      showWelcome(data.agent);
-    } else {
-      showErr(data.error || 'Invalid phone number or password.');
-    }
-  } catch(e) {
-    showErr('Cannot connect to server. Please check your connection.');
+let selectedStars = 0;
+function setStars(n){
+  selectedStars = n;
+  document.querySelectorAll('#starPicker [data-star]').forEach(el=>{
+    el.style.color = parseInt(el.dataset.star) <= n ? '#BA7517' : '#ddd';
+  });
+}
+
+async function submitReview(placeId){
+  const name    = document.getElementById('rvName')?.value.trim();
+  const nat     = document.getElementById('rvNationality')?.value.trim();
+  const comment = document.getElementById('rvComment')?.value.trim();
+  const msg     = document.getElementById('rvMsg');
+  const btn     = document.getElementById('rvSubmitBtn');
+
+  const errLabels = {en:'Please enter your name and select a star rating',ar:'الرجاء إدخال اسمك واختيار تقييم',ur:'براہ کرم نام اور ریٹنگ درج کریں',fr:'Veuillez entrer votre nom et noter',id:'Masukkan nama dan pilih bintang',tr:'Lütfen adınızı girin ve puan seçin',ru:'Введите имя и выберите оценку'};
+  if(!name || !selectedStars){
+    msg.style.color='#A32D2D'; msg.textContent=errLabels[curLang]||errLabels.en; return;
   }
 
-  document.getElementById('loginBtn').disabled = false;
-  document.getElementById('spin').style.display = 'none';
-  document.getElementById('loginLbl').textContent = 'Login — تسجيل الدخول';
+  btn.disabled=true; btn.textContent='…';
+  try{
+    const r = await fetch(`${BACKEND}/app/places/${placeId}/reviews`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({visitor_name:name, nationality:nat||null, stars:selectedStars, comment:comment||null, language:curLang})
+    });
+    const d = await r.json();
+    if(!d.success) throw new Error(d.error);
+
+    markReviewed(placeId);
+    const ok={en:'Thank you for your review! 🙏',ar:'شكراً لتقييمك! 🙏',ur:'آپ کے تبصرے کا شکریہ! 🙏',fr:'Merci pour votre avis! 🙏',id:'Terima kasih atas ulasan Anda! 🙏',tr:'Yorumunuz için teşekkürler! 🙏',ru:'Спасибо за отзыв! 🙏'};
+    msg.style.color='#0F6E56'; msg.textContent=ok[curLang]||ok.en;
+    // reload reviews and refresh ratings on cards
+    setTimeout(()=>{ loadReviews(placeId); fetchAllRatings().then(renderPlaces); }, 800);
+  } catch(e){
+    btn.disabled=false; btn.textContent=document.getElementById('rvSubmitBtn')?.dataset.label||'Submit';
+    msg.style.color='#A32D2D'; msg.textContent='Could not submit. Please try again.';
+  }
 }
 
-// ─── Show welcome screen ──────────────────────────────────────────────────────
-function showWelcome(agent) {
-  document.getElementById('loginWrap').style.display  = 'none';
-  document.getElementById('welcomeWrap').style.display = 'flex';
+// ══ PRAYER TIMES ENGINE ═══════════════════════════════════════════════════════
+// Umm al-Qura method — used in Saudi Arabia
+// Madinah coordinates: 24.4672°N, 39.6111°E  UTC+3
+const MADINAH_LAT  = 24.4672;
+const MADINAH_LNG  = 39.6111;
+const MADINAH_TZ   = 3; // UTC+3
 
-  const initials = agent.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  document.getElementById('agentAv').textContent   = initials;
-  document.getElementById('agentName').textContent = agent.name;
-  document.getElementById('agentRole').textContent = agent.role === 'senior_agent' ? 'Senior agent · وكيل أول' : 'Call center agent · وكيل مركز الاتصال';
+const PRAYER_NAMES = {
+  en: {Fajr:'Fajr',Sunrise:'Sunrise',Dhuhr:'Dhuhr',Asr:'Asr',Maghrib:'Maghrib',Isha:'Isha'},
+  ar: {Fajr:'الفجر',Sunrise:'الشروق',Dhuhr:'الظهر',Asr:'العصر',Maghrib:'المغرب',Isha:'العشاء'},
+  ur: {Fajr:'فجر',Sunrise:'طلوع آفتاب',Dhuhr:'ظہر',Asr:'عصر',Maghrib:'مغرب',Isha:'عشاء'},
+  fr: {Fajr:'Fajr',Sunrise:'Lever du soleil',Dhuhr:'Dhuhr',Asr:'Asr',Maghrib:'Maghrib',Isha:'Isha'},
+  id: {Fajr:'Subuh',Sunrise:'Syuruq',Dhuhr:'Dzuhur',Asr:'Ashar',Maghrib:'Maghrib',Isha:'Isya'},
+  tr: {Fajr:'Sabah',Sunrise:'Güneş',Dhuhr:'Öğle',Asr:'İkindi',Maghrib:'Akşam',Isha:'Yatsı'},
+  ru: {Fajr:'Фаджр',Sunrise:'Восход',Dhuhr:'Зухр',Asr:'Аср',Maghrib:'Магриб',Isha:'Иша'},
+};
+const PRAYER_ICONS = {Fajr:'🌙',Sunrise:'🌅',Dhuhr:'☀️',Asr:'🌤️',Maghrib:'🌇',Isha:'🌃'};
 
-  const pills = document.getElementById('langPills');
-  pills.innerHTML = '';
-  (agent.languages || ['ar','en']).forEach(l => {
-    const span = document.createElement('span');
-    span.className = 'lpill';
-    span.textContent = LANG_NAMES[l] || l;
-    pills.appendChild(span);
+function toRad(d){return d*Math.PI/180;}
+function toDeg(r){return r*180/Math.PI;}
+function fixHour(h){return h-24*Math.floor(h/24);}
+
+function calcPrayerTimes(date, lat, lng, tz) {
+  const JD = julianDate(date.getFullYear(), date.getMonth()+1, date.getDate());
+  const D  = JD - 2451545.0;
+  const g  = fixAngle(357.529 + 0.98560028*D);
+  const q  = fixAngle(280.459 + 0.98564736*D);
+  const L  = fixAngle(q + 1.9915*Math.sin(toRad(g)) + 0.02*Math.sin(toRad(2*g)));
+  const e  = 23.439 - 0.00000036*D;
+  const RA = toDeg(Math.atan2(Math.cos(toRad(e))*Math.sin(toRad(L)), Math.cos(toRad(L))))/15;
+  const EqT= q/15 - fixHour(RA);
+  const decl = toDeg(Math.asin(Math.sin(toRad(e))*Math.sin(toRad(L))));
+  const noon = 12 - lng/15 - EqT + tz;
+
+  function sunAngleTime(angle, afterNoon){
+    const val = -Math.sin(toRad(angle)) - Math.sin(toRad(lat))*Math.sin(toRad(decl));
+    const div = Math.cos(toRad(lat))*Math.cos(toRad(decl));
+    const t = toDeg(Math.acos(val/div))/15;
+    return afterNoon ? noon+t : noon-t;
+  }
+
+  // Asr shadow factor = 1 (Shafi/standard)
+  function asrTime(factor){
+    const target = toDeg(Math.atan(1/(factor + Math.tan(toRad(Math.abs(lat-decl))))));
+    return sunAngleTime(-target, true);
+  }
+
+  return {
+    Fajr:    sunAngleTime(18.5, false),  // Umm al-Qura: 18.5° below horizon
+    Sunrise: sunAngleTime(0.833, false),
+    Dhuhr:   noon + 0.017,               // slight offset
+    Asr:     asrTime(1),
+    Maghrib: sunAngleTime(0.833, true),
+    Isha:    sunAngleTime(90, true),      // Umm al-Qura: 90 min after Maghrib
+  };
+}
+
+// Isha special: Umm al-Qura = Maghrib + 90 min
+function calcIshaUmmAlQura(maghrib){ return maghrib + 1.5; }
+
+function julianDate(y,m,d){
+  if(m<=2){y--;m+=12;}
+  const A=Math.floor(y/100);
+  const B=2-A+Math.floor(A/4);
+  return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5;
+}
+function fixAngle(a){return a-360*Math.floor(a/360);}
+
+function decimalToTime(dec, name){
+  dec = fixHour(dec);
+  const h   = Math.floor(dec);
+  let   m   = Math.floor((dec - h) * 60);
+  const sec = Math.round(((dec - h) * 60 - m) * 60);
+
+  // Fajr, Sunrise, Dhuhr — exact, never round up
+  // Asr, Maghrib, Isha — add 1 minute if any seconds remain (Umm al-Qura conservative)
+  const roundUp = ['Asr','Maghrib','Isha'];
+  if(roundUp.includes(name) && sec > 0) {
+    m = m + 1;
+  }
+
+  // Handle minute overflow
+  const totalH = h + Math.floor(m / 60);
+  const finalM = m % 60;
+  const finalH = fixHour(totalH);
+
+  const ampm = finalH >= 12 ? 'PM' : 'AM';
+  const h12  = finalH > 12 ? finalH - 12 : (finalH === 0 ? 12 : finalH);
+  return {
+    h: finalH,
+    m: finalM,
+    str12: `${h12}:${String(finalM).padStart(2,'0')} ${ampm}`,
+    str24: `${String(Math.floor(finalH)).padStart(2,'0')}:${String(finalM).padStart(2,'0')}`,
+  };
+}
+
+let prayerInterval = null;
+
+function loadPrayer(){
+  const now  = new Date();
+  const raw  = calcPrayerTimes(now, MADINAH_LAT, MADINAH_LNG, MADINAH_TZ);
+  // Override Isha with Umm al-Qura 90min rule
+  raw.Isha = calcIshaUmmAlQura(raw.Maghrib);
+
+  const prayers = ['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
+  const times = prayers.map(name=>({name, dec:raw[name], ...decimalToTime(raw[name], name)}));
+
+  // current Madinah time in decimal hours
+  const madNow = now.getUTCHours() + MADINAH_TZ + now.getUTCMinutes()/60 + now.getUTCSeconds()/3600;
+  const madNowFixed = fixHour(madNow);
+
+  // find current and next prayer
+  let currentIdx=-1, nextIdx=0;
+  for(let i=0;i<times.length;i++){
+    if(times[i].dec<=madNowFixed) currentIdx=i;
+  }
+  nextIdx = (currentIdx+1) % times.length;
+  if(currentIdx===times.length-1) nextIdx=0;
+
+  // Date label — Gregorian + Hijri
+  const t = T[curLang]||T.en;
+  const locale = curLang==='ar'?'ar-SA':curLang==='tr'?'tr-TR':curLang==='ru'?'ru-RU':'en-US';
+  const dateStr = now.toLocaleDateString(locale, {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Hijri date — always calculate using Arabic Islamic calendar, then translate month name
+  const hijriMonths = {
+    en: ['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Shaban','Ramadan','Shawwal','Dhul Qadah','Dhul Hijjah'],
+    ar: ['محرم','صفر','ربيع الأول','ربيع الثاني','جمادى الأولى','جمادى الثانية','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'],
+    ur: ['محرم','صفر','ربیع الاول','ربیع الثانی','جمادی الاول','جمادی الثانی','رجب','شعبان','رمضان','شوال','ذوالقعدہ','ذوالحجہ'],
+    fr: ['Mouharram','Safar','Rabi al-Awwal','Rabi al-Thani','Joumada al-Awwal','Joumada al-Thani','Rajab','Chaabane','Ramadan','Chawwal','Dhu al-Qida','Dhu al-Hijja'],
+    id: ['Muharram','Safar','Rabi ul-Awal','Rabi ul-Akhir','Jumadil Awal','Jumadil Akhir','Rajab','Syaban','Ramadan','Syawal','Zulkaidah','Zulhijjah'],
+    tr: ['Muharrem','Safer','Rebiülevvel','Rebiülahir','Cemaziyelevvel','Cemaziyelahir','Recep','Şaban','Ramazan','Şevval','Zilkade','Zilhicce'],
+    ru: ['Мухаррам','Сафар','Раби аль-Авваль','Раби ас-Сани','Джумада аль-Авваль','Джумада ас-Сани','Раджаб','Шаабан','Рамадан','Шавваль','Зуль-Каада','Зуль-Хиджа'],
+  };
+
+  // Get Hijri parts reliably using formatToParts
+  const hijriFormatter = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',
+    {day:'numeric', month:'numeric', year:'numeric'});
+  const hijriParts = hijriFormatter.formatToParts(now);
+  const hijriMonth = parseInt(hijriParts.find(p=>p.type==='month')?.value||'1') - 1;
+  const hijriDay   = parseInt(hijriParts.find(p=>p.type==='day')?.value||'1');
+  const hijriYear  = parseInt(hijriParts.find(p=>p.type==='year')?.value||'1446');
+
+  const months = hijriMonths[curLang] || hijriMonths.en;
+  const monthName = months[hijriMonth] || months[0];
+
+  const hijriStr = curLang==='ar'||curLang==='ur'
+    ? `${hijriDay} ${monthName} ${hijriYear}`
+    : `${hijriDay} ${monthName} ${hijriYear} AH`;
+
+  const pNames = PRAYER_NAMES[curLang]||PRAYER_NAMES.en;
+
+  document.getElementById('prayerDateLbl').textContent = dateStr;
+
+  // Show Hijri date below Gregorian
+  let hijriEl = document.getElementById('prayerHijriLbl');
+  if(!hijriEl){
+    hijriEl = document.createElement('div');
+    hijriEl.id = 'prayerHijriLbl';
+    hijriEl.style.cssText = 'font-size:13px;color:#9FE1CB;margin-top:2px';
+    const dateEl = document.getElementById('prayerDateLbl');
+    dateEl.parentNode.insertBefore(hijriEl, dateEl.nextSibling);
+  }
+  hijriEl.textContent = hijriStr;
+
+  // Render prayer rows
+  const list = document.getElementById('prayerList');
+  list.innerHTML = '';
+  times.forEach((p,i)=>{
+    const isCurrent = i===currentIdx;
+    const isNext    = i===nextIdx;
+    const div = document.createElement('div');
+    div.className = 'prayer-row'+(isCurrent?' current-prayer':isNext?' next-prayer':'');
+    div.innerHTML = `
+      <span class="prayer-icon">${PRAYER_ICONS[p.name]}</span>
+      <span class="prayer-name">${pNames[p.name]||p.name}</span>
+      ${isCurrent?`<span class="prayer-badge badge-now">${curLang==='ar'?'الآن':'Now'}</span>`:''}
+      ${isNext?`<span class="prayer-badge badge-next">${curLang==='ar'?'التالية':'Next'}</span>`:''}
+      <span class="prayer-time">${p.str12}</span>`;
+    list.appendChild(div);
   });
 
-  document.getElementById('welcomeStatus').textContent = 'Welcome back, ' + agent.name + ' · أهلاً وسهلاً';
+  // Countdown to next prayer
+  const next = times[nextIdx];
+  let diff = next.dec - madNowFixed;
+  if(diff<0) diff+=24;
+  const diffMins = Math.floor(diff*60);
+  const hh = Math.floor(diffMins/60);
+  const mm = diffMins%60;
+  const countdownStr = hh>0?`${hh}h ${mm}m`:mm===0?`< 1 min`:`${mm} min`;
+
+  document.getElementById('nextPrayerName').textContent = pNames[next.name]||next.name;
+  document.getElementById('nextPrayerCountdown').textContent =
+    (curLang==='ar'?'في ':'In ')+countdownStr+(curLang==='ar'?' · '+next.str12:' · '+next.str12);
+
+  // Source note
+  const sourceMap={en:'Times for Madinah · Umm al-Qura method',ar:'أوقات الصلاة · طريقة أم القرى',ur:'مدینہ کے اوقات · ام القریٰ طریقہ',fr:'Horaires pour Médine · Méthode Oumm al-Qoura',id:'Waktu untuk Madinah · Metode Umm al-Qura',tr:"Medine için vakitler · Ümmü'l-Kurâ metodu",ru:'Время для Медины · Метод Умм аль-Кура'};
+  document.getElementById('prayerSourceLbl').textContent = sourceMap[curLang]||sourceMap.en;
+
+  // Qibla
+  const qiblaTitleMap={en:'Find Qibla Direction',ar:'اعرف اتجاه القبلة',ur:'قبلہ کا رخ معلوم کریں',fr:'Trouver la Qibla',id:'Temukan Arah Kiblat',tr:'Kıble Yönünü Bul',ru:'Найти направление Киблы'};
+  const qiblaDescMap={en:'Tap to open Google Qibla Finder — uses your compass',ar:'اضغط لفتح محدد القبلة من Google — يستخدم بوصلة هاتفك',ur:'Google Qibla Finder کھولنے کے لیے دبائیں',fr:'Appuyez pour ouvrir Google Qibla Finder',id:'Ketuk untuk membuka Google Qibla Finder',tr:"Google Kıble Bulucu'yu açmak için dokunun",ru:'Нажмите чтобы открыть Google Qibla Finder'};
+  document.getElementById('qiblaTitle').textContent = qiblaTitleMap[curLang]||qiblaTitleMap.en;
+  document.getElementById('qiblaDesc').textContent  = qiblaDescMap[curLang]||qiblaDescMap.en;
+
+  // Countdown ticks every 30s
+  if(prayerInterval) clearInterval(prayerInterval);
+  prayerInterval = setInterval(loadPrayer, 30000);
 }
 
-// ─── Go to dashboard ──────────────────────────────────────────────────────────
-function goToDashboard() {
-  // pass token to agent dashboard via URL hash
-  const token = sessionStorage.getItem('agent_token');
-  const agent = sessionStorage.getItem('agent_data');
-  window.location.href = 'agent.html#token=' + encodeURIComponent(token) + '&agent=' + encodeURIComponent(agent);
+function openLangPicker(){
+  // highlight current language
+  document.querySelectorAll('.lang-picker-opt').forEach(el=>el.classList.remove('active-lang'));
+  const cur=document.getElementById('lpo-'+curLang);
+  if(cur)cur.classList.add('active-lang');
+  document.getElementById('langModal').classList.add('open');
 }
 
-// ─── Logout ───────────────────────────────────────────────────────────────────
-function doLogout() {
-  sessionStorage.removeItem('agent_token');
-  sessionStorage.removeItem('agent_data');
-  document.getElementById('welcomeWrap').style.display = 'none';
-  document.getElementById('loginWrap').style.display   = 'flex';
-  document.getElementById('phone').value    = '';
-  document.getElementById('password').value = '';
+function switchLang(lang){
+  document.getElementById('langModal').classList.remove('open');
+  // reuse chooseLang but don't hide langScreen (already hidden)
+  curLang=lang; localStorage.setItem('mg_lang',lang);
+  const t=T[lang]||T.en; const rtl=lang==='ar'||lang==='ur';
+  document.documentElement.dir=rtl?'rtl':'ltr'; document.documentElement.lang=lang;
+  ['bannerTitle','bannerSub','wlcTitle','wlcSub','placesTitle','placesSub','callTitle','callSub','callBtnLbl','callFree','bnl-plan','bnl-places','bnl-call'].forEach(id=>{
+    const map={bannerTitle:t.banner,bannerSub:t.bannerSub,wlcTitle:t.wlcTitle,wlcSub:t.wlcSub,placesTitle:t.placesTitle,placesSub:t.placesSub,callTitle:t.callTitle,callSub:t.callSub,callBtnLbl:t.callBtn,callFree:t.callFree,'bnl-plan':t.bnPlan,'bnl-places':t.bnPlaces,'bnl-call':t.bnCall};
+    const el=document.getElementById(id); if(el) el.textContent=map[id]||'';
+  });
+  document.getElementById('callNowBtn').textContent=t.callNow;
+  document.getElementById('userInput').placeholder=t.placeholder;
+  document.getElementById('userInput').dir=rtl?'rtl':'ltr';
+  t.fc.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'t');if(e)e.textContent=v;});
+  t.fd.forEach((v,i)=>{const e=document.getElementById('fc'+(i+1)+'d');if(e)e.textContent=v;});
+  const prayerLabels={en:'Prayer',ar:'الصلاة',ur:'نماز',fr:'Prière',id:'Sholat',tr:'Namaz',ru:'Намаз'};
+  const pEl=document.getElementById('bnl-prayer'); if(pEl) pEl.textContent=prayerLabels[lang]||'Prayer';
+  const eventsLabels={en:'Events',ar:'الفعاليات',ur:'تقریبات',fr:'Événements',id:'Acara',tr:'Etkinlikler',ru:'События'};
+  const eEl=document.getElementById('bnl-events'); if(eEl) eEl.textContent=eventsLabels[lang]||'Events';
+  renderPlaces();
+  if(!document.getElementById('pane-prayer').classList.contains('hidden')) loadPrayer();
+}
+function goToCall(){
+  // Check language support
+  const supportedLangs = ['ar','en'];
+  if(!supportedLangs.includes(curLang)){
+    const msgs = {
+      ur:'ابھی ہمارے پاس اردو میں گائیڈ دستیاب نہیں۔ براہ کرم عربی یا انگریزی زبان منتخب کر کے کال کریں۔',
+      fr:"Nous n'avons pas encore de guides en français. Veuillez sélectionner l'arabe ou l'anglais pour appeler.",
+      id:'Kami belum memiliki pemandu berbahasa Indonesia. Silakan pilih bahasa Arab atau Inggris untuk menelepon.',
+      tr:'Henüz Türkçe rehberimiz yok. Lütfen Arapça veya İngilizce seçerek arayın.',
+      ru:'У нас пока нет русскоязычных гидов. Пожалуйста, выберите арабский или английский для звонка.',
+    };
+    alert(msgs[curLang] || msgs.ur);
+    return;
+  }
+
+  // Check working hours — Madinah time UTC+3
+  const now = new Date();
+  const madinahHour = (now.getUTCHours() + 3) % 24;
+  const isOpen = madinahHour >= 6 && madinahHour < 22;
+
+  if(!isOpen){
+    const msgs = {
+      ar:'خدمة المكالمات متاحة من 6 صباحاً حتى 10 مساءً بتوقيت المدينة المنورة.',
+      en:'The call service is available from 6:00 AM to 10:00 PM Madinah time.',
+    };
+    alert(msgs[curLang] || msgs.en);
+    return;
+  }
+
+  window.location.href = CALL_URL;
 }
 
-// ─── Toggle password visibility ───────────────────────────────────────────────
-function togglePw() {
-  const inp = document.getElementById('password');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
+const saved=localStorage.getItem('mg_lang');
+if(saved)chooseLang(saved);
+// ══ SPEECH — VOICE INPUT & OUTPUT ════════════════════════════════════════════
+let recognition  = null;
+let isListening  = false;
+let isSpeaking   = false;
+let ttsEnabled   = true; // auto-read AI responses
+
+// ── Language map for Web Speech API ──────────────────────────────────────────
+const SPEECH_LANG = {
+  en: 'en-US', ar: 'ar-SA', ur: 'ur-PK',
+  fr: 'fr-FR', id: 'id-ID', tr: 'tr-TR', ru: 'ru-RU'
+};
+
+// ── Text to Speech ────────────────────────────────────────────────────────────
+function speak(text){
+  if(!ttsEnabled || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel(); // stop any current speech
+  isSpeaking = true;
+
+  // Strip markdown and emojis for cleaner speech
+  const clean = text
+    .replace(/[*]{2}(.+?)[*]{2}/g, '$1')
+    .replace(/[*_~`#]/g, '')
+    .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')   // emoji block (faces, objects, symbols)
+    .replace(/[\u{2600}-\u{27BF}]/gu, '')       // misc symbols (but not digits)
+    .replace(/[\uFE00-\uFE0F]/g, '')            // variation selectors
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')     // zero-width chars
+    .replace(/[\uD83C-\uDBFF][\uDC00-\uDFFF]/g, '') // surrogate pairs
+    .replace(/\s{2,}/g, ' ')
+    .split('\n\n').join('. ')
+    .split('\n').join(', ')
+    .trim();
+
+  const utter = new SpeechSynthesisUtterance(clean);
+  utter.lang = SPEECH_LANG[curLang] || 'en-US';
+  utter.rate = 0.95;
+  utter.pitch = 1;
+  utter.volume = 1;
+
+  // Pick best available voice for the language
+  const voices = window.speechSynthesis.getVoices();
+  const match = voices.find(v => v.lang.startsWith(utter.lang.split('-')[0]));
+  if(match) utter.voice = match;
+
+  utter.onend = () => { isSpeaking = false; };
+  utter.onerror = () => { isSpeaking = false; };
+
+  window.speechSynthesis.speak(utter);
 }
 
-// ─── Show error ───────────────────────────────────────────────────────────────
-function showErr(msg) {
-  const el = document.getElementById('errMsg');
-  el.textContent = msg;
-  el.className = 'msg err';
-  document.getElementById('phone').classList.add('err');
-  document.getElementById('password').classList.add('err');
-  setTimeout(() => {
-    document.getElementById('phone').classList.remove('err');
-    document.getElementById('password').classList.remove('err');
-  }, 3000);
+function stopSpeaking(){
+  window.speechSynthesis.cancel();
+  isSpeaking = false;
 }
 
-// ─── Boot ─────────────────────────────────────────────────────────────────────
-checkHealth();
-checkSession();
+// ── Speech Recognition (mic) ──────────────────────────────────────────────────
+function toggleMic(){
+  if(isListening){ stopListening(); return; }
+  startListening();
+}
+
+function startListening(){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRecognition){
+    const msgs = {
+      en:'Voice input is not supported in this browser. Please use Chrome.',
+      ar:'التعرف على الصوت غير مدعوم في هذا المتصفح. استخدم Chrome.',
+      ur:'آواز کا ان پٹ اس براؤزر میں سپورٹ نہیں — Chrome استعمال کریں۔',
+      fr:'La saisie vocale non supportee. Utilisez Chrome.',
+      id:'Input suara tidak didukung. Gunakan Chrome.',
+      tr:'Ses girişi desteklenmiyor. Chrome kullanın.',
+      ru:'Голосовой ввод не поддерживается. Используйте Chrome.'
+    };
+    alert(msgs[curLang]||msgs.en);
+    return;
+  }
+
+  // Stop any current speech before listening
+  stopSpeaking();
+
+  recognition = new SpeechRecognition();
+  recognition.lang = SPEECH_LANG[curLang] || 'en-US';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    isListening = true;
+    const btn = document.getElementById('micBtn');
+    btn.textContent = '🔴';
+    btn.style.background = '#FDE8E8';
+    btn.style.borderColor = '#A32D2D';
+    btn.style.animation = 'pulse 1s infinite';
+    // Show listening hint in input
+    document.getElementById('userInput').placeholder =
+      curLang==='ar' ? '🎤 جارٍ الاستماع…' :
+      curLang==='ur' ? '🎤 سن رہا ہوں…' :
+      curLang==='fr' ? '🎤 Ecoute...' :
+      curLang==='id' ? '🎤 Mendengarkan…' :
+      curLang==='tr' ? '🎤 Dinleniyor…' :
+      curLang==='ru' ? '🎤 Слушаю…' :
+      '🎤 Listening…';
+  };
+
+  recognition.onresult = (e) => {
+    const transcript = Array.from(e.results)
+      .map(r => r[0].transcript).join('');
+    document.getElementById('userInput').value = transcript;
+    // If final result — auto send
+    if(e.results[e.results.length-1].isFinal){
+      stopListening();
+      setTimeout(() => sendMessage(), 300);
+    }
+  };
+
+  recognition.onerror = (e) => {
+    stopListening();
+    if(e.error !== 'no-speech' && e.error !== 'aborted'){
+      console.warn('Speech error:', e.error);
+    }
+  };
+
+  recognition.onend = () => { stopListening(); };
+
+  recognition.start();
+}
+
+function stopListening(){
+  isListening = false;
+  const btn = document.getElementById('micBtn');
+  if(btn){
+    btn.textContent = '🎤';
+    btn.style.background = '#f5f5f0';
+    btn.style.borderColor = '#e0e0e0';
+    btn.style.animation = '';
+  }
+  const t = T[curLang]||T.en;
+  const input = document.getElementById('userInput');
+  if(input && !input.value) input.placeholder = t.placeholder||'Ask anything…';
+  if(recognition){ try{ recognition.stop(); }catch(e){} recognition = null; }
+}
+
+// Load voices when available (needed for some browsers)
+window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+
+// ── TTS toggle button (tap AI bubble to stop/start reading) ───────────────────
+function toggleTTS(){
+  ttsEnabled = !ttsEnabled;
+  if(!ttsEnabled) stopSpeaking();
+  const btn = document.getElementById('ttsToggleBtn');
+  if(btn){
+    btn.textContent = ttsEnabled ? '🔊' : '🔇';
+    btn.title = ttsEnabled ? 'Mute Daleel' : 'Unmute Daleel';
+  }
+}
+
+// ══ FLASH OFFERS ══════════════════════════════════════════════════════════════
+let allFlashOffers = [];
+
+async function fetchFlashOffers(){
+  try{
+    const r = await fetch(BACKEND+'/flash-offers');
+    const d = await r.json();
+    if(d.success) allFlashOffers = d.offers||[];
+    renderFlashBanner();
+  }catch(e){ console.warn('Flash offers error:',e); }
+}
+
+function renderFlashBanner(){
+  const banner = document.getElementById('flashBanner');
+  if(!banner) return;
+  banner.innerHTML=''; banner.style.display='none';
+  if(!allFlashOffers.length) return;
+
+  const lang = curLang;
+  const rtl  = lang==='ar'||lang==='ur';
+
+  // Filter by current category
+  const catPlaceIds = curCat==='all'
+    ? PLACES.map(p=>p.id)
+    : PLACES.filter(p=>p.cat===curCat).map(p=>p.id);
+
+  const visible = allFlashOffers.filter(o => catPlaceIds.includes(o.place_id));
+  if(!visible.length) return;
+
+  banner.style.display='flex';
+
+  const flashLabel={en:'⚡ Flash Deals',ar:'⚡ عروض فلاش',ur:'⚡ فلیش ڈیلز',fr:'⚡ Ventes Flash',id:'⚡ Flash Sale',tr:'⚡ Flaş Teklifler',ru:'⚡ Флеш-акции'};
+  const hdr=document.createElement('div');
+  hdr.style.cssText='font-size:14px;font-weight:700;color:#A32D2D';
+  hdr.textContent=flashLabel[lang]||flashLabel.en;
+  banner.appendChild(hdr);
+
+  visible.forEach(o=>{
+    const title=(rtl&&o.title_ar)?o.title_ar:o.title_en;
+    const pct=o.total_qty>0?Math.round((o.remaining_qty/o.total_qty)*100):0;
+    const barColor=pct>50?'#1D9E75':pct>20?'#F0A500':'#A32D2D';
+    const placeData=PLACES.find(p=>p.id===o.place_id);
+    const cardImg=o.img||(placeData&&placeData.img)||null;
+    const cardIcon=placeData?placeData.icon:'⚡';
+
+    const card=document.createElement('div');
+    card.style.cssText='background:#fff;border-radius:14px;border:2px solid #FDE8E8;overflow:hidden;box-shadow:0 2px 8px rgba(163,45,45,0.12)';
+    card.innerHTML=`
+      <div style="display:flex;gap:0">
+        ${cardImg
+          ?`<div style="width:80px;flex-shrink:0;overflow:hidden"><img src="${cardImg}" style="width:100%;height:100%;object-fit:cover"/></div>`
+          :`<div style="width:80px;flex-shrink:0;background:linear-gradient(135deg,#A32D2D,#E05050);display:flex;align-items:center;justify-content:center;font-size:28px">${cardIcon}</div>`}
+        <div style="flex:1;padding:10px;min-width:0">
+          <div style="font-size:10px;color:#888;font-weight:600">${o.place_name_en}</div>
+          <div style="font-size:13px;font-weight:700;color:#1a1a1a;line-height:1.3">${title}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+            ${o.original_price?`<span style="font-size:11px;color:#aaa;text-decoration:line-through">${o.original_price} SAR</span>`:''}
+            <span style="font-size:16px;font-weight:800;color:#A32D2D">${o.offer_price} SAR</span>
+          </div>
+          <!-- Progress bar -->
+          <div style="background:#f0f0f0;border-radius:4px;height:5px;margin:5px 0">
+            <div style="width:${pct}%;background:${barColor};height:100%;border-radius:4px"></div>
+          </div>
+          <div style="font-size:10px;color:#555"><strong>${o.remaining_qty}</strong> of ${o.total_qty} left</div>
+        </div>
+        <div style="padding:10px;display:flex;align-items:center;flex-shrink:0">
+          <button onclick="openClaimModal(${JSON.stringify(o).replace(/"/g,'&quot;')})" style="background:#A32D2D;color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+            ${lang==='ar'?'احجز الآن':lang==='ur'?'ابھی لیں':'Claim'}
+          </button>
+        </div>
+      </div>`;
+    banner.appendChild(card);
+  });
+}
+
+// ── Claim Modal ───────────────────────────────────────────────────────────────
+let claimingOffer = null;
+
+function openClaimModal(offer){
+  claimingOffer = offer;
+  const lang=curLang; const rtl=lang==='ar'||lang==='ur';
+  const title=(rtl&&offer.title_ar)?offer.title_ar:offer.title_en;
+
+  const labels={
+    title:{en:'Claim Your Deal',ar:'احجز عرضك',ur:'اپنی ڈیل لیں',fr:'Réserver votre offre',id:'Klaim Penawaran',tr:'Teklifinizi Alın',ru:'Получить скидку'},
+    name:{en:'Your name',ar:'اسمك',ur:'آپ کا نام',fr:'Votre nom',id:'Nama Anda',tr:'Adınız',ru:'Ваше имя'},
+    email:{en:'Your email',ar:'بريدك الإلكتروني',ur:'آپ کی ای میل',fr:'Votre email',id:'Email Anda',tr:'E-postanız',ru:'Ваш email'},
+    btn:{en:'Get My Code',ar:'احصل على الكود',ur:'کوڈ حاصل کریں',fr:'Obtenir mon code',id:'Dapatkan Kode',tr:'Kodumu Al',ru:'Получить код'},
+    sub:{en:'Show this code to the cashier',ar:'أظهر هذا الكود للكاشير',ur:'یہ کوڈ کیشیئر کو دکھائیں',fr:'Montrez ce code au caissier',id:'Tunjukkan kode ini ke kasir',tr:'Bu kodu kasiyere gösterin',ru:'Покажите код кассиру'},
+  };
+
+  document.getElementById('placeModalContent').innerHTML=`
+    <div style="text-align:center;margin-bottom:1rem">
+      <div style="font-size:32px">⚡</div>
+      <div style="font-size:18px;font-weight:700;color:#A32D2D;margin-top:4px">${labels.title[lang]||labels.title.en}</div>
+      <div style="font-size:14px;color:#555;margin-top:4px">${title}</div>
+      <div style="font-size:22px;font-weight:800;color:#A32D2D;margin-top:4px">${offer.offer_price} SAR</div>
+      <div style="font-size:12px;color:#888">${offer.remaining_qty} of ${offer.total_qty} remaining</div>
+    </div>
+
+    <div id="claimForm" style="display:flex;flex-direction:column;gap:8px">
+      <input id="claimName"  placeholder="${labels.name[lang]||labels.name.en}"  style="padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit" dir="${rtl?'rtl':'ltr'}"/>
+      <input id="claimEmail" placeholder="${labels.email[lang]||labels.email.en}" type="email" style="padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit"/>
+      <button onclick="submitClaim()" style="padding:13px;background:#A32D2D;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer" id="claimBtn">
+        ${labels.btn[lang]||labels.btn.en}
+      </button>
+      <div id="claimMsg" style="font-size:13px;text-align:center;color:#888"></div>
+    </div>
+
+    <div id="claimResult" style="display:none;text-align:center;padding:1rem">
+      <div style="font-size:48px;font-weight:900;letter-spacing:8px;color:#085041;background:#E1F5EE;border-radius:14px;padding:1rem;margin-bottom:0.75rem" id="claimCode"></div>
+      <div id="claimCountdown" style="font-size:13px;font-weight:600;margin-bottom:12px"></div>
+      <div style="display:flex;justify-content:center;margin-bottom:10px">
+        <div id="claimQR" style="padding:10px;background:#fff;border-radius:12px;border:2px solid #E1F5EE;display:inline-block"></div>
+      </div>
+      <div style="font-size:12px;color:#888;margin-bottom:6px">📷 ${lang==='ar'?'أو امسح رمز QR':'Or scan QR code'}</div>
+      <div style="font-size:14px;color:#555">${labels.sub[lang]||labels.sub.en}</div>
+      <div style="font-size:12px;color:#888;margin-top:4px">${offer.place_name_en}</div>
+    </div>`;
+
+  document.getElementById('placeModal').classList.add('open');
+
+  // Check if this device already claimed — show code immediately with countdown
+  const existing = getDeviceClaim(offer.id);
+  if(existing && !existing.expired){
+    document.getElementById('claimForm').style.display='none';
+    document.getElementById('claimResult').style.display='block';
+    document.getElementById('claimCode').textContent = existing.code;
+    startCountdown(existing.expiresAt);
+    setTimeout(() => generateQR(existing.code), 100);
+  } else if(existing && existing.expired){
+    // Show expired message so they know to claim again
+    const expMsg = document.getElementById('claimMsg');
+    if(expMsg){ expMsg.style.color='#A32D2D'; expMsg.textContent='Your previous code expired. Please claim again.'; }
+  }
+}
+
+// ── LocalStorage helpers for flash claims ─────────────────────────────────────
+function getDeviceClaims(){ try{ return JSON.parse(localStorage.getItem('mg_flash_claims')||'{}'); }catch(e){ return {}; } }
+function saveDeviceClaim(offerId, code, expiresAt){
+  const claims = getDeviceClaims();
+  claims['offer_'+offerId] = { code, expiresAt, claimedAt: Date.now() };
+  localStorage.setItem('mg_flash_claims', JSON.stringify(claims));
+}
+function getDeviceClaim(offerId){
+  const c = getDeviceClaims()['offer_'+offerId];
+  if(!c) return null;
+  if(new Date(c.expiresAt) < new Date()) return { ...c, expired: true };
+  return c;
+}
+
+let countdownInterval = null;
+
+function generateQR(code){
+  const el = document.getElementById('claimQR');
+  if(!el || !window.QRCode) return;
+  el.innerHTML = '';
+  new QRCode(el, {
+    text: code,
+    width: 140,
+    height: 140,
+    colorDark: '#085041',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+}
+
+function startCountdown(expiresAt){
+  if(countdownInterval) clearInterval(countdownInterval);
+  function tick(){
+    const el = document.getElementById('claimCountdown');
+    if(!el){ clearInterval(countdownInterval); return; }
+    const diff = new Date(expiresAt) - new Date();
+    if(diff <= 0){
+      clearInterval(countdownInterval);
+      el.textContent = '⚠️ Code expired';
+      el.style.color = '#A32D2D';
+      return;
+    }
+    const mins = Math.floor(diff/60000);
+    const secs = Math.floor((diff%60000)/1000);
+    el.textContent = `⏱ Valid for ${mins}:${String(secs).padStart(2,'0')} min`;
+    el.style.color = diff < 5*60000 ? '#A32D2D' : '#085041';
+  }
+  tick();
+  countdownInterval = setInterval(tick, 1000);
+}
+
+async function submitClaim(){
+  const name  = document.getElementById('claimName')?.value.trim();
+  const email = document.getElementById('claimEmail')?.value.trim();
+  const msg   = document.getElementById('claimMsg');
+  const btn   = document.getElementById('claimBtn');
+
+  const errLabels={en:'Please enter your name and email.',ar:'يرجى إدخال الاسم والبريد الإلكتروني.',ur:'براہ کرم نام اور ای میل درج کریں۔',fr:'Veuillez entrer votre nom et email.',id:'Masukkan nama dan email Anda.',tr:'Lutfen adinizi ve e-postanizi girin.',ru:'Введите имя и email.'};
+  if(!name||!email){ msg.style.color='#A32D2D'; msg.textContent=errLabels[curLang]||errLabels.en; return; }
+
+  btn.disabled=true; btn.textContent='…';
+  try{
+    const r=await fetch(BACKEND+'/flash-offers/claim',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({offer_id:claimingOffer.id,visitor_name:name,visitor_email:email})
+    });
+    const d=await r.json();
+    if(!d.success) throw new Error(d.error);
+
+    // Save to localStorage with expiry
+    saveDeviceClaim(claimingOffer.id, d.code, d.expires_at);
+
+    // Show code with countdown
+    document.getElementById('claimForm').style.display='none';
+    document.getElementById('claimResult').style.display='block';
+    document.getElementById('claimCode').textContent = d.code;
+    startCountdown(d.expires_at);
+    setTimeout(() => generateQR(d.code), 100);
+
+    // Update local counter
+    const fo=allFlashOffers.find(o=>o.id===claimingOffer.id);
+    if(fo) fo.remaining_qty=d.remaining_qty||Math.max(0,fo.remaining_qty-1);
+    renderFlashBanner();
+
+  }catch(e){
+    btn.disabled=false; btn.textContent='Get My Code';
+    msg.style.color='#A32D2D'; msg.textContent=e.message;
+  }
+}
+// ══ OFFERS ════════════════════════════════════════════════════════════════════
+let allOffers = [];
+
+async function fetchOffers(){
+  try{
+    const r = await fetch(BACKEND+'/offers');
+    const d = await r.json();
+    if(d.success) allOffers = d.offers || [];
+    renderOffersBanner();
+  }catch(e){ console.warn('Offers fetch error:', e); }
+}
+
+function renderOffersBanner(){
+  const banner = document.getElementById('offersBanner');
+  if(!banner) return;
+  banner.innerHTML = '';
+  banner.style.display = 'none';
+
+  if(!allOffers.length) return;
+
+  const lang = curLang;
+  const rtl  = lang==='ar'||lang==='ur';
+
+  // Find which places are in the current category
+  const catPlaceIds = (curCat === 'all')
+    ? PLACES.map(p => p.id)
+    : PLACES.filter(p => p.cat === curCat).map(p => p.id);
+
+  // Filter offers matching current category's places
+  const catOffers = allOffers.filter(o => catPlaceIds.includes(o.place_id));
+  if(!catOffers.length) return;
+
+  banner.style.display = 'flex';
+
+  // Header
+  const offerLabel = {en:'🎁 Special Offers',ar:'🎁 عروض خاصة',ur:'🎁 خصوصی پیشکش',fr:'🎁 Offres spéciales',id:'🎁 Penawaran Spesial',tr:'🎁 Özel Teklifler',ru:'🎁 Специальные предложения'};
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'font-size:14px;font-weight:700;color:#085041';
+  hdr.textContent = offerLabel[lang]||offerLabel.en;
+  banner.appendChild(hdr);
+
+  // Horizontal scroll of offer cards
+  const scroll = document.createElement('div');
+  scroll.style.cssText = 'display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none';
+
+  catOffers.forEach(o => {
+    const title = (rtl && o.title_ar) ? o.title_ar : o.title_en;
+    const card  = document.createElement('div');
+    card.style.cssText = 'flex-shrink:0;width:190px;background:#fff;border-radius:12px;border:1.5px solid #F6D860;overflow:hidden;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.06)';
+    const placeData = PLACES.find(pl => pl.id === o.place_id);
+    card.onclick = () => { if(placeData) openModal(placeData); };
+    const cardImg = o.img || (placeData && placeData.img) || null;
+    const cardIcon = placeData ? placeData.icon : '🎁';
+    card.innerHTML = `
+      ${cardImg
+        ? `<div style="height:75px;overflow:hidden"><img src="${cardImg}" style="width:100%;height:100%;object-fit:cover"/></div>`
+        : `<div style="height:75px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:30px">${cardIcon}</div>`}
+      <div style="padding:8px">
+        <div style="font-size:10px;color:#085041;font-weight:600;margin-bottom:1px">${o.place_name_en}</div>
+        <div style="font-size:12px;font-weight:700;color:#1a1a1a;line-height:1.3">${title}</div>
+        ${o.discount ? `<div style="display:inline-block;background:#FFF3CD;color:#856404;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;margin-top:3px">${o.discount}</div>` : ''}
+        <div style="font-size:10px;color:#aaa;margin-top:3px">⏳ ${new Date(o.valid_until).toLocaleDateString(lang==='ar'?'ar-SA':'en-US',{month:'short',day:'numeric'})}</div>
+      </div>`;
+    scroll.appendChild(card);
+  });
+
+  banner.appendChild(scroll);
+}
+
+async function loadPlaceOffers(placeId){
+  const wrap = document.getElementById('placeOffers');
+  const list = document.getElementById('placeOffersList');
+  if(!wrap || !list) return;
+
+  const placeOffers = allOffers.filter(o => o.place_id === placeId);
+  if(!placeOffers.length){ wrap.style.display='none'; return; }
+
+  const lang = curLang;
+  const rtl  = lang==='ar'||lang==='ur';
+
+  wrap.style.display = 'block';
+  list.innerHTML = '';
+
+  placeOffers.forEach(o => {
+    const title = (rtl && o.title_ar) ? o.title_ar : o.title_en;
+    const desc  = (rtl && o.desc_ar)  ? o.desc_ar  : o.desc_en;
+    const card  = document.createElement('div');
+    card.style.cssText = 'background:#FFFBEB;border:1.5px solid #F6D860;border-radius:12px;padding:0.85rem;margin-bottom:0.5rem';
+    const placeImg = PLACES.find(pl => pl.id === o.place_id)?.img || null;
+    const modalImg = o.img || placeImg;
+    card.innerHTML = `
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        ${modalImg
+          ? `<img src="${modalImg}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0"/>`
+          : '<div style="font-size:28px;flex-shrink:0">🎁</div>'}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:700;color:#1a1a1a">${title}</div>
+          ${o.discount ? `<div style="display:inline-block;background:#FFF3CD;color:#856404;font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px;margin:3px 0">${o.discount}</div>` : ''}
+          ${desc ? `<div style="font-size:12px;color:#555;line-height:1.5;margin-top:3px">${desc}</div>` : ''}
+          <div style="font-size:11px;color:#aaa;margin-top:4px">Valid until ${new Date(o.valid_until).toLocaleDateString(lang==='ar'?'ar-SA':'en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+// ── Android back button handler ────────────────────────────────────────────────
+// Push a dummy history state so the back button has somewhere to go
+// Instead of exiting the app, we intercept it and close modals or do nothing
+
+function pushDummyState(){
+  history.pushState({ page: 'app' }, '', window.location.href);
+}
+
+// Push initial state once app is visible
+window.addEventListener('load', () => {
+  setTimeout(pushDummyState, 500);
+});
+
+window.addEventListener('popstate', (e) => {
+  // Always push a new state to prevent exit
+  pushDummyState();
+
+  // Priority: close open modals first, then iOS modal, then lang modal
+  const placeModal = document.getElementById('placeModal');
+  const langModal  = document.getElementById('langModal');
+  const iosModal   = document.getElementById('iosModal');
+
+  if(placeModal?.classList.contains('open')){
+    placeModal.classList.remove('open');
+    return;
+  }
+  if(langModal?.classList.contains('open')){
+    langModal.classList.remove('open');
+    return;
+  }
+  if(iosModal?.style.display === 'flex'){
+    iosModal.style.display = 'none';
+    return;
+  }
+  // Nothing open — back button does nothing (stays in app)
+});
 </script>
 </body>
 </html>
