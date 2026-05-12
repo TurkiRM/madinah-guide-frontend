@@ -2047,7 +2047,9 @@ function renderFlashBanner(){
     const pct=o.total_qty>0?Math.round((o.remaining_qty/o.total_qty)*100):0;
     const barColor=pct>50?'#1D9E75':pct>20?'#F0A500':'#A32D2D';
     const placeData=PLACES.find(p=>p.id===o.place_id);
-    const cardImg=o.img||(placeData&&placeData.img)||null;
+    // Prefer place's own photo — external URLs often block hotlinking
+    const customImg = o.img && !o.img.startsWith('http') ? o.img : null;
+    const cardImg = customImg || (placeData&&placeData.img) || null;
     const cardIcon=placeData?placeData.icon:'⚡';
 
     const card=document.createElement('div');
@@ -2055,7 +2057,7 @@ function renderFlashBanner(){
     card.innerHTML=`
       <div style="display:flex;gap:0">
         ${cardImg
-          ?`<div style="width:80px;flex-shrink:0;overflow:hidden"><img src="${cardImg}" style="width:100%;height:100%;object-fit:cover"/></div>`
+          ?`<div style="width:80px;flex-shrink:0;overflow:hidden"><img src="${cardImg}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=\\'width:80px;height:100%;background:linear-gradient(135deg,#A32D2D,#E05050);display:flex;align-items:center;justify-content:center;font-size:28px\\'>${cardIcon}</div>'"/></div>`
           :`<div style="width:80px;flex-shrink:0;background:linear-gradient(135deg,#A32D2D,#E05050);display:flex;align-items:center;justify-content:center;font-size:28px">${cardIcon}</div>`}
         <div style="flex:1;padding:10px;min-width:0">
           <div style="font-size:10px;color:#888;font-weight:600">${o.place_name_en}</div>
