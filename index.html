@@ -699,7 +699,6 @@ const PLACES = [
 ];
 
 
-
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
 const ratingsCache = {}; // placeId -> {rating, count} fetched from backend
 
@@ -978,15 +977,113 @@ async function sendMessage(){
   addMsg('user', displayText);
   detectType(text);
 
-  // Category-aware offer filtering
-  const catKeywords={restaurant:['food','eat','restaurant','lunch','dinner','burger','chicken','grill','shawarma','مطعم','اكل','دجاج','مشوي','khaana','manger','makan','yemek'],coffee:['coffee','cafe','كافيه','قهوة','كفة','latte','kahve','кофе'],juices:['juice','عصير','smoothie','jus'],desserts:['dessert','حلوى','حلويات','sweet','cake'],market:['market','supermarket','grocery','سوق','بقالة'],shopping:['shop','shopping','clothes','shoes','ملابس','أحذية','تسوق'],services:['laundry','gym','service','غسيل','صالة','خدمة'],technology:['phone','mobile','computer','tech','هاتف','جوال','كمبيوتر'],car:['car','rent','taxi','سيارة','تأجير','rental'],clinic:['dental','teeth','clinic','أسنان','عيادة'],sports:['sport','football','padel','رياضة','ملعب']};
-  const msgLow2=text.toLowerCase();let detectedCat2=null;
-  for(const[cat,words]of Object.entries(catKeywords)){if(words.some(w=>msgLow2.includes(w))){detectedCat2=cat;break;}}
-  const relevantIds=detectedCat2?PLACES.filter(p=>p.cat===detectedCat2).map(p=>p.id):null;
-  const filterOffers2=offers=>relevantIds?offers.filter(o=>relevantIds.includes(o.place_id)):offers;
-  const relFlash=filterOffers2(allFlashOffers);const relOffers=filterOffers2(allOffers);
+  // ── 1. DETECT CATEGORY ───────────────────────────────────────────────────────
+  const catKW = {
+    restaurant:['food','eat','restaurant','lunch','dinner','burger','chicken','grill','shawarma','mandi','مطعم','اكل','دجاج','مشوي','khaana','manger','makan','yemek'],
+    coffee:    ['coffee','cafe','latte','cappuccino','قهوة','كافيه','مقهى','kahve'],
+    juices:    ['juice','juices','smoothie','fresh drink','عصير','عصائر','مشروب طازج'],
+    desserts:  ['dessert','sweet','cake','حلوى','حلويات','كيك','تحلية'],
+    market:    ['market','supermarket','grocery','hypermarket','سوق','بقالة','هايبر'],
+    shopping:  ['shop','shopping','clothes','shoes','fashion','ملابس','أحذية','تسوق'],
+    technology:['phone','mobile','computer','laptop','tech','iphone','هاتف','جوال','كمبيوتر'],
+    car:       ['car','rent','rental','taxi','vehicle','سيارة','تأجير','ايجار'],
+    clinic:    ['dental','teeth','doctor','clinic','أسنان','عيادة','طبيب'],
+    pharmacy:  ['pharmacy','medicine','beauty','صيدلية','دواء','تجميل'],
+    sports:    ['sport','football','padel','gym','fitness','رياضة','ملعب','جيم'],
+    services:  ['laundry','wash','maintenance','repair','غسيل','صيانة','خدمة'],
+  };
+  const msgLow = text.toLowerCase();
+  let detectedCat = null;
+  for (const [cat, words] of Object.entries(catKW)) {
+    if (words.some(w => msgLow.includes(w))) { detectedCat = cat; break; }
+  }
+
+  // ── 2. FILTER OFFERS to detected category ────────────────────────────────────
+  const catPlaceIds = detectedCat ? PLACES.filter(p => p.cat === detectedCat).map(p => p.id) : null;
+  const filterOffers = offers => catPlaceIds ? offers.filter(o => catPlaceIds.includes(o.place_id)) : offers;
+  const relFlash  = filterOffers(allFlashOffers);
+  const relOffers = filterOffers(allOffers);
+
+  // ── 3. DISTANCE HELPERS ───────────────────────────────────────────────────────
+  const vLat = userLat || MADINAH_LAT;
+  const vLng = userLng || MADINAH_LNG;
+  const distStr = (p) => {
+    if (!p.lat || !p.lng) return '';
+    const km = haversineKm(vLat, vLng, p.lat, p.lng);
+    return km < 1 ? ` — 📍 ${Math.round(km*1000)}m away` : ` — 📍 ${km.toFixed(1)}km away`;
+  };
+  const rStr = (p) => { const rv=ratingsCache[p.id]; return rv&&rv.count>0?` ★${rv.rating}(${rv.count})`:''; };
+
+  // ── 4. BUILD PLACES LIST sorted by distance ───────────────────────────────────
+  const placesSorted = (cat) => PLACES
+    .filter(p => p.cat === cat && p.lat)
+    .map(p => ({...p, km: haversineKm(vLat, vLng, p.lat, p.lng)}))
+    .sort((a,b) => a.km - b.km)
+    .map(p => {
+      const info = p.infoEn ? `
+   ✅ OFFER: ${p.infoEn}` : '';
+      return `• ${p.nameEn} (${p.nameAr}) — ${p.cost}${rStr(p)}${distStr(p)}${info}`;
+    }).join('\n');
+
+  // ── 5. BUILD OFFERS SECTION ───────────────────────────────────────────────────
+  const offerLines = [];
+  if (relFlash.length > 0) {
+    offerLines.push('⚡ FLASH DEALS (urgent — limited quantity!):');
+    relFlash.forEach(o => {
+      const pl = PLACES.find(p => p.id === o.place_id);
+      offerLines.push(`• ${o.place_name_en}: "${o.title_en}" — ${o.offer_price} SAR${o.original_price?' (was '+o.original_price+' SAR)':''} — ${o.remaining_qty} left${pl?distStr(pl):''}`);
+    });
+  }
+  if (relOffers.length > 0) {
+    offerLines.push('\n🎁 PROMOTIONS:');
+    relOffers.forEach(o => {
+      const pl = PLACES.find(p => p.id === o.place_id);
+      offerLines.push(`• ${o.place_name_en}: "${o.title_en}"${o.discount?' — '+o.discount:''}${pl?distStr(pl):''} — until ${new Date(o.valid_until).toLocaleDateString()}`);
+    });
+  }
+  const offersCtx = offerLines.length > 0
+    ? '\n\n' + offerLines.join('\n')
+    : detectedCat
+      ? '\n\n(No active offers for '+detectedCat+' — do NOT invent any offers)'
+      : '\n\n(No active offers right now)';
+
+  // ── 6. BUILD FULL bizContext ──────────────────────────────────────────────────
+  const catEmojis = {restaurant:'🍽️',coffee:'☕',juices:'🥤',desserts:'🍰',market:'🛒',shopping:'🛍️',technology:'💻',car:'🚗',clinic:'🏥',pharmacy:'💊',sports:'⚽',services:'🛎️'};
+  const offerSeeking = isOfferSeeking(text);
+
+  let placesCtx = '';
+  if (detectedCat) {
+    placesCtx = `\n${catEmojis[detectedCat]||'📍'} ${detectedCat.toUpperCase()} near visitor (sorted by distance):\n${placesSorted(detectedCat)}`;
+    const others = [...new Set(PLACES.map(p=>p.cat))].filter(c=>c!==detectedCat&&PLACES.some(p=>p.cat===c));
+    if (others.length) placesCtx += `\n\nOther categories available: ${others.map(c=>(catEmojis[c]||'')+''+c).join(', ')}`;
+  } else {
+    const allCats = [...new Set(PLACES.map(p=>p.cat))];
+    allCats.forEach(cat => {
+      placesCtx += `\n${catEmojis[cat]||'📍'} ${cat.toUpperCase()} (sorted nearest first):\n${placesSorted(cat)}\n`;
+    });
+  }
+
+  const bizContext = `
+MADINAH GUIDE — SMART COMMERCIAL DIRECTORY
+
+VISITOR: ${userLat?`Real location ${vLat.toFixed(4)},${vLng.toFixed(4)}`:'Central Madinah (approx)'}
+${detectedCat?'ASKING ABOUT: '+detectedCat.toUpperCase():''}
+${offerSeeking?'⚠️ VISITOR WANTS DEALS — lead with offers section!':''}
+
+⚠️ STRICT RULE: ONLY mention offers listed below. Never invent offers.
+
+RESPONSE ORDER:
+${(offerSeeking||relFlash.length>0||relOffers.length>0)?'1. Active offers/deals\n2. Nearest places sorted by distance\n3. Helpful tip':'1. Nearest places sorted by distance\n2. Any active offers\n3. Helpful tip'}
+
+ACTIVE OFFERS:${offersCtx}
+
+PLACES (sorted nearest to visitor):${placesCtx}
+
+🏨 HOTELS nearby: Mövenpick Anwar, Pullman Zamzam, Hilton Madinah, Dar Al Tawfiq.
+Use exact English place names — they become tappable links. Prices in SAR.`;
 
   chatHistory.push({role:'user',content:text});
+  showTyping();  chatHistory.push({role:'user',content:text});
   showTyping();
   const ratingStr = (p) => { const rv=ratingsCache[p.id]; return rv&&rv.count>0?`★${rv.rating}(${rv.count} reviews)`:''; };
   const placeList = (cat) => PLACES.filter(p=>p.cat===cat).map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}${ratingStr(p)?' '+ratingStr(p):''} — ${p.descEn}`).join('\n');
@@ -996,30 +1093,7 @@ async function sendMessage(){
     return `• ${p.nameEn} (${p.nameAr}) — ${p.cost}${ratingStr(p)?' '+ratingStr(p):''}${info}`;
   }).join('\n');
 
-  const bizContext = `
 
-MADINAH GUIDE — VERIFIED PLACES DATABASE:
-Recommend from this list first. Use exact English names so they become tappable links.
-
-🍽️ RESTAURANTS (${PLACES.filter(p=>p.cat==='restaurant').length} places):
-${placeList('restaurant')}
-
-☕ CAFES (${PLACES.filter(p=>p.cat==='coffee').length} places):
-${placeList('coffee')}
-
-🛒 MARKETS (${PLACES.filter(p=>p.cat==='market').length} places):
-${placeList('market')}
-
-🏨 HOTELS: Anwar Al Madinah Mövenpick, Pullman Zamzam, Hilton Madinah, Dar Al Tawfiq, Al Shohada Hotel — all near the Haram.
-
-🚗 TRANSPORT:
-${placeList('transport')}
-
-${PLACES.filter(p=>p.cat==='hotel').length > 0 ? '🏨 HOTELS IN DATABASE:\n'+placeList('hotel') : ''}
-${PLACES.filter(p=>p.cat==='pharmacy').length > 0 ? '💊 PHARMACIES:\n'+placeList('pharmacy') : ''}
-${PLACES.filter(p=>p.cat==='salon').length > 0 ? '✂️ SALONS:\n'+placeList('salon') : ''}
-${PLACES.filter(p=>p.cat==='shopping').length > 0 ? '🛍️ SHOPPING:\n'+placeList('shopping') : ''}
-${PLACES.filter(p=>p.cat==='clinic').length > 0 ? '🏥 CLINICS:\n'+placeList('clinic') : ''}`;
   try{
     const r=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.slice(-10),language:curLang,visitorType:detectedType,bizContext,userLat,userLng})});
     const d=await r.json();
@@ -2099,7 +2173,7 @@ function renderFlashBanner(){
     card.innerHTML=`
       <div style="display:flex;gap:0">
         ${cardImg
-          ?`<div style="width:80px;flex-shrink:0;overflow:hidden"><img src="${cardImg}" style="width:100%;height:100%;object-fit:cover"/></div>`
+          ?`<div style="width:80px;flex-shrink:0;overflow:hidden"><img src="${cardImg}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"/></div>`
           :`<div style="width:80px;flex-shrink:0;background:linear-gradient(135deg,#A32D2D,#E05050);display:flex;align-items:center;justify-content:center;font-size:28px">${cardIcon}</div>`}
         <div style="flex:1;padding:10px;min-width:0">
           <div style="font-size:10px;color:#888;font-weight:600">${o.place_name_en}</div>
@@ -2253,7 +2327,7 @@ function renderOffersBanner(){
     const cardIcon = placeData ? placeData.icon : '🎁';
     card.innerHTML = `
       ${cardImg
-        ? `<div style="height:75px;overflow:hidden"><img src="${cardImg}" style="width:100%;height:100%;object-fit:cover"/></div>`
+        ? `<div style="height:75px;overflow:hidden"><img src="${cardImg}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=\"height:75px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:30px\">${cardIcon}</div>'"/></div>`
         : `<div style="height:75px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:30px">${cardIcon}</div>`}
       <div style="padding:8px">
         <div style="font-size:10px;color:#085041;font-weight:600;margin-bottom:1px">${o.place_name_en}</div>
