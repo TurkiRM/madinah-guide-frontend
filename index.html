@@ -140,8 +140,6 @@
     .event-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:#888}
     .event-meta span{display:flex;align-items:center;gap:4px}
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-N89PVZ94MP"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -149,6 +147,7 @@
     gtag('js', new Date());
     gtag('config', 'G-N89PVZ94MP');
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -248,6 +247,9 @@
         <!-- Flash offers — limited quantity with claim button -->
         <div id="flashBanner" style="display:none;flex-direction:column;gap:0.65rem;margin-bottom:0.5rem"></div>
 
+        <!-- Flash offers banner -->
+        <div id="flashBanner" style="display:none;flex-direction:column;gap:0.65rem;margin-bottom:0.5rem"></div>
+
         <!-- Category offers banner — shows offers matching current category -->
         <div id="offersBanner" style="display:none;flex-direction:column;gap:0.65rem;margin-bottom:0.5rem"></div>
 
@@ -262,6 +264,7 @@
         <!-- Header -->
         <div style="background:#085041;border-radius:16px;padding:1.25rem;color:#fff;text-align:center">
           <div style="font-size:13px;color:#9FE1CB;margin-bottom:4px" id="prayerDateLbl"></div>
+          <div style="font-size:13px;color:#9FE1CB;margin-top:2px" id="prayerHijriLbl"></div>
           <div style="font-size:22px;font-weight:700" id="prayerCityLbl">Madinah Al-Munawwarah</div>
           <div style="font-size:13px;color:#9FE1CB;margin-top:2px">المدينة المنورة</div>
           <!-- Countdown to next prayer -->
@@ -696,6 +699,8 @@ const PLACES = [
 ];
 
 
+
+
 let curLang='en', chatHistory=[], isTyping=false, detectedType=null, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
 const ratingsCache = {}; // placeId -> {rating, count} fetched from backend
 
@@ -914,9 +919,8 @@ function hideWelcome(){
 function addMsg(role,text){
   hideWelcome();
   const msgs=document.getElementById('messages');
-  const av=role==='user'?(curLang==='ar'?'أنا':curLang==='ur'?'میں':'Me'):'✨';
+  const av=role==='user'?(curLang==='ar'?'أنا':curLang==='ur'?'میں':'Me'):'🕌';
   const div=document.createElement('div'); div.className='msg '+(role==='user'?'user':'ai');
-  // Detect if this AI reply should use location links
   const useLocation = role==='ai' && isLocationSeeking(chatHistory.slice(-2).find(m=>m.role==='user')?.content||'');
   const bubbleContent = role==='user'
     ? text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
@@ -924,38 +928,17 @@ function addMsg(role,text){
   div.innerHTML=`<div class="msg-av">${av}</div><div class="bubble">${bubbleContent}</div>`;
   msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
 }
-function showTyping(){hideWelcome();const div=document.createElement('div');div.className='msg ai';div.id='typ';div.innerHTML='<div class="msg-av">✨</div><div class="typing"><span></span><span></span><span></span></div>';const m=document.getElementById('messages');m.appendChild(div);m.scrollTop=m.scrollHeight;}
+function showTyping(){hideWelcome();const div=document.createElement('div');div.className='msg ai';div.id='typ';div.innerHTML='<div class="msg-av">🕌</div><div class="typing"><span></span><span></span><span></span></div>';const m=document.getElementById('messages');m.appendChild(div);m.scrollTop=m.scrollHeight;}
 function removeTyping(){const e=document.getElementById('typ');if(e)e.remove();}
-
-// Offer-seeking keywords in all 7 languages
-const OFFER_KEYWORDS = [
-  // English
-  'discount','offer','deal','cheap','save','budget','affordable','best price','promotion','sale','off',
-  // Arabic
-  'خصم','عرض','عروض','رخيص','توفير','ميزانية','أرخص','تخفيض','تنزيلات','وفر',
-  // Urdu
-  'رعایت','آفر','سستا','بچت','ڈسکاؤنٹ','سیل',
-  // French
-  'réduction','offre','promotion','pas cher','économie','rabais',
-  // Indonesian
-  'diskon','promo','murah','hemat','penawaran','tawaran',
-  // Turkish
-  'indirim','teklif','ucuz','tasarruf','kampanya','promosyon',
-  // Russian
-  'скидка','акция','дешево','предложение','экономия','распродажа',
-];
-
-function isOfferSeeking(text){
-  const low = text.toLowerCase();
-  return OFFER_KEYWORDS.some(w => low.includes(w));
-}
 
 function detectType(text){
   if(detectedType)return;
+  const p=['hajj','umrah','umra','ziyarat','prophet','rawdah','nabawi','pilgrimage','عمرة','حج','نبوي','روضة','عمرہ'];
   const to=['tourist','tourism','sightseeing','vacation','holiday'];
   const low=text.toLowerCase();
   const t=T[curLang]||T.en;
-  if(to.some(w=>low.includes(w))){detectedType='tourist';const b=document.getElementById('visitorBadge');b.textContent=t.tourist;b.className='visitor-badge vb-t';}
+  if(p.some(w=>low.includes(w))){detectedType='pilgrim';const b=document.getElementById('visitorBadge');b.textContent=t.pilgrim;b.className='visitor-badge vb-p';}
+  else if(to.some(w=>low.includes(w))){detectedType='tourist';const b=document.getElementById('visitorBadge');b.textContent=t.tourist;b.className='visitor-badge vb-t';}
 }
 
 async function sendMessage(){
@@ -996,16 +979,15 @@ async function sendMessage(){
   addMsg('user', displayText);
   detectType(text);
 
-  // If visitor is looking for offers/discounts — prepend offer context to their message
-  let messageToSend = text;
-  if(isOfferSeeking(text) && (allFlashOffers.length > 0 || allOffers.length > 0)){
-    const offerHint = allFlashOffers.length > 0
-      ? `[Context: visitor is looking for deals. We have ${allFlashOffers.length} active flash deal(s) and ${allOffers.length} promotion(s) right now — prioritize these in your response]`
-      : `[Context: visitor is looking for deals. We have ${allOffers.length} active promotion(s) — prioritize these]`;
-    messageToSend = text + '\n\n' + offerHint;
-  }
+  // Category-aware offer filtering
+  const catKeywords={restaurant:['food','eat','restaurant','lunch','dinner','burger','chicken','grill','shawarma','مطعم','اكل','دجاج','مشوي','khaana','manger','makan','yemek'],coffee:['coffee','cafe','كافيه','قهوة','كفة','latte','kahve','кофе'],juices:['juice','عصير','smoothie','jus'],desserts:['dessert','حلوى','حلويات','sweet','cake'],market:['market','supermarket','grocery','سوق','بقالة'],shopping:['shop','shopping','clothes','shoes','ملابس','أحذية','تسوق'],services:['laundry','gym','service','غسيل','صالة','خدمة'],technology:['phone','mobile','computer','tech','هاتف','جوال','كمبيوتر'],car:['car','rent','taxi','سيارة','تأجير','rental'],clinic:['dental','teeth','clinic','أسنان','عيادة'],sports:['sport','football','padel','رياضة','ملعب']};
+  const msgLow2=text.toLowerCase();let detectedCat2=null;
+  for(const[cat,words]of Object.entries(catKeywords)){if(words.some(w=>msgLow2.includes(w))){detectedCat2=cat;break;}}
+  const relevantIds=detectedCat2?PLACES.filter(p=>p.cat===detectedCat2).map(p=>p.id):null;
+  const filterOffers2=offers=>relevantIds?offers.filter(o=>relevantIds.includes(o.place_id)):offers;
+  const relFlash=filterOffers2(allFlashOffers);const relOffers=filterOffers2(allOffers);
 
-  chatHistory.push({role:'user',content:messageToSend});
+  chatHistory.push({role:'user',content:text});
   showTyping();
   const ratingStr = (p) => { const rv=ratingsCache[p.id]; return rv&&rv.count>0?`★${rv.rating}(${rv.count} reviews)`:''; };
   const placeList = (cat) => PLACES.filter(p=>p.cat===cat).map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}${ratingStr(p)?' '+ratingStr(p):''} — ${p.descEn}`).join('\n');
@@ -1015,103 +997,30 @@ async function sendMessage(){
     return `• ${p.nameEn} (${p.nameAr}) — ${p.cost}${ratingStr(p)?' '+ratingStr(p):''}${info}`;
   }).join('\n');
 
-  // ── Detect which category the visitor is asking about ──────────────────────
-  const msgLow = text.toLowerCase();
-  const catKeywords = {
-    restaurant: ['food','eat','restaurant','lunch','dinner','meal','hungry','burger','chicken','grill','shawarma','mandi','biryani','falafel','sandwich','مطعم','اكل','غداء','عشاء','برگر','دجاج','مشوي','شاورما','مندي','فلافل','khaana','manger','makan','yemek','еда'],
-    coffee:     ['coffee','cafe','كافيه','قهوة','كفة','cappuccino','latte','espresso','kahve','кофе'],
-    market:     ['market','supermarket','grocery','سوق','بقالة','pasar','рынок','bazar'],
-    shopping:   ['shop','shopping','clothes','shoes','shoe','footwear','clothing','wear','outfit','sneakers','sandals','boots','ملابس','أحذية','حذاء','تسوق','رجالية','ثياب','pakaian','sepatu','vêtement','chaussures','одежда','обувь','ayakkabı','giyim'],
-    transport:  ['car','rent','taxi','transport','سيارة','تأجير','araç','автомобиль','transportasi'],
-    services:   ['laundry','gym','fitness','computer','polish','maintenance','phone','mobile','shipping','delivery','dental','teeth','beauty','غسيل','صالة','كمبيوتر','تلميع','صيانة','شحن','أسنان','جمال','layanan','hizmet','услуга'],
-    clinic:     ['dental','teeth','clinic','doctor','dentist','أسنان','عيادة','طبيب','dişçi','стоматолог'],
-    pharmacy:   ['beauty','salon','spa','care','women','ladies','تجميل','صالون','نساء','عناية','güzellik','красота'],
-  };
-
-  let detectedCat = null;
-  for(const [cat, words] of Object.entries(catKeywords)){
-    if(words.some(w => msgLow.includes(w))){ detectedCat = cat; break; }
-  }
-
-  // ── Filter offers to only those matching detected category ─────────────────
-  const relevantPlaceIds = detectedCat
-    ? PLACES.filter(p => p.cat === detectedCat).map(p => p.id)
-    : null; // null = show all offers
-
-  const filterOffers = (offers) => relevantPlaceIds
-    ? offers.filter(o => relevantPlaceIds.includes(o.place_id))
-    : offers;
-
-  const relevantFlash  = filterOffers(allFlashOffers);
-  const relevantOffers = filterOffers(allOffers);
-
-  // Build offers context — only relevant to detected category
-  const offersCtx = (() => {
-    const parts = [];
-
-    if(relevantFlash.length > 0){
-      parts.push('⚡ FLASH DEALS — LIMITED QUANTITY (tell customer to tap Claim Now!):');
-      relevantFlash.forEach(o => {
-        parts.push(`• ${o.place_name_en}: "${o.title_en}" — ${o.offer_price} SAR${o.original_price?' (was '+o.original_price+' SAR)':''} — ${o.remaining_qty} of ${o.total_qty} left — expires ${new Date(o.valid_until).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
-      });
-    }
-
-    if(relevantOffers.length > 0){
-      parts.push('\n🎁 CURRENT PROMOTIONS:');
-      relevantOffers.forEach(o => {
-        parts.push(`• ${o.place_name_en}: "${o.title_en}"${o.discount?' — '+o.discount:''} — valid until ${new Date(o.valid_until).toLocaleDateString()}`);
-      });
-    }
-
-    // If no offers match the category — explicitly tell AI not to mention unrelated offers
-    if(parts.length === 0 && detectedCat){
-      return `\n\n(No active offers for ${detectedCat} right now — do NOT mention offers from other categories)`;
-    }
-
-    return parts.length > 0
-      ? '\n\n' + parts.join('\n')
-      : '\n\n(No active offers at the moment)';
-  })();
-
   const bizContext = `
 
-MADINAH GUIDE — VERIFIED PLACES & LIVE OFFERS:
-Recommend from this list. Use exact English names so they become tappable links.
+MADINAH GUIDE — VERIFIED PLACES DATABASE:
+Recommend from this list first. Use exact English names so they become tappable links.
 
-🍽️ RESTAURANTS:
+🍽️ RESTAURANTS (${PLACES.filter(p=>p.cat==='restaurant').length} places):
 ${placeList('restaurant')}
 
-☕ CAFES:
+☕ CAFES (${PLACES.filter(p=>p.cat==='coffee').length} places):
 ${placeList('coffee')}
 
-🛒 MARKETS:
+🛒 MARKETS (${PLACES.filter(p=>p.cat==='market').length} places):
 ${placeList('market')}
+
+🏨 HOTELS: Anwar Al Madinah Mövenpick, Pullman Zamzam, Hilton Madinah, Dar Al Tawfiq, Al Shohada Hotel — all near the Haram.
 
 🚗 TRANSPORT:
 ${placeList('transport')}
 
-🛎️ SERVICES:
-${placeList('services')}
-
-🛍️ SHOPPING:
-${placeList('shopping')}
-
-🏥 CLINIC:
-${placeList('clinic')}
-
-💅 BEAUTY & PHARMACY:
-${placeList('pharmacy')}
-
-🏨 HOTELS (not listed yet): Anwar Al Madinah Mövenpick, Pullman Zamzam, Hilton Madinah, Dar Al Tawfiq.
-
-⚠️ STRICT OFFERS RULE — CRITICAL:
-You MUST ONLY mention offers that are explicitly listed below.
-Do NOT invent, guess, or assume any offers exist.
-Do NOT mention offers from your training data.
-If the list below says "No active offers" — tell the visitor there are no current offers.
-${offersCtx}
-
-REMEMBER: If an offer is not in the list above, it does NOT exist. Never say a place "has an offer" unless it is listed above.`;
+${PLACES.filter(p=>p.cat==='hotel').length > 0 ? '🏨 HOTELS IN DATABASE:\n'+placeList('hotel') : ''}
+${PLACES.filter(p=>p.cat==='pharmacy').length > 0 ? '💊 PHARMACIES:\n'+placeList('pharmacy') : ''}
+${PLACES.filter(p=>p.cat==='salon').length > 0 ? '✂️ SALONS:\n'+placeList('salon') : ''}
+${PLACES.filter(p=>p.cat==='shopping').length > 0 ? '🛍️ SHOPPING:\n'+placeList('shopping') : ''}
+${PLACES.filter(p=>p.cat==='clinic').length > 0 ? '🏥 CLINICS:\n'+placeList('clinic') : ''}`;
   try{
     const r=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.slice(-10),language:curLang,visitorType:detectedType,bizContext,userLat,userLng})});
     const d=await r.json();
@@ -1125,71 +1034,39 @@ REMEMBER: If an offer is not in the list above, it does NOT exist. Never say a p
 }
 
 // ── Convert place names in AI reply to tappable Google Maps links ─────────────
-// Keywords indicating visitor wants location/directions not profile
-const LOCATION_KEYWORDS = [
-  'closest','nearest','near','nearby','where is','directions','how to get','location','distance','far',
-  'أقرب','القريب','قريب','أين','اتجاهات','كيف أصل','موقع','مسافة',
-  'قریب','فاصلہ','راستہ','کہاں',
-  'plus proche','pres','ou','itineraire','comment aller',
-  'terdekat','dekat','lokasi','arah','cara ke',
-  'en yakin','yakin','nerede','yol tarifi',
-  'blizhayshiy','ryadom','gde','marshrut',
-];
-
-function isLocationSeeking(text){
-  const low = text.toLowerCase();
-  return LOCATION_KEYWORDS.some(w => low.includes(w));
-}
-
-function linkifyPlaces(text, forceLocation) {
+function linkifyPlaces(text) {
   let result = text;
+  // sort by name length descending so longer names match first
   const sorted = [...PLACES].sort((a,b) => b.nameEn.length - a.nameEn.length);
   sorted.forEach(p => {
-    const useLocation = forceLocation || false;
+    if(!p.lat || !p.lng) return;
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&destination_place_name=${encodeURIComponent(p.nameEn)}`;
+    // match English name
     const enRegex = new RegExp(p.nameEn.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
-    result = result.replace(enRegex, useLocation
-      ? `[[LOC:${p.nameEn}|${p.id}]]`
-      : `[[PLACE:${p.nameEn}|${p.id}]]`
-    );
+    result = result.replace(enRegex, `[[MAPS:${p.nameEn}|${mapsUrl}]]`);
+    // match Arabic name
     if(p.nameAr) {
       const arRegex = new RegExp(p.nameAr.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
-      result = result.replace(arRegex, useLocation
-        ? `[[LOC:${p.nameAr}|${p.id}]]`
-        : `[[PLACE:${p.nameAr}|${p.id}]]`
-      );
+      result = result.replace(arRegex, `[[MAPS:${p.nameAr}|${mapsUrl}]]`);
     }
   });
   return result;
 }
 
-function renderReply(text, forceLocation) {
-  const linked = linkifyPlaces(text, forceLocation);
+function renderReply(text) {
+  // first linkify places
+  const linked = linkifyPlaces(text);
+  // escape HTML
   const escaped = linked
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
-  // Profile links — open place modal
-  const withProfile = escaped.replace(/\[\[PLACE:([^|]+)\|(\d+)\]\]/g,
-    (_, label, id) =>
-      `<span onclick="openPlaceById(${id})" style="color:#085041;font-weight:600;cursor:pointer;border-bottom:1.5px solid #1D9E75;white-space:nowrap;display:inline-flex;align-items:center;gap:3px">📍 ${label}</span>`
+  // convert [[MAPS:label|url]] to styled links
+  const withLinks = escaped.replace(/\[\[MAPS:([^|]+)\|([^\]]+)\]\]/g,
+    (_, label, url) =>
+      `<a href="${url}" target="_blank" style="color:#085041;font-weight:600;text-decoration:none;border-bottom:1px solid #085041;">📍 ${label}</a>`
   );
-
-  // Location links — open Google Maps
-  const withLocation = withProfile.replace(/\[\[LOC:([^|]+)\|(\d+)\]\]/g,
-    (_, label, id) => {
-      const p = PLACES.find(pl => pl.id == id);
-      if(!p || !p.lat) return label;
-      const url = 'https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lng+'&destination_place_name='+encodeURIComponent(p.nameEn);
-      return '<a href="'+url+'" target="_blank" style="color:#085041;font-weight:600;text-decoration:none;border-bottom:1.5px solid #1D9E75;white-space:nowrap">🗺️ '+label+'</a>';
-    }
-  );
-
-  const withBold = withLocation.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  // convert markdown-style **bold**
+  const withBold = withLinks.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
   return withBold;
-}
-
-function openPlaceById(id){
-  const p = PLACES.find(pl => pl.id === id);
-  if(p) openModal(p);
 }
 
 function quickSend(key){
@@ -1222,7 +1099,12 @@ function quickCat(cat){
     pharmacy:   {en:'pharmacies',   ar:'الصيدليات',    ur:'فارمیسی',    fr:'pharmacies',   id:'apotek',      tr:'eczaneler',   ru:'аптеки'},
     salon:      {en:'salons',       ar:'الصالونات',    ur:'سیلون',      fr:'salons',       id:'salon',       tr:'salonlar',    ru:'салоны'},
     clinic:     {en:'clinics',      ar:'العيادات',     ur:'کلینک',      fr:'cliniques',    id:'klinik',      tr:'klinikler',   ru:'клиники'},
-    transport:  {en:'transport',    ar:'وسائل التنقل', ur:'ٹرانسپورٹ', fr:'transport',    id:'transportasi',tr:'ulasim',      ru:'транспорт'},
+    car:        {en:'cars',         ar:'السيارات',     ur:'گاڑیاں',      fr:'voitures',     id:'mobil',       tr:'arabalar',    ru:'автомобили'},
+    services:   {en:'services',     ar:'الخدمات',      ur:'خدمات',      fr:'services',     id:'layanan',     tr:'hizmetler',   ru:'услуги'},
+    technology: {en:'technology',   ar:'التقنية',      ur:'ٹیکنالوجی',  fr:'technologie',  id:'teknologi',   tr:'teknoloji',   ru:'технологии'},
+    sports:     {en:'sports',       ar:'الرياضة',      ur:'کھیل',        fr:'sports',       id:'olahraga',    tr:'spor',        ru:'спорт'},
+    juices:     {en:'juices',       ar:'العصائر',      ur:'جوسز',        fr:'jus',          id:'jus',         tr:'meyve suyu',  ru:'соки'},
+    desserts:   {en:'desserts',     ar:'الحلويات',     ur:'مٹھائیاں',   fr:'desserts',     id:'dessert',     tr:'tatlilar',    ru:'десерты'},
   };
   const catLabel = (catLabels[cat]||catLabels.mosque)[curLang] || (catLabels[cat]||catLabels.mosque).en;
 
@@ -1320,7 +1202,7 @@ function renderPlaces(){
     })();
     const div=document.createElement('div');div.className='place-card';div.onclick=()=>openModal(p);
     const imgHtml = p.img
-      ? `<div class="place-img" style="padding:0;background:#e0e0e0"><img src="${p.img}" referrerpolicy="no-referrer" crossorigin="anonymous" alt="${p.nameEn}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.style.display='none'" onerror="this.parentElement.innerHTML='<span style=\\'font-size:44px;display:flex;align-items:center;justify-content:center;height:100%\\'>${p.icon}</span>'"/></div>`
+      ? `<div class="place-img" style="padding:0;background:#e0e0e0"><img src="${p.img}" alt="${p.nameEn}" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.innerHTML='<span style=\\'font-size:44px;display:flex;align-items:center;justify-content:center;height:100%\\'>${p.icon}</span>'"/></div>`
       : `<div class="place-img">${p.icon}</div>`;
     const rv = ratingsCache[p.id];
     const ratingHtml = rv && rv.count > 0
@@ -1418,8 +1300,14 @@ function openModal(p){
       </a>`:''}
       <button onclick="askPlace('${p.nameEn}', '${p.nameAr||''}', ${p.id})"
         style="width:100%;padding:13px;background:#E1F5EE;color:#085041;border:none;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer">
-        ✨ Explore nearby places
+        ✨ Ask AI about this place
       </button>
+    </div>
+
+    <!-- OFFERS SECTION -->
+    <div id="placeOffers" style="margin-top:1rem;display:none">
+      <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:0.65rem">🎁 Current Offers</div>
+      <div id="placeOffersList"></div>
     </div>
 
     <!-- OFFERS SECTION -->
@@ -1439,6 +1327,7 @@ function openModal(p){
 
   document.getElementById('placeModal').classList.add('open');
   loadReviews(p.id);
+  loadPlaceOffers(p.id);
   loadPlaceOffers(p.id);
 }
 
@@ -1807,51 +1696,15 @@ function loadPrayer(){
   nextIdx = (currentIdx+1) % times.length;
   if(currentIdx===times.length-1) nextIdx=0;
 
-  // Date label — Gregorian + Hijri
+  // Date label
   const t = T[curLang]||T.en;
-  const locale = curLang==='ar'?'ar-SA':curLang==='tr'?'tr-TR':curLang==='ru'?'ru-RU':'en-US';
-  const dateStr = now.toLocaleDateString(locale, {weekday:'long',year:'numeric',month:'long',day:'numeric'});
-
-  // Hijri date — always calculate using Arabic Islamic calendar, then translate month name
-  const hijriMonths = {
-    en: ['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Shaban','Ramadan','Shawwal','Dhul Qadah','Dhul Hijjah'],
-    ar: ['محرم','صفر','ربيع الأول','ربيع الثاني','جمادى الأولى','جمادى الثانية','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'],
-    ur: ['محرم','صفر','ربیع الاول','ربیع الثانی','جمادی الاول','جمادی الثانی','رجب','شعبان','رمضان','شوال','ذوالقعدہ','ذوالحجہ'],
-    fr: ['Mouharram','Safar','Rabi al-Awwal','Rabi al-Thani','Joumada al-Awwal','Joumada al-Thani','Rajab','Chaabane','Ramadan','Chawwal','Dhu al-Qida','Dhu al-Hijja'],
-    id: ['Muharram','Safar','Rabi ul-Awal','Rabi ul-Akhir','Jumadil Awal','Jumadil Akhir','Rajab','Syaban','Ramadan','Syawal','Zulkaidah','Zulhijjah'],
-    tr: ['Muharrem','Safer','Rebiülevvel','Rebiülahir','Cemaziyelevvel','Cemaziyelahir','Recep','Şaban','Ramazan','Şevval','Zilkade','Zilhicce'],
-    ru: ['Мухаррам','Сафар','Раби аль-Авваль','Раби ас-Сани','Джумада аль-Авваль','Джумада ас-Сани','Раджаб','Шаабан','Рамадан','Шавваль','Зуль-Каада','Зуль-Хиджа'],
-  };
-
-  // Get Hijri parts reliably using formatToParts
-  const hijriFormatter = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',
-    {day:'numeric', month:'numeric', year:'numeric'});
-  const hijriParts = hijriFormatter.formatToParts(now);
-  const hijriMonth = parseInt(hijriParts.find(p=>p.type==='month')?.value||'1') - 1;
-  const hijriDay   = parseInt(hijriParts.find(p=>p.type==='day')?.value||'1');
-  const hijriYear  = parseInt(hijriParts.find(p=>p.type==='year')?.value||'1446');
-
-  const months = hijriMonths[curLang] || hijriMonths.en;
-  const monthName = months[hijriMonth] || months[0];
-
-  const hijriStr = curLang==='ar'||curLang==='ur'
-    ? `${hijriDay} ${monthName} ${hijriYear}`
-    : `${hijriDay} ${monthName} ${hijriYear} AH`;
-
+  const dateStr = now.toLocaleDateString(curLang==='ar'?'ar-SA':curLang==='tr'?'tr-TR':curLang==='ru'?'ru-RU':'en-US',
+    {weekday:'long',year:'numeric',month:'long',day:'numeric'});
   const pNames = PRAYER_NAMES[curLang]||PRAYER_NAMES.en;
 
   document.getElementById('prayerDateLbl').textContent = dateStr;
-
-  // Show Hijri date below Gregorian
-  let hijriEl = document.getElementById('prayerHijriLbl');
-  if(!hijriEl){
-    hijriEl = document.createElement('div');
-    hijriEl.id = 'prayerHijriLbl';
-    hijriEl.style.cssText = 'font-size:13px;color:#9FE1CB;margin-top:2px';
-    const dateEl = document.getElementById('prayerDateLbl');
-    dateEl.parentNode.insertBefore(hijriEl, dateEl.nextSibling);
-  }
-  hijriEl.textContent = hijriStr;
+  const hijriEl=document.getElementById('prayerHijriLbl');
+  if(hijriEl)hijriEl.textContent=renderHijriDate(now);
 
   // Render prayer rows
   const list = document.getElementById('prayerList');
@@ -1962,159 +1815,239 @@ function goToCall(){
 
 const saved=localStorage.getItem('mg_lang');
 if(saved)chooseLang(saved);
-// ══ SPEECH — VOICE INPUT & OUTPUT ════════════════════════════════════════════
-let recognition  = null;
-let isListening  = false;
-let isSpeaking   = false;
-let ttsEnabled   = true; // auto-read AI responses
+// ══ SPEECH ════════════════════════════════════════════════════════════════════
+const SPEECH_LANG={en:'en-US',ar:'ar-SA',ur:'ur-PK',fr:'fr-FR',id:'id-ID',tr:'tr-TR',ru:'ru-RU'};
+let recognition=null,isListening=false,isSpeaking=false,ttsEnabled=true;
 
-// ── Language map for Web Speech API ──────────────────────────────────────────
-const SPEECH_LANG = {
-  en: 'en-US', ar: 'ar-SA', ur: 'ur-PK',
-  fr: 'fr-FR', id: 'id-ID', tr: 'tr-TR', ru: 'ru-RU'
-};
-
-// ── Text to Speech ────────────────────────────────────────────────────────────
 function speak(text){
-  if(!ttsEnabled || !window.speechSynthesis) return;
-  window.speechSynthesis.cancel(); // stop any current speech
-  isSpeaking = true;
-
-  // Strip markdown and emojis for cleaner speech
-  const clean = text
-    .replace(/[*]{2}(.+?)[*]{2}/g, '$1')
-    .replace(/[*_~`#]/g, '')
-    .replace(/[\u{1F000}-\u{1FFFF}]/gu, '')   // emoji block (faces, objects, symbols)
-    .replace(/[\u{2600}-\u{27BF}]/gu, '')       // misc symbols (but not digits)
-    .replace(/[\uFE00-\uFE0F]/g, '')            // variation selectors
-    .replace(/[\u200B-\u200D\uFEFF]/g, '')     // zero-width chars
-    .replace(/[\uD83C-\uDBFF][\uDC00-\uDFFF]/g, '') // surrogate pairs
-    .replace(/\s{2,}/g, ' ')
-    .split('\n\n').join('. ')
-    .split('\n').join(', ')
-    .trim();
-
-  const utter = new SpeechSynthesisUtterance(clean);
-  utter.lang = SPEECH_LANG[curLang] || 'en-US';
-  utter.rate = 0.95;
-  utter.pitch = 1;
-  utter.volume = 1;
-
-  // Pick best available voice for the language
-  const voices = window.speechSynthesis.getVoices();
-  const match = voices.find(v => v.lang.startsWith(utter.lang.split('-')[0]));
-  if(match) utter.voice = match;
-
-  utter.onend = () => { isSpeaking = false; };
-  utter.onerror = () => { isSpeaking = false; };
-
+  if(!ttsEnabled||!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();isSpeaking=true;
+  const clean=text.replace(/[*]{2}(.+?)[*]{2}/g,'$1').replace(/[*_~`#]/g,'')
+    .replace(/[\u{1F000}-\u{1FFFF}]/gu,'').replace(/[\u{2600}-\u{27BF}]/gu,'')
+    .replace(/[\uFE00-\uFE0F]/g,'').replace(/[\u200B-\u200D\uFEFF]/g,'')
+    .replace(/[\uD83C-\uDBFF][\uDC00-\uDFFF]/g,'').replace(/\s{2,}/g,' ')
+    .split('\n\n').join('. ').split('\n').join(', ').trim();
+  const utter=new SpeechSynthesisUtterance(clean);
+  utter.lang=SPEECH_LANG[curLang]||'en-US';utter.rate=0.95;utter.pitch=1;utter.volume=1;
+  const voices=window.speechSynthesis.getVoices();
+  const match=voices.find(v=>v.lang.startsWith((SPEECH_LANG[curLang]||'en').split('-')[0]));
+  if(match)utter.voice=match;
+  utter.onend=()=>{isSpeaking=false;};utter.onerror=()=>{isSpeaking=false;};
   window.speechSynthesis.speak(utter);
 }
-
-function stopSpeaking(){
-  window.speechSynthesis.cancel();
-  isSpeaking = false;
+function stopSpeaking(){window.speechSynthesis.cancel();isSpeaking=false;}
+function toggleTTS(){
+  ttsEnabled=!ttsEnabled;if(!ttsEnabled)stopSpeaking();
+  const btn=document.getElementById('ttsToggleBtn');
+  if(btn){btn.textContent=ttsEnabled?'🔊':'🔇';btn.title=ttsEnabled?'Mute Daleel':'Unmute Daleel';}
 }
-
-// ── Speech Recognition (mic) ──────────────────────────────────────────────────
-function toggleMic(){
-  if(isListening){ stopListening(); return; }
-  startListening();
-}
-
+function toggleMic(){if(isListening){stopListening();return;}startListening();}
 function startListening(){
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SpeechRecognition){
-    const msgs = {
-      en:'Voice input is not supported in this browser. Please use Chrome.',
-      ar:'التعرف على الصوت غير مدعوم في هذا المتصفح. استخدم Chrome.',
-      ur:'آواز کا ان پٹ اس براؤزر میں سپورٹ نہیں — Chrome استعمال کریں۔',
-      fr:'La saisie vocale non supportee. Utilisez Chrome.',
-      id:'Input suara tidak didukung. Gunakan Chrome.',
-      tr:'Ses girişi desteklenmiyor. Chrome kullanın.',
-      ru:'Голосовой ввод не поддерживается. Используйте Chrome.'
-    };
-    alert(msgs[curLang]||msgs.en);
-    return;
-  }
-
-  // Stop any current speech before listening
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert({en:'Use Chrome for voice input.',ar:'استخدم Chrome للإدخال الصوتي.'}[curLang]||'Use Chrome.');return;}
   stopSpeaking();
-
-  recognition = new SpeechRecognition();
-  recognition.lang = SPEECH_LANG[curLang] || 'en-US';
-  recognition.continuous = false;
-  recognition.interimResults = true;
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = () => {
-    isListening = true;
-    const btn = document.getElementById('micBtn');
-    btn.textContent = '🔴';
-    btn.style.background = '#FDE8E8';
-    btn.style.borderColor = '#A32D2D';
-    btn.style.animation = 'pulse 1s infinite';
-    // Show listening hint in input
-    document.getElementById('userInput').placeholder =
-      curLang==='ar' ? '🎤 جارٍ الاستماع…' :
-      curLang==='ur' ? '🎤 سن رہا ہوں…' :
-      curLang==='fr' ? '🎤 Ecoute...' :
-      curLang==='id' ? '🎤 Mendengarkan…' :
-      curLang==='tr' ? '🎤 Dinleniyor…' :
-      curLang==='ru' ? '🎤 Слушаю…' :
-      '🎤 Listening…';
+  recognition=new SR();recognition.lang=SPEECH_LANG[curLang]||'en-US';
+  recognition.continuous=false;recognition.interimResults=true;recognition.maxAlternatives=1;
+  recognition.onstart=()=>{
+    isListening=true;const btn=document.getElementById('micBtn');
+    btn.textContent='🔴';btn.style.background='#FDE8E8';btn.style.borderColor='#A32D2D';
+    document.getElementById('userInput').placeholder=curLang==='ar'?'🎤 جارٍ الاستماع…':'🎤 Listening…';
   };
-
-  recognition.onresult = (e) => {
-    const transcript = Array.from(e.results)
-      .map(r => r[0].transcript).join('');
-    document.getElementById('userInput').value = transcript;
-    // If final result — auto send
-    if(e.results[e.results.length-1].isFinal){
-      stopListening();
-      setTimeout(() => sendMessage(), 300);
-    }
+  recognition.onresult=(e)=>{
+    const t=Array.from(e.results).map(r=>r[0].transcript).join('');
+    document.getElementById('userInput').value=t;
+    if(e.results[e.results.length-1].isFinal){stopListening();setTimeout(()=>sendMessage(),300);}
   };
-
-  recognition.onerror = (e) => {
-    stopListening();
-    if(e.error !== 'no-speech' && e.error !== 'aborted'){
-      console.warn('Speech error:', e.error);
-    }
-  };
-
-  recognition.onend = () => { stopListening(); };
-
+  recognition.onerror=()=>{stopListening();};
+  recognition.onend=()=>{stopListening();};
   recognition.start();
 }
-
 function stopListening(){
-  isListening = false;
-  const btn = document.getElementById('micBtn');
-  if(btn){
-    btn.textContent = '🎤';
-    btn.style.background = '#f5f5f0';
-    btn.style.borderColor = '#e0e0e0';
-    btn.style.animation = '';
-  }
-  const t = T[curLang]||T.en;
-  const input = document.getElementById('userInput');
-  if(input && !input.value) input.placeholder = t.placeholder||'Ask anything…';
-  if(recognition){ try{ recognition.stop(); }catch(e){} recognition = null; }
+  isListening=false;
+  const btn=document.getElementById('micBtn');
+  if(btn){btn.textContent='🎤';btn.style.background='#f5f5f0';btn.style.borderColor='#e0e0e0';}
+  const t=T[curLang]||T.en;
+  const inp=document.getElementById('userInput');if(inp&&!inp.value)inp.placeholder=t.placeholder||'Ask anything…';
+  if(recognition){try{recognition.stop();}catch(e){}recognition=null;}
+}
+window.speechSynthesis.onvoiceschanged=()=>{window.speechSynthesis.getVoices();};
+
+// ══ OFFERS ════════════════════════════════════════════════════════════════════
+async function fetchOffers(){
+  try{const r=await fetch(BACKEND+'/offers');const d=await r.json();
+    if(d.success)allOffers=d.offers||[];renderOffersBanner();}catch(e){}
+}
+function renderOffersBanner(){
+  const banner=document.getElementById('offersBanner');
+  if(!banner){return;}banner.innerHTML='';banner.style.display='none';
+  if(!allOffers.length)return;
+  const lang=curLang,rtl=lang==='ar'||lang==='ur';
+  const catIds=curCat==='all'?PLACES.map(p=>p.id):PLACES.filter(p=>p.cat===curCat).map(p=>p.id);
+  const visible=allOffers.filter(o=>catIds.includes(o.place_id));
+  if(!visible.length)return;
+  banner.style.display='flex';
+  const lbl={en:'🎁 Special Offers',ar:'🎁 عروض خاصة',ur:'🎁 خصوصی پیشکش',fr:'🎁 Offres spéciales',id:'🎁 Penawaran Spesial',tr:'🎁 Özel Teklifler',ru:'🎁 Специальные предложения'};
+  const hdr=document.createElement('div');hdr.style.cssText='font-size:14px;font-weight:700;color:#085041';
+  hdr.textContent=lbl[lang]||lbl.en;banner.appendChild(hdr);
+  const scroll=document.createElement('div');scroll.style.cssText='display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none';
+  visible.forEach(o=>{
+    const title=(rtl&&o.title_ar)?o.title_ar:o.title_en;
+    const pl=PLACES.find(p=>p.id===o.place_id);
+    const img=o.img||(pl&&pl.img)||null;
+    const icon=pl?pl.icon:'🎁';
+    const card=document.createElement('div');
+    card.style.cssText='flex-shrink:0;width:190px;background:#fff;border-radius:12px;border:1.5px solid #F6D860;overflow:hidden;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.06)';
+    card.onclick=()=>{if(pl)openModal(pl);};
+    card.innerHTML=img?`<div style="height:75px;overflow:hidden"><img src="${img}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"/></div>`:`<div style="height:75px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:30px">${icon}</div>`;
+    card.innerHTML+=`<div style="padding:8px"><div style="font-size:10px;color:#085041;font-weight:600">${o.place_name_en}</div><div style="font-size:12px;font-weight:700;color:#1a1a1a;line-height:1.3">${title}</div>${o.discount?`<div style="display:inline-block;background:#FFF3CD;color:#856404;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;margin-top:3px">${o.discount}</div>`:''}<div style="font-size:10px;color:#aaa;margin-top:3px">⏳ ${new Date(o.valid_until).toLocaleDateString(lang==='ar'?'ar-SA':'en-US',{month:'short',day:'numeric'})}</div></div>`;
+    scroll.appendChild(card);
+  });banner.appendChild(scroll);
+}
+async function loadPlaceOffers(placeId){
+  const wrap=document.getElementById('placeOffers');const list=document.getElementById('placeOffersList');
+  if(!wrap||!list)return;
+  const po=allOffers.filter(o=>o.place_id===placeId);
+  if(!po.length){wrap.style.display='none';return;}
+  const lang=curLang,rtl=lang==='ar'||lang==='ur';
+  wrap.style.display='block';list.innerHTML='';
+  po.forEach(o=>{
+    const title=(rtl&&o.title_ar)?o.title_ar:o.title_en;
+    const desc=(rtl&&o.desc_ar)?o.desc_ar:o.desc_en;
+    const pl=PLACES.find(p=>p.id===o.place_id);
+    const img=o.img||(pl&&pl.img)||null;
+    const card=document.createElement('div');
+    card.style.cssText='background:#FFFBEB;border:1.5px solid #F6D860;border-radius:12px;padding:0.85rem;margin-bottom:0.5rem';
+    card.innerHTML=`<div style="display:flex;gap:10px;align-items:flex-start">${img?`<img src="${img}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0" onerror="this.style.display='none'"/>`:'<div style="font-size:28px;flex-shrink:0">🎁</div>'}<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700;color:#1a1a1a">${title}</div>${o.discount?`<div style="display:inline-block;background:#FFF3CD;color:#856404;font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px;margin:3px 0">${o.discount}</div>`:''} ${desc?`<div style="font-size:12px;color:#555;margin-top:3px">${desc}</div>`:''}<div style="font-size:11px;color:#aaa;margin-top:4px">Until ${new Date(o.valid_until).toLocaleDateString(lang==='ar'?'ar-SA':'en-US',{month:'long',day:'numeric'})}</div></div></div>`;
+    list.appendChild(card);
+  });
 }
 
-// Load voices when available (needed for some browsers)
-window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+// ══ FLASH OFFERS ══════════════════════════════════════════════════════════════
+async function fetchFlashOffers(){
+  try{const r=await fetch(BACKEND+'/flash-offers');const d=await r.json();
+    if(d.success)allFlashOffers=d.offers||[];renderFlashBanner();}catch(e){}
+}
+function renderFlashBanner(){
+  const banner=document.getElementById('flashBanner');
+  if(!banner){banner&&(banner.style.display='none');return;}
+  banner.innerHTML='';banner.style.display='none';
+  if(!allFlashOffers.length)return;
+  const lang=curLang,rtl=lang==='ar'||lang==='ur';
+  const catIds=curCat==='all'?PLACES.map(p=>p.id):PLACES.filter(p=>p.cat===curCat).map(p=>p.id);
+  const visible=allFlashOffers.filter(o=>catIds.includes(o.place_id));
+  if(!visible.length)return;
+  banner.style.display='flex';
+  const lbl={en:'⚡ Flash Deals',ar:'⚡ عروض فلاش',ur:'⚡ فلیش ڈیلز',fr:'⚡ Ventes Flash',id:'⚡ Flash Sale',tr:'⚡ Flaş Teklifler',ru:'⚡ Флеш-акции'};
+  const hdr=document.createElement('div');hdr.style.cssText='font-size:14px;font-weight:700;color:#A32D2D';
+  hdr.textContent=lbl[lang]||lbl.en;banner.appendChild(hdr);
+  visible.forEach(o=>{
+    const title=(rtl&&o.title_ar)?o.title_ar:o.title_en;
+    const pct=o.total_qty>0?Math.round((o.remaining_qty/o.total_qty)*100):0;
+    const barColor=pct>50?'#1D9E75':pct>20?'#F0A500':'#A32D2D';
+    const pl=PLACES.find(p=>p.id===o.place_id);
+    const img=o.img||(pl&&pl.img)||null;
+    const icon=pl?pl.icon:'⚡';
+    const card=document.createElement('div');
+    card.style.cssText='background:#fff;border-radius:14px;border:2px solid #FDE8E8;overflow:hidden;box-shadow:0 2px 8px rgba(163,45,45,0.12)';
+    const imgHtml=img?`<div style="width:80px;flex-shrink:0;overflow:hidden"><img src="${img}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"/></div>`:`<div style="width:80px;flex-shrink:0;background:linear-gradient(135deg,#A32D2D,#E05050);display:flex;align-items:center;justify-content:center;font-size:28px">${icon}</div>`;
+    const claimLbl=lang==='ar'?'احجز الآن':lang==='ur'?'ابھی لیں':'Claim';
+    card.innerHTML=`<div style="display:flex;gap:0">${imgHtml}<div style="flex:1;padding:10px;min-width:0"><div style="font-size:10px;color:#888;font-weight:600">${o.place_name_en}</div><div style="font-size:13px;font-weight:700;color:#1a1a1a;line-height:1.3">${title}</div><div style="display:flex;align-items:center;gap:8px;margin-top:3px">${o.original_price?`<span style="font-size:11px;color:#aaa;text-decoration:line-through">${o.original_price} SAR</span>`:''}<span style="font-size:16px;font-weight:800;color:#A32D2D">${o.offer_price} SAR</span></div><div style="background:#f0f0f0;border-radius:4px;height:5px;margin:5px 0"><div style="width:${pct}%;background:${barColor};height:100%;border-radius:4px"></div></div><div style="font-size:10px;color:#555"><strong>${o.remaining_qty}</strong> of ${o.total_qty} left</div></div><div style="padding:10px;display:flex;align-items:center;flex-shrink:0"><button onclick="openClaimModal(${JSON.stringify(o).replace(/"/g,'&quot;')})" style="background:#A32D2D;color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">${claimLbl}</button></div></div>`;
+    banner.appendChild(card);
+  });
+}
 
-// ── TTS toggle button (tap AI bubble to stop/start reading) ───────────────────
-function toggleTTS(){
-  ttsEnabled = !ttsEnabled;
-  if(!ttsEnabled) stopSpeaking();
-  const btn = document.getElementById('ttsToggleBtn');
-  if(btn){
-    btn.textContent = ttsEnabled ? '🔊' : '🔇';
-    btn.title = ttsEnabled ? 'Mute Daleel' : 'Unmute Daleel';
-  }
+// ── Claim modal ───────────────────────────────────────────────────────────────
+let claimingOffer=null,countdownInterval=null;
+function getDeviceClaims(){try{return JSON.parse(localStorage.getItem('mg_flash_claims')||'{}');}catch(e){return {};}}
+function saveDeviceClaim(id,code,exp){const c=getDeviceClaims();c['offer_'+id]={code,expiresAt:exp,claimedAt:Date.now()};localStorage.setItem('mg_flash_claims',JSON.stringify(c));}
+function getDeviceClaim(id){const c=getDeviceClaims()['offer_'+id];if(!c)return null;if(new Date(c.expiresAt)<new Date())return{...c,expired:true};return c;}
+function generateQR(code){const el=document.getElementById('claimQR');if(!el||!window.QRCode)return;el.innerHTML='';new QRCode(el,{text:code,width:140,height:140,colorDark:'#085041',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});}
+function startCountdown(exp){
+  if(countdownInterval)clearInterval(countdownInterval);
+  function tick(){
+    const el=document.getElementById('claimCountdown');if(!el){clearInterval(countdownInterval);return;}
+    const diff=new Date(exp)-new Date();
+    if(diff<=0){clearInterval(countdownInterval);el.textContent='⚠️ Code expired';el.style.color='#A32D2D';return;}
+    const m=Math.floor(diff/60000),s=Math.floor((diff%60000)/1000);
+    el.textContent=`⏱ Valid for ${m}:${String(s).padStart(2,'0')} min`;
+    el.style.color=diff<5*60000?'#A32D2D':'#085041';
+  }tick();countdownInterval=setInterval(tick,1000);
+}
+function openClaimModal(offer){
+  claimingOffer=offer;const lang=curLang,rtl=lang==='ar'||lang==='ur';
+  const title=(rtl&&offer.title_ar)?offer.title_ar:offer.title_en;
+  const existing=getDeviceClaim(offer.id);
+  const labels={
+    title:{en:'Claim Your Deal',ar:'احجز عرضك',ur:'اپنی ڈیل لیں',fr:'Réserver votre offre',id:'Klaim Penawaran',tr:'Teklifinizi Alin',ru:'Получить скидку'},
+    name:{en:'Your name',ar:'اسمك',ur:'آپ کا نام',fr:'Votre nom',id:'Nama Anda',tr:'Adiniz',ru:'Ваше имя'},
+    email:{en:'Your email',ar:'بريدك الإلكتروني',ur:'آپ کی ای میل',fr:'Votre email',id:'Email Anda',tr:'E-postaniz',ru:'Ваш email'},
+    btn:{en:'Get My Code',ar:'احصل على الكود',ur:'کوڈ حاصل کریں',fr:'Obtenir mon code',id:'Dapatkan Kode',tr:'Kodumu Al',ru:'Получить код'},
+    sub:{en:'Show this code to the cashier',ar:'أظهر هذا الكود للكاشير',ur:'یہ کوڈ کیشیئر کو دکھائیں',fr:'Montrez ce code au caissier',id:'Tunjukkan kode ini ke kasir',tr:'Bu kodu kasiyere gosterin',ru:'Покажите код кассиру'},
+  };
+  document.getElementById('placeModalContent').innerHTML=`
+    <div style="text-align:center;margin-bottom:1rem"><div style="font-size:32px">⚡</div>
+    <div style="font-size:18px;font-weight:700;color:#A32D2D;margin-top:4px">${labels.title[lang]||labels.title.en}</div>
+    <div style="font-size:14px;color:#555;margin-top:4px">${title}</div>
+    <div style="font-size:22px;font-weight:800;color:#A32D2D;margin-top:4px">${offer.offer_price} SAR</div>
+    <div style="font-size:12px;color:#888">${offer.remaining_qty} of ${offer.total_qty} remaining</div></div>
+    <div id="claimForm" style="display:${existing&&!existing.expired?'none':'flex'};flex-direction:column;gap:8px">
+      ${existing&&existing.expired?`<div style="background:#FDE8E8;border-radius:10px;padding:0.75rem;text-align:center;font-size:13px;color:#A32D2D">Code expired. Claim again.</div>`:''}
+      <input id="claimName" placeholder="${labels.name[lang]||labels.name.en}" style="padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit" dir="${rtl?'rtl':'ltr'}"/>
+      <input id="claimEmail" placeholder="${labels.email[lang]||labels.email.en}" type="email" style="padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit"/>
+      <button onclick="submitClaim()" style="padding:13px;background:#A32D2D;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer" id="claimBtn">${labels.btn[lang]||labels.btn.en}</button>
+      <div id="claimMsg" style="font-size:13px;text-align:center;color:#888"></div>
+    </div>
+    <div id="claimResult" style="display:${existing&&!existing.expired?'block':'none'};text-align:center;padding:1rem">
+      ${existing&&!existing.expired?'<div style="font-size:13px;color:#085041;font-weight:600;margin-bottom:8px">You already claimed this deal</div>':''}
+      <div style="font-size:48px;font-weight:900;letter-spacing:8px;color:#085041;background:#E1F5EE;border-radius:14px;padding:1rem;margin-bottom:0.75rem" id="claimCode">${existing&&!existing.expired?existing.code:''}</div>
+      <div id="claimCountdown" style="font-size:13px;font-weight:600;margin-bottom:8px"></div>
+      <div style="display:flex;justify-content:center;margin-bottom:10px"><div id="claimQR" style="padding:10px;background:#fff;border-radius:12px;border:2px solid #E1F5EE;display:inline-block"></div></div>
+      <div style="font-size:12px;color:#888;margin-bottom:6px">📷 ${lang==='ar'?'أو امسح رمز QR':'Or scan QR code'}</div>
+      <div style="font-size:14px;color:#555">${labels.sub[lang]||labels.sub.en}</div>
+      <div style="font-size:12px;color:#888;margin-top:4px">${offer.place_name_en}</div>
+    </div>`;
+  document.getElementById('placeModal').classList.add('open');
+  if(existing&&!existing.expired){startCountdown(existing.expiresAt);setTimeout(()=>generateQR(existing.code),100);}
+}
+async function submitClaim(){
+  const name=document.getElementById('claimName')?.value.trim();
+  const email=document.getElementById('claimEmail')?.value.trim();
+  const msg=document.getElementById('claimMsg');const btn=document.getElementById('claimBtn');
+  const err={en:'Please enter your name and email.',ar:'يرجى إدخال الاسم والبريد الإلكتروني.',ur:'براہ کرم نام اور ای میل درج کریں۔',fr:'Veuillez entrer votre nom et email.',id:'Masukkan nama dan email.',tr:'Lutfen adinizi ve e-postanizi girin.',ru:'Введите имя и email.'};
+  if(!name||!email){msg.style.color='#A32D2D';msg.textContent=err[curLang]||err.en;return;}
+  btn.disabled=true;btn.textContent='…';
+  try{
+    const r=await fetch(BACKEND+'/flash-offers/claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({offer_id:claimingOffer.id,visitor_name:name,visitor_email:email})});
+    const d=await r.json();if(!d.success)throw new Error(d.error);
+    saveDeviceClaim(claimingOffer.id,d.code,d.expires_at);
+    document.getElementById('claimForm').style.display='none';
+    document.getElementById('claimResult').style.display='block';
+    document.getElementById('claimCode').textContent=d.code;
+    startCountdown(d.expires_at);setTimeout(()=>generateQR(d.code),100);
+    const fo=allFlashOffers.find(o=>o.id===claimingOffer.id);
+    if(fo)fo.remaining_qty=d.remaining_qty||Math.max(0,fo.remaining_qty-1);
+    renderFlashBanner();
+  }catch(e){btn.disabled=false;btn.textContent='Get My Code';msg.style.color='#A32D2D';msg.textContent=e.message;}
+}
+
+// ══ OFFER KEYWORD DETECTION ═══════════════════════════════════════════════════
+const OFFER_KEYWORDS=['discount','offer','deal','cheap','save','budget','affordable','best price','promotion','sale','off','خصم','عرض','عروض','رخيص','توفير','ميزانية','أرخص','تخفيض','رعایت','آفر','سستا','بچت','réduction','offre','promotion','pas cher','diskon','promo','murah','hemat','indirim','teklif','ucuz','скидка','акция','дешево'];
+function isOfferSeeking(t){const l=t.toLowerCase();return OFFER_KEYWORDS.some(w=>l.includes(w));}
+
+const LOCATION_KEYWORDS=['closest','nearest','near','nearby','where is','directions','how to get','location','distance','أقرب','القريب','قريب','أين','اتجاهات','كيف أصل','موقع','مسافة','قریب','فاصلہ','راستہ','کہاں','plus proche','pres','ou','itineraire','terdekat','dekat','lokasi','arah','en yakin','yakin','nerede','blizhayshiy','ryadom','gde'];
+function isLocationSeeking(t){const l=t.toLowerCase();return LOCATION_KEYWORDS.some(w=>l.includes(w));}
+
+// ══ HIJRI DATE ════════════════════════════════════════════════════════════════
+function renderHijriDate(now){
+  const hijriMonths={en:['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Shaaban','Ramadan','Shawwal','Dhul Qadah','Dhul Hijjah'],ar:['محرم','صفر','ربيع الأول','ربيع الثاني','جمادى الأولى','جمادى الثانية','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'],ur:['محرم','صفر','ربیع الاول','ربیع الثانی','جمادی الاول','جمادی الثانی','رجب','شعبان','رمضان','شوال','ذوالقعدہ','ذوالحجہ'],fr:['Mouharram','Safar','Rabi al-Awwal','Rabi al-Thani','Joumada al-Awwal','Joumada al-Thani','Rajab','Chaabane','Ramadan','Chawwal','Dhou al-Qida','Dhou al-Hijja'],id:['Muharram','Safar','Rabiul Awal','Rabiul Akhir','Jumadil Awal','Jumadil Akhir','Rajab','Syakban','Ramadan','Syawal','Zulkaidah','Zulhijjah'],tr:['Muharrem','Safer','Rebiulevvel','Rebiulahir','Cemazi el-evvel','Cemazi el-ahir','Recep','Saban','Ramazan','Sevval','Zilkade','Zilhicce'],ru:['Мухаррам','Сафар','Раби аль-Авваль','Раби ас-Сани','Джумада аль-Авваль','Джумада ас-Сани','Раджаб','Шаабан','Рамадан','Шавваль','Зуль-Каада','Зуль-Хиджа']};
+  const fmt=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',{day:'numeric',month:'numeric',year:'numeric'});
+  const parts=fmt.formatToParts(now);
+  const hDay=parseInt(parts.find(p=>p.type==='day')?.value||'1');
+  const hMonth=parseInt(parts.find(p=>p.type==='month')?.value||'1')-1;
+  const hYear=parseInt(parts.find(p=>p.type==='year')?.value||'1446');
+  const months=hijriMonths[curLang]||hijriMonths.en;
+  const isAr=curLang==='ar'||curLang==='ur';
+  return isAr?`${hDay} ${months[hMonth]} ${hYear} هـ`:`${hDay} ${months[hMonth]} ${hYear} AH`;
 }
 
 // ══ FLASH OFFERS ══════════════════════════════════════════════════════════════
@@ -2159,9 +2092,7 @@ function renderFlashBanner(){
     const pct=o.total_qty>0?Math.round((o.remaining_qty/o.total_qty)*100):0;
     const barColor=pct>50?'#1D9E75':pct>20?'#F0A500':'#A32D2D';
     const placeData=PLACES.find(p=>p.id===o.place_id);
-    // Prefer place's own photo — external URLs often block hotlinking
-    const customImg = o.img && !o.img.startsWith('http') ? o.img : null;
-    const cardImg = customImg || (placeData&&placeData.img) || null;
+    const cardImg=o.img||(placeData&&placeData.img)||null;
     const cardIcon=placeData?placeData.icon:'⚡';
 
     const card=document.createElement('div');
@@ -2169,7 +2100,7 @@ function renderFlashBanner(){
     card.innerHTML=`
       <div style="display:flex;gap:0">
         ${cardImg
-          ?`<div style="width:80px;flex-shrink:0;overflow:hidden"><img src="${cardImg}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=\\'width:80px;height:100%;background:linear-gradient(135deg,#A32D2D,#E05050);display:flex;align-items:center;justify-content:center;font-size:28px\\'>${cardIcon}</div>'"/></div>`
+          ?`<div style="width:80px;flex-shrink:0;overflow:hidden"><img src="${cardImg}" style="width:100%;height:100%;object-fit:cover"/></div>`
           :`<div style="width:80px;flex-shrink:0;background:linear-gradient(135deg,#A32D2D,#E05050);display:flex;align-items:center;justify-content:center;font-size:28px">${cardIcon}</div>`}
         <div style="flex:1;padding:10px;min-width:0">
           <div style="font-size:10px;color:#888;font-weight:600">${o.place_name_en}</div>
@@ -2195,8 +2126,6 @@ function renderFlashBanner(){
 }
 
 // ── Claim Modal ───────────────────────────────────────────────────────────────
-let claimingOffer = null;
-
 function openClaimModal(offer){
   claimingOffer = offer;
   const lang=curLang; const rtl=lang==='ar'||lang==='ur';
@@ -2230,81 +2159,11 @@ function openClaimModal(offer){
 
     <div id="claimResult" style="display:none;text-align:center;padding:1rem">
       <div style="font-size:48px;font-weight:900;letter-spacing:8px;color:#085041;background:#E1F5EE;border-radius:14px;padding:1rem;margin-bottom:0.75rem" id="claimCode"></div>
-      <div id="claimCountdown" style="font-size:13px;font-weight:600;margin-bottom:12px"></div>
-      <div style="display:flex;justify-content:center;margin-bottom:10px">
-        <div id="claimQR" style="padding:10px;background:#fff;border-radius:12px;border:2px solid #E1F5EE;display:inline-block"></div>
-      </div>
-      <div style="font-size:12px;color:#888;margin-bottom:6px">📷 ${lang==='ar'?'أو امسح رمز QR':'Or scan QR code'}</div>
       <div style="font-size:14px;color:#555">${labels.sub[lang]||labels.sub.en}</div>
       <div style="font-size:12px;color:#888;margin-top:4px">${offer.place_name_en}</div>
     </div>`;
 
   document.getElementById('placeModal').classList.add('open');
-
-  // Check if this device already claimed — show code immediately with countdown
-  const existing = getDeviceClaim(offer.id);
-  if(existing && !existing.expired){
-    document.getElementById('claimForm').style.display='none';
-    document.getElementById('claimResult').style.display='block';
-    document.getElementById('claimCode').textContent = existing.code;
-    startCountdown(existing.expiresAt);
-    setTimeout(() => generateQR(existing.code), 100);
-  } else if(existing && existing.expired){
-    // Show expired message so they know to claim again
-    const expMsg = document.getElementById('claimMsg');
-    if(expMsg){ expMsg.style.color='#A32D2D'; expMsg.textContent='Your previous code expired. Please claim again.'; }
-  }
-}
-
-// ── LocalStorage helpers for flash claims ─────────────────────────────────────
-function getDeviceClaims(){ try{ return JSON.parse(localStorage.getItem('mg_flash_claims')||'{}'); }catch(e){ return {}; } }
-function saveDeviceClaim(offerId, code, expiresAt){
-  const claims = getDeviceClaims();
-  claims['offer_'+offerId] = { code, expiresAt, claimedAt: Date.now() };
-  localStorage.setItem('mg_flash_claims', JSON.stringify(claims));
-}
-function getDeviceClaim(offerId){
-  const c = getDeviceClaims()['offer_'+offerId];
-  if(!c) return null;
-  if(new Date(c.expiresAt) < new Date()) return { ...c, expired: true };
-  return c;
-}
-
-let countdownInterval = null;
-
-function generateQR(code){
-  const el = document.getElementById('claimQR');
-  if(!el || !window.QRCode) return;
-  el.innerHTML = '';
-  new QRCode(el, {
-    text: code,
-    width: 140,
-    height: 140,
-    colorDark: '#085041',
-    colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.H
-  });
-}
-
-function startCountdown(expiresAt){
-  if(countdownInterval) clearInterval(countdownInterval);
-  function tick(){
-    const el = document.getElementById('claimCountdown');
-    if(!el){ clearInterval(countdownInterval); return; }
-    const diff = new Date(expiresAt) - new Date();
-    if(diff <= 0){
-      clearInterval(countdownInterval);
-      el.textContent = '⚠️ Code expired';
-      el.style.color = '#A32D2D';
-      return;
-    }
-    const mins = Math.floor(diff/60000);
-    const secs = Math.floor((diff%60000)/1000);
-    el.textContent = `⏱ Valid for ${mins}:${String(secs).padStart(2,'0')} min`;
-    el.style.color = diff < 5*60000 ? '#A32D2D' : '#085041';
-  }
-  tick();
-  countdownInterval = setInterval(tick, 1000);
 }
 
 async function submitClaim(){
@@ -2313,7 +2172,7 @@ async function submitClaim(){
   const msg   = document.getElementById('claimMsg');
   const btn   = document.getElementById('claimBtn');
 
-  const errLabels={en:'Please enter your name and email.',ar:'يرجى إدخال الاسم والبريد الإلكتروني.',ur:'براہ کرم نام اور ای میل درج کریں۔',fr:'Veuillez entrer votre nom et email.',id:'Masukkan nama dan email Anda.',tr:'Lutfen adinizi ve e-postanizi girin.',ru:'Введите имя и email.'};
+  const errLabels={en:'Please enter your name and email.',ar:'يرجى إدخال الاسم والبريد الإلكتروني.',ur:'براہ کرم نام اور ای میل درج کریں۔',fr:'Veuillez entrer votre nom et email.',id:'Masukkan nama dan email Anda.',tr:'Lütfen adınızı ve e-postanızı girin.',ru:'Введите имя и email.'};
   if(!name||!email){ msg.style.color='#A32D2D'; msg.textContent=errLabels[curLang]||errLabels.en; return; }
 
   btn.disabled=true; btn.textContent='…';
@@ -2325,15 +2184,10 @@ async function submitClaim(){
     const d=await r.json();
     if(!d.success) throw new Error(d.error);
 
-    // Save to localStorage with expiry
-    saveDeviceClaim(claimingOffer.id, d.code, d.expires_at);
-
-    // Show code with countdown
+    // Show code
     document.getElementById('claimForm').style.display='none';
     document.getElementById('claimResult').style.display='block';
-    document.getElementById('claimCode').textContent = d.code;
-    startCountdown(d.expires_at);
-    setTimeout(() => generateQR(d.code), 100);
+    document.getElementById('claimCode').textContent=d.code;
 
     // Update local counter
     const fo=allFlashOffers.find(o=>o.id===claimingOffer.id);
@@ -2400,7 +2254,7 @@ function renderOffersBanner(){
     const cardIcon = placeData ? placeData.icon : '🎁';
     card.innerHTML = `
       ${cardImg
-        ? `<div style="height:75px;overflow:hidden"><img src="${cardImg}" referrerpolicy="no-referrer" crossorigin="anonymous" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=\"height:75px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:28px\">'+cardIcon+'</div>'"/></div>`
+        ? `<div style="height:75px;overflow:hidden"><img src="${cardImg}" style="width:100%;height:100%;object-fit:cover"/></div>`
         : `<div style="height:75px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:30px">${cardIcon}</div>`}
       <div style="padding:8px">
         <div style="font-size:10px;color:#085041;font-weight:600;margin-bottom:1px">${o.place_name_en}</div>
@@ -2438,7 +2292,7 @@ async function loadPlaceOffers(placeId){
     card.innerHTML = `
       <div style="display:flex;gap:10px;align-items:flex-start">
         ${modalImg
-          ? `<img src="${modalImg}" referrerpolicy="no-referrer" crossorigin="anonymous" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0" onerror="this.style.display='none'"/>`
+          ? `<img src="${modalImg}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0"/>`
           : '<div style="font-size:28px;flex-shrink:0">🎁</div>'}
         <div style="flex:1;min-width:0">
           <div style="font-size:14px;font-weight:700;color:#1a1a1a">${title}</div>
