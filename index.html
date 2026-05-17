@@ -1000,7 +1000,19 @@ async function sendMessage(){
 
   // ── 2. FILTER OFFERS to detected category ────────────────────────────────────
   const catPlaceIds = detectedCat ? PLACES.filter(p => p.cat === detectedCat).map(p => p.id) : null;
-  const filterOffers = offers => catPlaceIds ? offers.filter(o => catPlaceIds.includes(o.place_id)) : offers;
+  const now = new Date();
+  const filterOffers = offers => {
+    const active = offers.filter(o => {
+      // Must not be expired
+      if (o.valid_until && new Date(o.valid_until) < now) return false;
+      // Flash offers must have remaining qty
+      if (o.remaining_qty !== undefined && o.remaining_qty <= 0) return false;
+      // Must be active
+      if (o.is_active === false) return false;
+      return true;
+    });
+    return catPlaceIds ? active.filter(o => catPlaceIds.includes(o.place_id)) : active;
+  };
   const relFlash  = filterOffers(allFlashOffers);
   const relOffers = filterOffers(allOffers);
 
@@ -1020,8 +1032,9 @@ async function sendMessage(){
     .map(p => ({...p, km: haversineKm(vLat, vLng, p.lat, p.lng)}))
     .sort((a,b) => a.km - b.km)
     .map(p => {
-      const info = p.infoEn ? `
-   ✅ OFFER: ${p.infoEn}` : '';
+      // Only show infoEn if place has a currently active offer in our database
+      const hasActiveOffer = [...relFlash, ...relOffers].some(o => o.place_id === p.id);
+      const info = (p.infoEn && hasActiveOffer) ? `\n   ✅ OFFER: ${p.infoEn}` : '';
       return `• ${p.nameEn} (${p.nameAr}) — ${p.cost}${rStr(p)}${distStr(p)}${info}`;
     }).join('\n');
 
