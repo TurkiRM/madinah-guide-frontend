@@ -2011,7 +2011,6 @@ function renderOffersBanner(){
 
   banner.appendChild(scroll);
 }
-
 // ══ FLASH OFFERS ══════════════════════════════════════════════════════════════
 async function fetchFlashOffers(){
   try{const r=await fetch(BACKEND+'/flash-offers');const d=await r.json();
