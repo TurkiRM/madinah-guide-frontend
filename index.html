@@ -743,7 +743,6 @@ const PLACES = [
 ];
 
 
-
 let curLang='en', chatHistory=[], isTyping=false, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
 const ratingsCache = {}; // placeId -> {rating, count} fetched from backend
 
@@ -2502,6 +2501,10 @@ window.addEventListener('popstate', (e) => {
     <div id="authFormRegister">
       <input class="auth-field" id="regName"  type="text"  placeholder="الاسم | Full name (optional)" autocomplete="name"/>
       <input class="auth-field" id="regEmail" type="email" placeholder="البريد الإلكتروني | Email *" required autocomplete="email"/>
+      <div style="position:relative">
+        <input class="auth-field" id="regPassword" type="password" placeholder="كلمة المرور | Password * (min 6 chars)" autocomplete="new-password" style="padding-left:40px"/>
+        <button type="button" onclick="togglePwd('regPassword','eyeReg')" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#888" id="eyeReg">👁</button>
+      </div>
       <select class="auth-field" id="regNat" style="color:#555">
         <option value="">الجنسية | Nationality (optional)</option>
         <option value="SA">🇸🇦 Saudi Arabia</option>
@@ -2517,20 +2520,20 @@ window.addEventListener('popstate', (e) => {
         <option value="OTHER">🌍 Other</option>
       </select>
       <button class="auth-submit" id="regBtn" onclick="doRegister()">
-        ✉️ إرسال رابط التفعيل | Send Activation Link
+        ✉️ إنشاء الحساب | Create Account
       </button>
       <div class="auth-msg" id="regMsg"></div>
     </div>
 
     <!-- LOGIN FORM -->
     <div id="authFormLogin" style="display:none">
-      <p style="font-size:13px;color:#555;margin-bottom:14px;line-height:1.6;text-align:center">
-        أدخل بريدك الإلكتروني وسنرسل لك رابط دخول فوري.<br>
-        <span style="color:#888;font-size:12px">Enter your email — we'll send you a magic sign-in link.</span>
-      </p>
       <input class="auth-field" id="loginEmail" type="email" placeholder="البريد الإلكتروني | Email" autocomplete="email"/>
+      <div style="position:relative">
+        <input class="auth-field" id="loginPassword" type="password" placeholder="كلمة المرور | Password" autocomplete="current-password" style="padding-left:40px"/>
+        <button type="button" onclick="togglePwd('loginPassword','eyeLogin')" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#888" id="eyeLogin">👁</button>
+      </div>
       <button class="auth-submit" id="loginBtn" onclick="doLogin()">
-        🚀 إرسال رابط الدخول | Send Login Link
+        🔑 تسجيل الدخول | Sign In
       </button>
       <div class="auth-msg" id="loginMsg"></div>
     </div>
@@ -2566,7 +2569,7 @@ function updateVisitorUI() {
   const emailEl = document.getElementById('visitorSessionEmail');
   const headerBtn = document.getElementById('authHeaderBtn');
 
-  if (v && v.is_active) {
+  if (v && (v.is_active || v.is_verified)) {
     if (bar)  { bar.style.display = 'flex'; }
     if (nameEl)  nameEl.textContent = v.name  ? (curLang==='ar'?'أهلاً، ':'Welcome, ') + v.name : '';
     if (emailEl) emailEl.textContent = v.email || '';
@@ -2579,7 +2582,7 @@ function updateVisitorUI() {
 
 function openAuthModal() {
   const v = getMGVisitor();
-  if (v && v.is_active) {
+  if (v && (v.is_active || v.is_verified)) {
     // Already signed in — ask to sign out
     if (confirm((curLang==='ar'?'هل تريد تسجيل الخروج؟':'Sign out of your account?'))) {
       signOutVisitor();
@@ -2593,7 +2596,7 @@ function openAuthModal() {
 function closeAuthModal() {
   document.getElementById('authModal').classList.remove('open');
   // Reset forms
-  ['regName','regEmail','regNat','loginEmail'].forEach(id => {
+  ['regName','regEmail','regPassword','regNat','loginEmail','loginPassword'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -2615,29 +2618,41 @@ function switchAuthTab(tab) {
   document.getElementById('authFormLogin').style.display    = !isReg ? 'block' : 'none';
 }
 
-// ── Register ─────────────────────────────────────────────────────────────────
+// ── Toggle password visibility ───────────────────────────────────────────────
+function togglePwd(fieldId, eyeId) {
+  var f = document.getElementById(fieldId);
+  var e = document.getElementById(eyeId);
+  if (f.type === 'password') { f.type = 'text';     e.textContent = '🙈'; }
+  else                       { f.type = 'password'; e.textContent = '👁';  }
+}
+
+// ── Register ──────────────────────────────────────────────────────────────────
 async function doRegister() {
-  const email = document.getElementById('regEmail').value.trim();
-  const name  = document.getElementById('regName').value.trim();
-  const nat   = document.getElementById('regNat').value;
-  const btn   = document.getElementById('regBtn');
-  const msg   = document.getElementById('regMsg');
+  const email    = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const name     = document.getElementById('regName').value.trim();
+  const nat      = document.getElementById('regNat').value;
+  const btn      = document.getElementById('regBtn');
+  const msg      = document.getElementById('regMsg');
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    msg.textContent = curLang==='ar' ? '⚠️ أدخل بريدًا إلكترونيًا صحيحًا' : '⚠️ Please enter a valid email address';
-    msg.className = 'auth-msg err';
-    return;
+    msg.textContent = curLang==='ar' ? '⚠️ أدخل بريدًا إلكترونيًا صحيحًا' : '⚠️ Please enter a valid email';
+    msg.className = 'auth-msg err'; return;
+  }
+  if (!password || password.length < 6) {
+    msg.textContent = curLang==='ar' ? '⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل' : '⚠️ Password must be at least 6 characters';
+    msg.className = 'auth-msg err'; return;
   }
 
   btn.disabled = true;
-  btn.textContent = curLang==='ar' ? '⏳ جاري الإرسال…' : '⏳ Sending…';
+  btn.textContent = curLang==='ar' ? '⏳ جاري الإنشاء…' : '⏳ Creating account…';
   msg.textContent = '';
 
   try {
     const r = await fetch(BACKEND + '/auth/visitor/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, name: name || null, nationality: nat || null, preferred_lang: curLang })
+      body: JSON.stringify({ email, password, name: name || null, nationality: nat || null, preferred_lang: curLang })
     });
     const d = await r.json();
 
@@ -2645,85 +2660,97 @@ async function doRegister() {
       if (d.status === 'already_registered') {
         msg.className = 'auth-msg err';
         msg.textContent = curLang==='ar'
-          ? '📧 هذا البريد مسجّل مسبقاً — جرّب تسجيل الدخول'
-          : '📧 Email already registered — try signing in';
+          ? '📧 هذا البريد مسجّل مسبقاً — سجّل الدخول'
+          : '📧 Email already registered — please sign in';
         switchAuthTab('login');
         document.getElementById('loginEmail').value = email;
       } else {
         msg.className = 'auth-msg ok';
         msg.innerHTML = curLang==='ar'
-          ? '✅ تم الإرسال! تحقق من بريدك الإلكتروني وانقر رابط التفعيل.<br><small style="color:#4A9B7F">قد يصل في البريد غير الهام</small>'
-          : '✅ Sent! Check your inbox and click the activation link.<br><small style="color:#4A9B7F">Check your spam folder if you don\'t see it</small>';
+          ? '✅ تم إنشاء الحساب! تحقق من بريدك وانقر رابط التحقق.<br><small style="color:#4A9B7F">قد يصل في البريد غير الهام</small>'
+          : '✅ Account created! Check your inbox and click the verification link.<br><small style="color:#4A9B7F">Check spam if you don\'t see it</small>';
         btn.textContent = '✅ ' + (curLang==='ar' ? 'تم الإرسال' : 'Email sent!');
       }
     } else {
-      throw new Error(d.error || 'Failed');
+      if (d.error === 'password_too_short') {
+        msg.textContent = curLang==='ar' ? '⚠️ كلمة المرور قصيرة جداً' : '⚠️ Password is too short (min 6 chars)';
+      } else {
+        msg.textContent = curLang==='ar' ? '❌ حدث خطأ — حاول مجدداً' : '❌ Something went wrong. Please try again.';
+      }
+      msg.className = 'auth-msg err';
+      btn.disabled = false;
+      btn.textContent = '✉️ ' + (curLang==='ar' ? 'إنشاء الحساب' : 'Create Account');
     }
   } catch (err) {
     msg.className = 'auth-msg err';
-    msg.textContent = curLang==='ar' ? '❌ حدث خطأ — حاول مجدداً' : '❌ Something went wrong. Please try again.';
+    msg.textContent = curLang==='ar' ? '❌ خطأ في الاتصال — حاول مجدداً' : '❌ Connection error. Please try again.';
     btn.disabled = false;
-    btn.textContent = '✉️ ' + (curLang==='ar' ? 'إعادة الإرسال' : 'Send Activation Link');
+    btn.textContent = '✉️ ' + (curLang==='ar' ? 'إنشاء الحساب' : 'Create Account');
   }
 }
 
-// ── Login (magic link) ───────────────────────────────────────────────────────
+// ── Login (email + password) ─────────────────────────────────────────────────
 async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const btn   = document.getElementById('loginBtn');
-  const msg   = document.getElementById('loginMsg');
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const btn      = document.getElementById('loginBtn');
+  const msg      = document.getElementById('loginMsg');
 
-  if (!email) {
-    msg.textContent = curLang==='ar' ? '⚠️ أدخل البريد الإلكتروني' : '⚠️ Please enter your email';
-    msg.className = 'auth-msg err';
-    return;
+  if (!email || !password) {
+    msg.textContent = curLang==='ar' ? '⚠️ أدخل البريد وكلمة المرور' : '⚠️ Please enter your email and password';
+    msg.className = 'auth-msg err'; return;
   }
 
   btn.disabled = true;
-  btn.textContent = curLang==='ar' ? '⏳ جاري الإرسال…' : '⏳ Sending…';
+  btn.textContent = curLang==='ar' ? '⏳ جاري التحقق…' : '⏳ Signing in…';
   msg.textContent = '';
 
   try {
     const r = await fetch(BACKEND + '/auth/visitor/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email, password })
     });
     const d = await r.json();
 
     if (r.status === 404) {
       msg.className = 'auth-msg err';
-      msg.textContent = curLang==='ar'
-        ? '❌ لم يُعثر على هذا البريد — هل أنت مسجّل؟'
-        : '❌ Email not found — have you registered?';
+      msg.textContent = curLang==='ar' ? '❌ هذا البريد غير مسجّل' : '❌ Email not found — please register first';
       switchAuthTab('register');
       document.getElementById('regEmail').value = email;
       btn.disabled = false;
-      btn.textContent = '🚀 ' + (curLang==='ar' ? 'إرسال رابط الدخول' : 'Send Login Link');
+      btn.textContent = '🔑 ' + (curLang==='ar' ? 'تسجيل الدخول' : 'Sign In');
       return;
     }
     if (r.status === 403) {
       msg.className = 'auth-msg err';
       msg.textContent = curLang==='ar'
-        ? '⚠️ الحساب لم يُفعّل بعد — تحقق من بريدك الإلكتروني'
-        : '⚠️ Account not activated — check your registration email first';
+        ? '⚠️ البريد غير مؤكد — تحقق من بريدك وانقر رابط التحقق'
+        : '⚠️ Email not verified — check your inbox and click the verification link';
       btn.disabled = false;
-      btn.textContent = '🚀 ' + (curLang==='ar' ? 'إرسال رابط الدخول' : 'Send Login Link');
+      btn.textContent = '🔑 ' + (curLang==='ar' ? 'تسجيل الدخول' : 'Sign In');
+      return;
+    }
+    if (r.status === 401) {
+      msg.className = 'auth-msg err';
+      msg.textContent = curLang==='ar' ? '❌ كلمة المرور غير صحيحة' : '❌ Incorrect password';
+      btn.disabled = false;
+      btn.textContent = '🔑 ' + (curLang==='ar' ? 'تسجيل الدخول' : 'Sign In');
       return;
     }
     if (!r.ok) throw new Error(d.error);
 
+    // ✅ Success — save session and update UI
+    setMGVisitor(d.visitor);
+    updateVisitorUI();
+    closeAuthModal();
     msg.className = 'auth-msg ok';
-    msg.innerHTML = curLang==='ar'
-      ? '✅ تم الإرسال! انقر الرابط في بريدك للدخول فوراً.<br><small style="color:#4A9B7F">صالح لـ 15 دقيقة فقط</small>'
-      : '✅ Sent! Click the link in your email to sign in instantly.<br><small style="color:#4A9B7F">Valid for 15 minutes only</small>';
-    btn.textContent = '✅ ' + (curLang==='ar' ? 'تم الإرسال' : 'Link sent!');
 
   } catch (err) {
     msg.className = 'auth-msg err';
-    msg.textContent = curLang==='ar' ? '❌ حدث خطأ — حاول مجدداً' : '❌ Something went wrong. Please try again.';
+    msg.textContent = curLang==='ar' ? '❌ خطأ في الاتصال — حاول مجدداً' : '❌ Connection error. Please try again.';
     btn.disabled = false;
-    btn.textContent = '🚀 ' + (curLang==='ar' ? 'إرسال رابط الدخول' : 'Send Login Link');
+    btn.textContent = '🔑 ' + (curLang==='ar' ? 'تسجيل الدخول' : 'Sign In');
   }
 }
 
@@ -2737,7 +2764,7 @@ document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   const modal = document.getElementById('authModal');
   if (!modal.classList.contains('open')) return;
-  const regVisible = document.getElementById('authFormRegister').style.display !== 'none';
+  var regVisible = document.getElementById('authFormRegister').style.display !== 'none';
   if (regVisible) doRegister();
   else doLogin();
 });
