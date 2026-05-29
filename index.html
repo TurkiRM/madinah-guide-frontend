@@ -742,6 +742,7 @@ const PLACES = [
 
 ];
 
+
 let curLang='en', chatHistory=[], isTyping=false, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
 const ratingsCache = {}; // placeId -> {rating, count} fetched from backend
 
@@ -2172,6 +2173,21 @@ async function submitClaim(){
           (lang==='ar'?'✅ لديك كود خاص لهذا العرض':'✅ You already have a code for this offer') + '</div>'
       : '';
 
+    // Timer block — shown only if offer has redemption_minutes
+    const timerHtml = d.redemption_minutes
+      ? '<div id="claimTimerBox" style="background:#FFF3E0;border:1.5px solid #F0A040;border-radius:12px;padding:10px;margin-bottom:12px;text-align:center">' +
+          '<div style="font-size:11px;color:#7A4500;margin-bottom:4px">⏱ ' + (lang==='ar'?'يجب استخدام الكود خلال:':'Code must be used within:') + '</div>' +
+          '<div id="claimCountdownTimer" style="font-size:26px;font-weight:900;color:#A32D2D;letter-spacing:2px">--:--</div>' +
+          '<div style="font-size:10px;color:#888;margin-top:2px">' + (lang==='ar'?'من وقت الاستلام':'from time of claiming') + '</div>' +
+        '</div>'
+      : (d.expires_at ? '' : '<div style="font-size:11px;color:#4A9B7F;background:#E8F7F2;border-radius:8px;padding:5px;margin-bottom:10px;text-align:center">' +
+          (lang==='ar'?'⏳ الكود دائم — لا ينتهي':'⏳ Code is permanent — no expiry') + '</div>');
+
+    const expiredHtml = (d.expired)
+      ? '<div style="background:#FDE8E8;border-radius:10px;padding:10px;text-align:center;font-size:13px;color:#A32D2D;font-weight:600;margin-bottom:10px">⚠️ ' +
+          (lang==='ar'?'انتهت صلاحية الكود — احجز مجدداً':'Code expired — claim again') + '</div>'
+      : '';
+
     const title=(rtl&&claimingOffer.title_ar)?claimingOffer.title_ar:claimingOffer.title_en;
     document.getElementById('placeModalContent').innerHTML =
       '<div style="text-align:center;margin-bottom:1rem">' +
@@ -2179,10 +2195,10 @@ async function submitClaim(){
         '<div style="font-size:15px;font-weight:700;color:#A32D2D;margin-top:4px">' + title + '</div>' +
         '<div style="font-size:20px;font-weight:800;color:#A32D2D">' + claimingOffer.offer_price + ' SAR</div>' +
       '</div>' +
-      alreadyMsg +
+      alreadyMsg + expiredHtml + timerHtml +
       '<div style="text-align:center;padding:0.5rem">' +
         '<div style="font-size:11px;color:#888;margin-bottom:6px">' + (lang==='ar'?'كودك الشخصي':'Your personal code') + '</div>' +
-        '<div style="font-size:48px;font-weight:900;letter-spacing:8px;color:#085041;background:#E1F5EE;border-radius:14px;padding:1rem;margin-bottom:0.75rem" id="claimCode">' + d.code + '</div>' +
+        '<div style="font-size:48px;font-weight:900;letter-spacing:8px;color:' + (d.expired?'#aaa':'#085041') + ';background:' + (d.expired?'#f5f5f5':'#E1F5EE') + ';border-radius:14px;padding:1rem;margin-bottom:0.75rem" id="claimCode">' + d.code + '</div>' +
         '<div style="display:flex;justify-content:center;margin-bottom:10px"><div id="claimQR" style="padding:10px;background:#fff;border-radius:12px;border:2px solid #E1F5EE;display:inline-block"></div></div>' +
         '<div style="font-size:12px;color:#888;margin-bottom:4px">📷 ' + (lang==='ar'?'أو امسح رمز QR':'Or scan QR code') + '</div>' +
         '<div style="font-size:13px;color:#555;font-weight:600">' + (labels.sub[lang]||labels.sub.en) + '</div>' +
@@ -2193,6 +2209,11 @@ async function submitClaim(){
       '</div>';
 
     setTimeout(()=>generateQR(d.code),100);
+
+    // Start live countdown if expires_at is set and not expired
+    if(d.expires_at && !d.expired) {
+      startClaimCountdown(d.expires_at, lang);
+    }
 
     // Update remaining qty in memory
     if(!d.already_claimed){
@@ -2359,8 +2380,11 @@ function renderOffersBanner(){
     const bannerImgHtml = cardImg
       ? `<div style="height:90px;background:#f8f8f8;display:flex;align-items:center;justify-content:center;overflow:hidden"><img src="${cardImg}" style="max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain" onerror="this.style.display='none'"/><\/div>`
       : `<div style="height:90px;background:linear-gradient(135deg,#085041,#1D9E75);display:flex;align-items:center;justify-content:center;font-size:30px">${cardIcon}<\/div>`;
+    const timerBadge = o.redemption_minutes
+      ? `<div style="position:absolute;top:6px;right:6px;background:rgba(163,45,45,0.92);color:#fff;border-radius:8px;padding:2px 7px;font-size:10px;font-weight:700">⏱ ${o.redemption_minutes >= 60 ? Math.floor(o.redemption_minutes/60)+'h' : o.redemption_minutes+'m'}</div>`
+      : '';
     card.innerHTML = `
-      ${bannerImgHtml}
+      <div style="position:relative">${bannerImgHtml}${timerBadge}</div>
       <div style="padding:8px">
         <div style="font-size:10px;color:#085041;font-weight:600;margin-bottom:1px">${o.place_name_en}</div>
         <div style="font-size:12px;font-weight:700;color:#1a1a1a;line-height:1.3">${title}</div>
@@ -2527,6 +2551,49 @@ function getMGVisitor() {
 
 function setMGVisitor(visitor) {
   localStorage.setItem(MG_VISITOR_KEY, JSON.stringify(visitor));
+}
+
+// ── Live countdown timer for redeemable offer codes ─────────────────────────
+var _countdownInterval = null;
+function startClaimCountdown(expiresAt, lang) {
+  if(_countdownInterval) clearInterval(_countdownInterval);
+  function tick() {
+    var el = document.getElementById('claimCountdownTimer');
+    var timerBox = document.getElementById('claimTimerBox');
+    if(!el) { clearInterval(_countdownInterval); return; }
+    var ms = new Date(expiresAt) - Date.now();
+    if(ms <= 0) {
+      clearInterval(_countdownInterval);
+      if(timerBox) timerBox.style.background = '#FDE8E8';
+      if(timerBox) timerBox.style.borderColor = '#A32D2D';
+      el.textContent = '00:00';
+      el.style.color = '#A32D2D';
+      // Grey out the code
+      var codeEl = document.getElementById('claimCode');
+      if(codeEl) { codeEl.style.background='#f5f5f5'; codeEl.style.color='#aaa'; }
+      // Show expired message
+      var expired = document.createElement('div');
+      expired.style.cssText = 'background:#FDE8E8;border-radius:10px;padding:10px;text-align:center;font-size:13px;color:#A32D2D;font-weight:600;margin-top:10px';
+      expired.textContent = (lang==='ar') ? '⚠️ انتهت صلاحية الكود' : '⚠️ Code has expired';
+      if(timerBox && timerBox.parentNode) timerBox.parentNode.insertBefore(expired, timerBox.nextSibling);
+      return;
+    }
+    var totalSec = Math.floor(ms / 1000);
+    var h = Math.floor(totalSec / 3600);
+    var m = Math.floor((totalSec % 3600) / 60);
+    var s = totalSec % 60;
+    if(h > 0) {
+      el.textContent = h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    } else {
+      el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }
+    // Turn orange when < 2 min, red when < 30 sec
+    if(totalSec < 30)       { el.style.color='#A32D2D'; if(timerBox){timerBox.style.background='#FDE8E8';timerBox.style.borderColor='#A32D2D';} }
+    else if(totalSec < 120) { el.style.color='#E07820'; if(timerBox){timerBox.style.background='#FFF3E0';timerBox.style.borderColor='#F0A040';} }
+    else                    { el.style.color='#085041'; if(timerBox){timerBox.style.background='#E8F7F2';timerBox.style.borderColor='#1D9E75';} }
+  }
+  tick();
+  _countdownInterval = setInterval(tick, 1000);
 }
 
 function signOutVisitor() {
