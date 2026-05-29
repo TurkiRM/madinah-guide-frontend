@@ -138,6 +138,22 @@
     .event-title-ar{font-size:13px;color:#888;direction:rtl;margin-bottom:6px}
     .event-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:#888}
     .event-meta span{display:flex;align-items:center;gap:4px}
+
+    /* ── Visitor Auth Modal ──────────────────────────────────────────────────── */
+    #authModal{position:fixed;inset:0;z-index:9000;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.45);backdrop-filter:blur(3px)}
+    #authModal.open{display:flex}
+    #authModalBox{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:28px 24px 36px;animation:slideUp .28s ease}
+    @keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .auth-tab-row{display:flex;gap:0;border:1.5px solid #e0e0e0;border-radius:12px;overflow:hidden;margin-bottom:20px}
+    .auth-tab{flex:1;padding:10px;font-size:13px;font-weight:600;border:none;background:#fff;cursor:pointer;color:#888;transition:all .18s}
+    .auth-tab.active{background:#085041;color:#fff}
+    .auth-field{width:100%;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:12px;font-size:14px;margin-bottom:10px;outline:none;font-family:inherit;box-sizing:border-box}
+    .auth-field:focus{border-color:#1D9E75}
+    .auth-submit{width:100%;padding:13px;background:linear-gradient(135deg,#085041,#1D9E75);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;letter-spacing:0.2px}
+    .auth-submit:disabled{opacity:.55;cursor:not-allowed}
+    .auth-msg{font-size:13px;text-align:center;margin-top:10px;min-height:18px;line-height:1.5}
+    .auth-msg.ok{color:#085041}.auth-msg.err{color:#A32D2D}
+    .auth-close{position:absolute;top:14px;right:18px;background:none;border:none;font-size:22px;cursor:pointer;color:#888;line-height:1}
   </style>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-N89PVZ94MP"></script>
   <script>
@@ -175,6 +191,14 @@
     </div>
     <button class="call-now-btn" onclick="showTab('call')" id="callNowBtn">📞 Call now</button>
     <button onclick="openLangPicker()" style="background:rgba(255,255,255,0.15);border:none;border-radius:20px;padding:7px 10px;font-size:14px;cursor:pointer;flex-shrink:0" id="langPickerBtn" title="Change language">🌐</button>
+    <button onclick="openAuthModal()" id="authHeaderBtn" style="background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.35);border-radius:20px;padding:6px 11px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;flex-shrink:0;white-space:nowrap" title="Sign in / Register">👤</button>
+  </div>
+  <!-- Visitor session badge (shown when logged in) -->
+  <div id="visitorSessionBar" style="display:none;align-items:center;gap:8px;padding:6px 14px;background:#E8F7F2;border-bottom:1px solid #C3E8DA;font-size:12px;color:#085041">
+    <span style="font-size:14px">👤</span>
+    <span id="visitorSessionName" style="font-weight:600;flex-shrink:0"></span>
+    <span id="visitorSessionEmail" style="color:#4A9B7F;flex-shrink:0"></span>
+    <button onclick="signOutVisitor()" style="margin-right:auto;background:none;border:none;color:#A32D2D;font-size:11px;cursor:pointer;font-weight:600;padding:0">تسجيل الخروج | Sign out</button>
   </div>
 
   <div class="tab-content">
@@ -2453,5 +2477,271 @@ window.addEventListener('popstate', (e) => {
   // Nothing open — back button does nothing (stays in app)
 });
 </script>
+
+<!-- ════════════════════════════════════════════════════════
+     VISITOR AUTH MODAL
+═══════════════════════════════════════════════════════════ -->
+<div id="authModal" onclick="if(event.target===this)closeAuthModal()">
+  <div id="authModalBox" style="position:relative">
+    <button class="auth-close" onclick="closeAuthModal()">✕</button>
+
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:30px">🕌</div>
+      <div style="font-size:16px;font-weight:700;color:#085041">دليل المدينة المنورة</div>
+      <div style="font-size:11px;color:#888">Madinah Guide — Visitor Account</div>
+    </div>
+
+    <!-- Tabs: Register / Sign In -->
+    <div class="auth-tab-row">
+      <button class="auth-tab active" id="tabRegister" onclick="switchAuthTab('register')">📝 إنشاء حساب | Register</button>
+      <button class="auth-tab"        id="tabLogin"    onclick="switchAuthTab('login')">🔑 تسجيل الدخول | Sign In</button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="authFormRegister">
+      <input class="auth-field" id="regName"  type="text"  placeholder="الاسم | Full name (optional)" autocomplete="name"/>
+      <input class="auth-field" id="regEmail" type="email" placeholder="البريد الإلكتروني | Email *" required autocomplete="email"/>
+      <select class="auth-field" id="regNat" style="color:#555">
+        <option value="">الجنسية | Nationality (optional)</option>
+        <option value="SA">🇸🇦 Saudi Arabia</option>
+        <option value="PK">🇵🇰 Pakistan</option>
+        <option value="EG">🇪🇬 Egypt</option>
+        <option value="IN">🇮🇳 India</option>
+        <option value="ID">🇮🇩 Indonesia</option>
+        <option value="MY">🇲🇾 Malaysia</option>
+        <option value="TR">🇹🇷 Turkey</option>
+        <option value="MA">🇲🇦 Morocco</option>
+        <option value="NG">🇳🇬 Nigeria</option>
+        <option value="BD">🇧🇩 Bangladesh</option>
+        <option value="OTHER">🌍 Other</option>
+      </select>
+      <button class="auth-submit" id="regBtn" onclick="doRegister()">
+        ✉️ إرسال رابط التفعيل | Send Activation Link
+      </button>
+      <div class="auth-msg" id="regMsg"></div>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="authFormLogin" style="display:none">
+      <p style="font-size:13px;color:#555;margin-bottom:14px;line-height:1.6;text-align:center">
+        أدخل بريدك الإلكتروني وسنرسل لك رابط دخول فوري.<br>
+        <span style="color:#888;font-size:12px">Enter your email — we'll send you a magic sign-in link.</span>
+      </p>
+      <input class="auth-field" id="loginEmail" type="email" placeholder="البريد الإلكتروني | Email" autocomplete="email"/>
+      <button class="auth-submit" id="loginBtn" onclick="doLogin()">
+        🚀 إرسال رابط الدخول | Send Login Link
+      </button>
+      <div class="auth-msg" id="loginMsg"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  VISITOR AUTH — session management + modal logic
+// ════════════════════════════════════════════════════════════════
+
+const MG_VISITOR_KEY = 'mg_visitor';
+
+function getMGVisitor() {
+  try { return JSON.parse(localStorage.getItem(MG_VISITOR_KEY)); }
+  catch { return null; }
+}
+
+function setMGVisitor(visitor) {
+  localStorage.setItem(MG_VISITOR_KEY, JSON.stringify(visitor));
+}
+
+function signOutVisitor() {
+  localStorage.removeItem(MG_VISITOR_KEY);
+  updateVisitorUI();
+}
+
+function updateVisitorUI() {
+  const v = getMGVisitor();
+  const bar  = document.getElementById('visitorSessionBar');
+  const nameEl  = document.getElementById('visitorSessionName');
+  const emailEl = document.getElementById('visitorSessionEmail');
+  const headerBtn = document.getElementById('authHeaderBtn');
+
+  if (v && v.is_active) {
+    if (bar)  { bar.style.display = 'flex'; }
+    if (nameEl)  nameEl.textContent = v.name  ? (curLang==='ar'?'أهلاً، ':'Welcome, ') + v.name : '';
+    if (emailEl) emailEl.textContent = v.email || '';
+    if (headerBtn) headerBtn.textContent = '✅';
+  } else {
+    if (bar)  { bar.style.display = 'none'; }
+    if (headerBtn) headerBtn.textContent = '👤';
+  }
+}
+
+function openAuthModal() {
+  const v = getMGVisitor();
+  if (v && v.is_active) {
+    // Already signed in — ask to sign out
+    if (confirm((curLang==='ar'?'هل تريد تسجيل الخروج؟':'Sign out of your account?'))) {
+      signOutVisitor();
+    }
+    return;
+  }
+  document.getElementById('authModal').classList.add('open');
+  switchAuthTab('register');
+}
+
+function closeAuthModal() {
+  document.getElementById('authModal').classList.remove('open');
+  // Reset forms
+  ['regName','regEmail','regNat','loginEmail'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['regMsg','loginMsg'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = ''; el.className = 'auth-msg'; }
+  });
+  ['regBtn','loginBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = false;
+  });
+}
+
+function switchAuthTab(tab) {
+  const isReg = tab === 'register';
+  document.getElementById('tabRegister').className = 'auth-tab' + (isReg ? ' active' : '');
+  document.getElementById('tabLogin').className    = 'auth-tab' + (!isReg ? ' active' : '');
+  document.getElementById('authFormRegister').style.display = isReg  ? 'block' : 'none';
+  document.getElementById('authFormLogin').style.display    = !isReg ? 'block' : 'none';
+}
+
+// ── Register ─────────────────────────────────────────────────────────────────
+async function doRegister() {
+  const email = document.getElementById('regEmail').value.trim();
+  const name  = document.getElementById('regName').value.trim();
+  const nat   = document.getElementById('regNat').value;
+  const btn   = document.getElementById('regBtn');
+  const msg   = document.getElementById('regMsg');
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msg.textContent = curLang==='ar' ? '⚠️ أدخل بريدًا إلكترونيًا صحيحًا' : '⚠️ Please enter a valid email address';
+    msg.className = 'auth-msg err';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = curLang==='ar' ? '⏳ جاري الإرسال…' : '⏳ Sending…';
+  msg.textContent = '';
+
+  try {
+    const r = await fetch(BACKEND + '/auth/visitor/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name: name || null, nationality: nat || null, preferred_lang: curLang })
+    });
+    const d = await r.json();
+
+    if (r.ok) {
+      if (d.status === 'already_registered') {
+        msg.className = 'auth-msg err';
+        msg.textContent = curLang==='ar'
+          ? '📧 هذا البريد مسجّل مسبقاً — جرّب تسجيل الدخول'
+          : '📧 Email already registered — try signing in';
+        switchAuthTab('login');
+        document.getElementById('loginEmail').value = email;
+      } else {
+        msg.className = 'auth-msg ok';
+        msg.innerHTML = curLang==='ar'
+          ? '✅ تم الإرسال! تحقق من بريدك الإلكتروني وانقر رابط التفعيل.<br><small style="color:#4A9B7F">قد يصل في البريد غير الهام</small>'
+          : '✅ Sent! Check your inbox and click the activation link.<br><small style="color:#4A9B7F">Check your spam folder if you don\'t see it</small>';
+        btn.textContent = '✅ ' + (curLang==='ar' ? 'تم الإرسال' : 'Email sent!');
+      }
+    } else {
+      throw new Error(d.error || 'Failed');
+    }
+  } catch (err) {
+    msg.className = 'auth-msg err';
+    msg.textContent = curLang==='ar' ? '❌ حدث خطأ — حاول مجدداً' : '❌ Something went wrong. Please try again.';
+    btn.disabled = false;
+    btn.textContent = '✉️ ' + (curLang==='ar' ? 'إعادة الإرسال' : 'Send Activation Link');
+  }
+}
+
+// ── Login (magic link) ───────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const btn   = document.getElementById('loginBtn');
+  const msg   = document.getElementById('loginMsg');
+
+  if (!email) {
+    msg.textContent = curLang==='ar' ? '⚠️ أدخل البريد الإلكتروني' : '⚠️ Please enter your email';
+    msg.className = 'auth-msg err';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = curLang==='ar' ? '⏳ جاري الإرسال…' : '⏳ Sending…';
+  msg.textContent = '';
+
+  try {
+    const r = await fetch(BACKEND + '/auth/visitor/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const d = await r.json();
+
+    if (r.status === 404) {
+      msg.className = 'auth-msg err';
+      msg.textContent = curLang==='ar'
+        ? '❌ لم يُعثر على هذا البريد — هل أنت مسجّل؟'
+        : '❌ Email not found — have you registered?';
+      switchAuthTab('register');
+      document.getElementById('regEmail').value = email;
+      btn.disabled = false;
+      btn.textContent = '🚀 ' + (curLang==='ar' ? 'إرسال رابط الدخول' : 'Send Login Link');
+      return;
+    }
+    if (r.status === 403) {
+      msg.className = 'auth-msg err';
+      msg.textContent = curLang==='ar'
+        ? '⚠️ الحساب لم يُفعّل بعد — تحقق من بريدك الإلكتروني'
+        : '⚠️ Account not activated — check your registration email first';
+      btn.disabled = false;
+      btn.textContent = '🚀 ' + (curLang==='ar' ? 'إرسال رابط الدخول' : 'Send Login Link');
+      return;
+    }
+    if (!r.ok) throw new Error(d.error);
+
+    msg.className = 'auth-msg ok';
+    msg.innerHTML = curLang==='ar'
+      ? '✅ تم الإرسال! انقر الرابط في بريدك للدخول فوراً.<br><small style="color:#4A9B7F">صالح لـ 15 دقيقة فقط</small>'
+      : '✅ Sent! Click the link in your email to sign in instantly.<br><small style="color:#4A9B7F">Valid for 15 minutes only</small>';
+    btn.textContent = '✅ ' + (curLang==='ar' ? 'تم الإرسال' : 'Link sent!');
+
+  } catch (err) {
+    msg.className = 'auth-msg err';
+    msg.textContent = curLang==='ar' ? '❌ حدث خطأ — حاول مجدداً' : '❌ Something went wrong. Please try again.';
+    btn.disabled = false;
+    btn.textContent = '🚀 ' + (curLang==='ar' ? 'إرسال رابط الدخول' : 'Send Login Link');
+  }
+}
+
+// ── On load: restore session from localStorage ───────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  updateVisitorUI();
+});
+
+// ── Enter key in auth fields ──────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const modal = document.getElementById('authModal');
+  if (!modal.classList.contains('open')) return;
+  const regVisible = document.getElementById('authFormRegister').style.display !== 'none';
+  if (regVisible) doRegister();
+  else doLogin();
+});
+</script>
+
 </body>
 </html>
