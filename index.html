@@ -742,7 +742,6 @@ const PLACES = [
 
 ];
 
-
 let curLang='en', chatHistory=[], isTyping=false, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
 const ratingsCache = {}; // placeId -> {rating, count} fetched from backend
 
@@ -2108,58 +2107,104 @@ function startCountdown(exp){
 function openClaimModal(offer){
   claimingOffer=offer;const lang=curLang,rtl=lang==='ar'||lang==='ur';
   const title=(rtl&&offer.title_ar)?offer.title_ar:offer.title_en;
-  const existing=getDeviceClaim(offer.id);
+  const visitor=getMGVisitor();
+
   const labels={
     title:{en:'Claim Your Deal',ar:'احجز عرضك',ur:'اپنی ڈیل لیں',fr:'Réserver votre offre',id:'Klaim Penawaran',tr:'Teklifinizi Alin',ru:'Получить скидку'},
-    name:{en:'Your name',ar:'اسمك',ur:'آپ کا نام',fr:'Votre nom',id:'Nama Anda',tr:'Adiniz',ru:'Ваше имя'},
-    email:{en:'Your email',ar:'بريدك الإلكتروني',ur:'آپ کی ای میل',fr:'Votre email',id:'Email Anda',tr:'E-postaniz',ru:'Ваш email'},
-    btn:{en:'Get My Code',ar:'احصل على الكود',ur:'کوڈ حاصل کریں',fr:'Obtenir mon code',id:'Dapatkan Kode',tr:'Kodumu Al',ru:'Получить код'},
-    sub:{en:'Show this code to the cashier',ar:'أظهر هذا الكود للكاشير',ur:'یہ کوڈ کیشیئر کو دکھائیں',fr:'Montrez ce code au caissier',id:'Tunjukkan kode ini ke kasir',tr:'Bu kodu kasiyere gosterin',ru:'Покажите код кассиру'},
+    loginPrompt:{en:'This offer is exclusive for registered visitors.',ar:'هذا العرض حصري للزوار المسجّلين.',ur:'یہ آفر صرف رجسٹرڈ وزیٹرز کے لیے ہے۔',fr:'Cette offre est réservée aux visiteurs inscrits.',id:'Penawaran ini eksklusif untuk pengunjung terdaftar.',tr:'Bu teklif sadece kayitli ziyaretcilere ozeldir.',ru:'Это предложение только для зарегистрированных посетителей.'},
+    loginBtn:{en:'Register / Sign In',ar:'سجّل أو ادخل',ur:'رجسٹر / سائن ان',fr:"S'inscrire / Se connecter",id:'Daftar / Masuk',tr:'Kaydol / Giris Yap',ru:'Зарегистрироваться / Войти'},
   };
-  document.getElementById('placeModalContent').innerHTML=`
-    <div style="text-align:center;margin-bottom:1rem"><div style="font-size:32px">⚡</div>
-    <div style="font-size:18px;font-weight:700;color:#A32D2D;margin-top:4px">${labels.title[lang]||labels.title.en}</div>
-    <div style="font-size:14px;color:#555;margin-top:4px">${title}</div>
-    <div style="font-size:22px;font-weight:800;color:#A32D2D;margin-top:4px">${offer.offer_price} SAR</div>
-    <div style="font-size:12px;color:#888">${offer.remaining_qty} of ${offer.total_qty} remaining</div></div>
-    <div id="claimForm" style="display:${existing&&!existing.expired?'none':'flex'};flex-direction:column;gap:8px">
-      ${existing&&existing.expired?`<div style="background:#FDE8E8;border-radius:10px;padding:0.75rem;text-align:center;font-size:13px;color:#A32D2D">Code expired. Claim again.</div>`:''}
-      <input id="claimName" placeholder="${labels.name[lang]||labels.name.en}" style="padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit" dir="${rtl?'rtl':'ltr'}"/>
-      <input id="claimEmail" placeholder="${labels.email[lang]||labels.email.en}" type="email" style="padding:10px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit"/>
-      <button onclick="submitClaim()" style="padding:13px;background:#A32D2D;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer" id="claimBtn">${labels.btn[lang]||labels.btn.en}</button>
-      <div id="claimMsg" style="font-size:13px;text-align:center;color:#888"></div>
-    </div>
-    <div id="claimResult" style="display:${existing&&!existing.expired?'block':'none'};text-align:center;padding:1rem">
-      ${existing&&!existing.expired?'<div style="font-size:13px;color:#085041;font-weight:600;margin-bottom:8px">You already claimed this deal</div>':''}
-      <div style="font-size:48px;font-weight:900;letter-spacing:8px;color:#085041;background:#E1F5EE;border-radius:14px;padding:1rem;margin-bottom:0.75rem" id="claimCode">${existing&&!existing.expired?existing.code:''}</div>
-      <div id="claimCountdown" style="font-size:13px;font-weight:600;margin-bottom:8px"></div>
-      <div style="display:flex;justify-content:center;margin-bottom:10px"><div id="claimQR" style="padding:10px;background:#fff;border-radius:12px;border:2px solid #E1F5EE;display:inline-block"></div></div>
-      <div style="font-size:12px;color:#888;margin-bottom:6px">📷 ${lang==='ar'?'أو امسح رمز QR':'Or scan QR code'}</div>
-      <div style="font-size:14px;color:#555">${labels.sub[lang]||labels.sub.en}</div>
-      <div style="font-size:12px;color:#888;margin-top:4px">${offer.place_name_en}</div>
-    </div>`;
+
+  const header='<div style="text-align:center;margin-bottom:1rem">' +
+    '<div style="font-size:32px">⚡</div>' +
+    '<div style="font-size:18px;font-weight:700;color:#A32D2D;margin-top:4px">' + (labels.title[lang]||labels.title.en) + '</div>' +
+    '<div style="font-size:14px;color:#555;margin-top:4px">' + title + '</div>' +
+    '<div style="font-size:22px;font-weight:800;color:#A32D2D;margin-top:4px">' + offer.offer_price + ' SAR</div>' +
+    '<div style="font-size:12px;color:#888">' + offer.remaining_qty + ' of ' + offer.total_qty + ' remaining</div>' +
+  '</div>';
+
+  if(!visitor || !visitor.is_verified) {
+    document.getElementById('placeModalContent').innerHTML = header +
+      '<div style="background:#FFF8E8;border:1.5px solid #F0D080;border-radius:14px;padding:18px;text-align:center">' +
+        '<div style="font-size:28px;margin-bottom:8px">🔒</div>' +
+        '<div style="font-size:14px;font-weight:600;color:#7A5500;margin-bottom:6px">' + (labels.loginPrompt[lang]||labels.loginPrompt.en) + '</div>' +
+        '<div style="font-size:12px;color:#888;margin-bottom:14px">' + (lang==='ar'?'سجّل مجاناً للحصول على كودك الخاص':'Register for free to get your personal code') + '</div>' +
+        '<button onclick="document.getElementById(\'placeModal\').classList.remove(\'open\');openAuthModal();" ' +
+          'style="width:100%;padding:13px;background:linear-gradient(135deg,#085041,#1D9E75);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer">' +
+          '👤 ' + (labels.loginBtn[lang]||labels.loginBtn.en) +
+        '</button>' +
+      '</div>';
+    document.getElementById('placeModal').classList.add('open');
+    return;
+  }
+
+  document.getElementById('placeModalContent').innerHTML = header +
+    '<div style="text-align:center;padding:20px;color:#888">⏳ ' + (lang==='ar'?'جاري التحقق…':'Checking…') + '</div>';
   document.getElementById('placeModal').classList.add('open');
-  if(existing&&!existing.expired){startCountdown(existing.expiresAt);setTimeout(()=>generateQR(existing.code),100);}
+  submitClaim();
 }
 async function submitClaim(){
-  const name=document.getElementById('claimName')?.value.trim();
-  const email=document.getElementById('claimEmail')?.value.trim();
-  const msg=document.getElementById('claimMsg');const btn=document.getElementById('claimBtn');
-  const err={en:'Please enter your name and email.',ar:'يرجى إدخال الاسم والبريد الإلكتروني.',ur:'براہ کرم نام اور ای میل درج کریں۔',fr:'Veuillez entrer votre nom et email.',id:'Masukkan nama dan email.',tr:'Lutfen adinizi ve e-postanizi girin.',ru:'Введите имя и email.'};
-  if(!name||!email){msg.style.color='#A32D2D';msg.textContent=err[curLang]||err.en;return;}
-  btn.disabled=true;btn.textContent='…';
+  const visitor=getMGVisitor();
+  const lang=curLang,rtl=lang==='ar'||lang==='ur';
+  if(!visitor||!visitor.is_verified){openAuthModal();return;}
+
+  const labels={
+    sub:{en:'Show this code to the cashier',ar:'أظهر هذا الكود للكاشير',ur:'یہ کوڈ کیشیئر کو دکھائیں',fr:'Montrez ce code au caissier',id:'Tunjukkan kode ini ke kasir',tr:'Bu kodu kasiyere gosterin',ru:'Покажите код кассиру'},
+  };
+
   try{
-    const r=await fetch(BACKEND+'/flash-offers/claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({offer_id:claimingOffer.id,visitor_name:name,visitor_email:email})});
-    const d=await r.json();if(!d.success)throw new Error(d.error);
-    saveDeviceClaim(claimingOffer.id,d.code,d.expires_at);
-    document.getElementById('claimForm').style.display='none';
-    document.getElementById('claimResult').style.display='block';
-    document.getElementById('claimCode').textContent=d.code;
-    startCountdown(d.expires_at);setTimeout(()=>generateQR(d.code),100);
-    const fo=allFlashOffers.find(o=>o.id===claimingOffer.id);
-    if(fo)fo.remaining_qty=d.remaining_qty||Math.max(0,fo.remaining_qty-1);
-    renderFlashBanner();
-  }catch(e){btn.disabled=false;btn.textContent='Get My Code';msg.style.color='#A32D2D';msg.textContent=e.message;}
+    const r=await fetch(BACKEND+'/flash-offers/claim',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({offer_id:claimingOffer.id,visitor_id:visitor.id})});
+    const d=await r.json();
+
+    if(r.status===401){
+      // Session stale — force re-login
+      signOutVisitor();
+      document.getElementById('placeModal').classList.remove('open');
+      openAuthModal();
+      return;
+    }
+    if(!d.success) throw new Error(d.error);
+
+    // ── Show the code ──────────────────────────────────────────────────────
+    const alreadyMsg = d.already_claimed
+      ? '<div style="background:#E8F7F2;border-radius:10px;padding:8px;font-size:12px;color:#085041;font-weight:600;margin-bottom:10px">' +
+          (lang==='ar'?'✅ لديك كود خاص لهذا العرض':'✅ You already have a code for this offer') + '</div>'
+      : '';
+
+    const title=(rtl&&claimingOffer.title_ar)?claimingOffer.title_ar:claimingOffer.title_en;
+    document.getElementById('placeModalContent').innerHTML =
+      '<div style="text-align:center;margin-bottom:1rem">' +
+        '<div style="font-size:32px">⚡</div>' +
+        '<div style="font-size:15px;font-weight:700;color:#A32D2D;margin-top:4px">' + title + '</div>' +
+        '<div style="font-size:20px;font-weight:800;color:#A32D2D">' + claimingOffer.offer_price + ' SAR</div>' +
+      '</div>' +
+      alreadyMsg +
+      '<div style="text-align:center;padding:0.5rem">' +
+        '<div style="font-size:11px;color:#888;margin-bottom:6px">' + (lang==='ar'?'كودك الشخصي':'Your personal code') + '</div>' +
+        '<div style="font-size:48px;font-weight:900;letter-spacing:8px;color:#085041;background:#E1F5EE;border-radius:14px;padding:1rem;margin-bottom:0.75rem" id="claimCode">' + d.code + '</div>' +
+        '<div style="display:flex;justify-content:center;margin-bottom:10px"><div id="claimQR" style="padding:10px;background:#fff;border-radius:12px;border:2px solid #E1F5EE;display:inline-block"></div></div>' +
+        '<div style="font-size:12px;color:#888;margin-bottom:4px">📷 ' + (lang==='ar'?'أو امسح رمز QR':'Or scan QR code') + '</div>' +
+        '<div style="font-size:13px;color:#555;font-weight:600">' + (labels.sub[lang]||labels.sub.en) + '</div>' +
+        '<div style="font-size:11px;color:#888;margin-top:4px">' + claimingOffer.place_name_en + '</div>' +
+        '<div style="font-size:11px;color:#4A9B7F;margin-top:8px;background:#E8F7F2;border-radius:8px;padding:6px">' +
+          '👤 ' + (visitor.name||visitor.email) +
+        '</div>' +
+      '</div>';
+
+    setTimeout(()=>generateQR(d.code),100);
+
+    // Update remaining qty in memory
+    if(!d.already_claimed){
+      const fo=allFlashOffers.find(o=>o.id===claimingOffer.id);
+      if(fo)fo.remaining_qty=d.remaining_qty||Math.max(0,fo.remaining_qty-1);
+      renderFlashBanner();
+    }
+
+  }catch(e){
+    document.getElementById('placeModalContent').innerHTML +=
+      '<div style="text-align:center;color:#A32D2D;font-size:13px;padding:10px">❌ ' + e.message + '</div>';
+  }
 }
 
 // ══ OFFER KEYWORD DETECTION ═══════════════════════════════════════════════════
