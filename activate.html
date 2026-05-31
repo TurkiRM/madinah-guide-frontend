@@ -3,82 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تفعيل الحساب | Madinah Guide</title>
+  <title>دليل المدينة | Madinah Guide</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      min-height:100vh;display:flex;align-items:center;justify-content:center;
-      background:linear-gradient(135deg,#f0faf6 0%,#e8f5f0 100%);
-      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
-      padding:20px;
-    }
-    .card{
-      background:#fff;border-radius:20px;padding:44px 36px;max-width:420px;width:100%;
-      box-shadow:0 8px 32px rgba(8,80,65,0.12);text-align:center;
-    }
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f0faf6 0%,#e8f5f0 100%);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;padding:20px}
+    .card{background:#fff;border-radius:20px;padding:44px 36px;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(8,80,65,0.12);text-align:center}
     .icon{font-size:56px;margin-bottom:16px;display:block}
     h1{font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:10px}
     p{font-size:14px;color:#555;line-height:1.7;margin-bottom:6px}
     .sub{font-size:12px;color:#888;direction:ltr;margin-top:4px}
-    .btn{
-      display:inline-block;margin-top:24px;padding:13px 32px;
-      background:linear-gradient(135deg,#085041,#1D9E75);
-      color:#fff;border-radius:12px;font-size:14px;font-weight:700;
-      text-decoration:none;transition:opacity .2s;
-    }
+    .btn{display:inline-block;margin-top:20px;padding:13px 32px;background:linear-gradient(135deg,#085041,#1D9E75);color:#fff;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none;transition:opacity .2s;border:none;width:100%;cursor:pointer}
     .btn:hover{opacity:.88}
     .btn-red{background:#A32D2D}
-    .spinner{
-      width:48px;height:48px;border:4px solid #e0f0eb;
-      border-top:4px solid #1D9E75;border-radius:50%;
-      animation:spin 0.9s linear infinite;margin:0 auto 20px;
-    }
+    .field{width:100%;padding:11px 14px;border:1.5px solid #e0e0e0;border-radius:12px;font-size:14px;margin-bottom:10px;outline:none;font-family:inherit;box-sizing:border-box;direction:ltr;text-align:left}
+    .field:focus{border-color:#1D9E75}
+    .msg{font-size:13px;margin-top:8px;min-height:18px}
+    .msg.ok{color:#085041}.msg.err{color:#A32D2D}
+    .spinner{width:48px;height:48px;border:4px solid #e0f0eb;border-top:4px solid #1D9E75;border-radius:50%;animation:spin 0.9s linear infinite;margin:0 auto 20px}
     @keyframes spin{to{transform:rotate(360deg)}}
+    .pwd-wrap{position:relative;margin-bottom:10px}
+    .pwd-wrap .field{margin-bottom:0;padding-right:40px}
+    .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:#888}
   </style>
 </head>
 <body>
   <div class="card" id="card">
     <div class="spinner"></div>
     <h1>جاري التحقق…</h1>
-    <p>Verifying your email, please wait…</p>
+    <p>Please wait…</p>
   </div>
 
   <script>
     const BACKEND = 'https://madinah-guide-backend-1.onrender.com';
-    const token   = new URLSearchParams(location.search).get('token');
+    const params  = new URLSearchParams(location.search);
+    const token   = params.get('token');
+    const type    = params.get('type') || 'activation';
 
-    async function activate() {
-      const card = document.getElementById('card');
+    async function init() {
       if (!token) return showError('no_token');
+      if (type === 'reset') return showResetForm();
+      await activate();
+    }
 
+    // ── Email Activation ─────────────────────────────────────────────────────
+    async function activate() {
       try {
         const r = await fetch(BACKEND + '/auth/visitor/activate/' + token);
         const d = await r.json();
-
         if (!r.ok) return showError(d.error || 'unknown');
-
-        // ✅ Email verified — ask user to sign in with their password
-        card.innerHTML =
+        document.getElementById('card').innerHTML =
           '<span class="icon">✅</span>' +
           '<h1>تم التحقق من بريدك!</h1>' +
           '<p>أهلاً ' + (d.name || 'بك') + ' — تم تأكيد بريدك الإلكتروني بنجاح.</p>' +
-          '<p class="sub">Your email is verified. Sign in with your password to start exploring Madinah!</p>' +
-          '<a href="index.html#signin" class="btn">🔑 تسجيل الدخول | Sign In</a>';
-
+          '<p class="sub">Your email is verified. Sign in with your password to start exploring!</p>' +
+          '<a href="index.html" class="btn">🔑 تسجيل الدخول | Sign In</a>';
       } catch (err) {
         showError('network');
       }
     }
 
+    // ── Password Reset Form ──────────────────────────────────────────────────
+    function showResetForm() {
+      document.getElementById('card').innerHTML =
+        '<span class="icon">🔑</span>' +
+        '<h1>تعيين كلمة مرور جديدة</h1>' +
+        '<p class="sub" style="margin-bottom:20px">Set your new password below (min 6 characters)</p>' +
+        '<div class="pwd-wrap">' +
+          '<input class="field" id="pwd1" type="password" placeholder="كلمة المرور الجديدة | New password" autocomplete="new-password"/>' +
+          '<button class="eye" onclick="togglePwd(\'pwd1\',this)" type="button">👁</button>' +
+        '</div>' +
+        '<div class="pwd-wrap">' +
+          '<input class="field" id="pwd2" type="password" placeholder="تأكيد كلمة المرور | Confirm password" autocomplete="new-password"/>' +
+          '<button class="eye" onclick="togglePwd(\'pwd2\',this)" type="button">👁</button>' +
+        '</div>' +
+        '<div class="msg" id="resetMsg"></div>' +
+        '<button class="btn" id="resetBtn" onclick="doReset()">✅ حفظ كلمة المرور | Save Password</button>';
+    }
+
+    function togglePwd(id, btn) {
+      var f = document.getElementById(id);
+      f.type = f.type === 'password' ? 'text' : 'password';
+      btn.textContent = f.type === 'password' ? '👁' : '🙈';
+    }
+
+    async function doReset() {
+      var pwd1 = document.getElementById('pwd1').value;
+      var pwd2 = document.getElementById('pwd2').value;
+      var msg  = document.getElementById('resetMsg');
+      var btn  = document.getElementById('resetBtn');
+
+      if (pwd1.length < 6) {
+        msg.className = 'msg err';
+        msg.textContent = '⚠️ Password must be at least 6 characters';
+        return;
+      }
+      if (pwd1 !== pwd2) {
+        msg.className = 'msg err';
+        msg.textContent = '⚠️ كلمات المرور غير متطابقة | Passwords do not match';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Saving…';
+      msg.textContent = '';
+
+      try {
+        var r = await fetch(BACKEND + '/auth/visitor/reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: token, password: pwd1 })
+        });
+        var d = await r.json();
+
+        if (!r.ok) return showError(d.error || 'unknown');
+
+        document.getElementById('card').innerHTML =
+          '<span class="icon">🎉</span>' +
+          '<h1>تم تعيين كلمة المرور!</h1>' +
+          '<p>يمكنك الآن تسجيل الدخول بكلمة مرورك الجديدة.</p>' +
+          '<p class="sub">Your password has been reset. Sign in now!</p>' +
+          '<a href="index.html" class="btn">🔑 تسجيل الدخول | Sign In</a>';
+
+      } catch (err) {
+        msg.className = 'msg err';
+        msg.textContent = '❌ Network error. Please try again.';
+        btn.disabled = false;
+        btn.textContent = '✅ Save Password';
+      }
+    }
+
+    // ── Error States ─────────────────────────────────────────────────────────
     function showError(code) {
-      const msgs = {
-        invalid_token: { ar: 'الرابط غير صالح',           en: 'This link is invalid or does not exist.' },
-        token_used:    { ar: 'تم استخدام هذا الرابط',      en: 'This link has already been used.' },
-        token_expired: { ar: 'انتهت صلاحية الرابط',        en: 'This link has expired. Please register again.' },
-        network:       { ar: 'خطأ في الشبكة',              en: 'Network error. Please try again.' },
-        no_token:      { ar: 'رابط غير صحيح',              en: 'No token found in this link.' },
+      var msgs = {
+        invalid_token: { ar: 'الرابط غير صالح',       en: 'This link is invalid or does not exist.' },
+        token_used:    { ar: 'تم استخدام هذا الرابط', en: 'This link has already been used. Request a new one.' },
+        token_expired: { ar: 'انتهت صلاحية الرابط',   en: 'This link has expired. Please request a new one.' },
+        network:       { ar: 'خطأ في الشبكة',          en: 'Network error. Please try again.' },
+        no_token:      { ar: 'رابط غير صحيح',          en: 'No token found in this link.' },
       };
-      const m = msgs[code] || { ar: 'حدث خطأ غير متوقع', en: 'Something went wrong.' };
+      var m = msgs[code] || { ar: 'حدث خطأ غير متوقع', en: 'Something went wrong.' };
       document.getElementById('card').innerHTML =
         '<span class="icon">❌</span>' +
         '<h1>' + m.ar + '</h1>' +
@@ -86,7 +149,7 @@
         '<a href="index.html" class="btn btn-red">← العودة | Go Back</a>';
     }
 
-    activate();
+    init();
   </script>
 </body>
 </html>
