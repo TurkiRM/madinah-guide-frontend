@@ -41,7 +41,10 @@
 
     async function init() {
       if (!token) return showError('no_token');
-      if (type === 'reset') return showResetForm();
+      if (type === 'reset') {
+        showResetForm(); // Show form immediately (fast UX)
+        return;
+      }
       await activate();
     }
 
@@ -50,7 +53,20 @@
       try {
         const r = await fetch(BACKEND + '/auth/visitor/activate/' + token);
         const d = await r.json();
-        if (!r.ok) return showError(d.error || 'unknown');
+        if (!r.ok) {
+          // Show specific error with detail for debugging
+          msg.className = 'msg err';
+          const errMap = {
+            invalid_token:   'الرابط غير صالح | Invalid or expired link — please request a new one.',
+            token_used:      'تم استخدام هذا الرابط | This link was already used — please request a new one.',
+            token_expired:   'انتهت صلاحية الرابط | Link expired — please request a new reset link.',
+            password_too_short: 'كلمة المرور قصيرة جداً | Password must be at least 6 characters.',
+          };
+          msg.textContent = '❌ ' + (errMap[d.error] || d.error || 'Something went wrong.');
+          btn.disabled = false;
+          btn.textContent = '✅ Save Password';
+          return;
+        }
         document.getElementById('card').innerHTML =
           '<span class="icon">✅</span>' +
           '<h1>تم التحقق من بريدك!</h1>' +
@@ -63,6 +79,21 @@
     }
 
     // ── Password Reset Form ──────────────────────────────────────────────────
+    async function verifyResetToken() {
+      // Pre-validate the token exists and is unused before showing the form
+      try {
+        const r = await fetch(BACKEND + '/auth/visitor/check-reset-token/' + token);
+        if (!r.ok) {
+          const d = await r.json();
+          showError(d.error || 'invalid_token');
+          return false;
+        }
+        return true;
+      } catch(e) {
+        return true; // If check fails due to network, still show form
+      }
+    }
+
     function showResetForm() {
       document.getElementById('card').innerHTML =
         '<span class="icon">🔑</span>' +
@@ -115,7 +146,20 @@
         });
         var d = await r.json();
 
-        if (!r.ok) return showError(d.error || 'unknown');
+        if (!r.ok) {
+          // Show specific error with detail for debugging
+          msg.className = 'msg err';
+          const errMap = {
+            invalid_token:   'الرابط غير صالح | Invalid or expired link — please request a new one.',
+            token_used:      'تم استخدام هذا الرابط | This link was already used — please request a new one.',
+            token_expired:   'انتهت صلاحية الرابط | Link expired — please request a new reset link.',
+            password_too_short: 'كلمة المرور قصيرة جداً | Password must be at least 6 characters.',
+          };
+          msg.textContent = '❌ ' + (errMap[d.error] || d.error || 'Something went wrong.');
+          btn.disabled = false;
+          btn.textContent = '✅ Save Password';
+          return;
+        }
 
         document.getElementById('card').innerHTML =
           '<span class="icon">🎉</span>' +
