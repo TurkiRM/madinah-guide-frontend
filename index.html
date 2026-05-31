@@ -2532,6 +2532,29 @@ window.addEventListener('popstate', (e) => {
         🔑 تسجيل الدخول | Sign In
       </button>
       <div class="auth-msg" id="loginMsg"></div>
+      <div style="text-align:center;margin-top:10px">
+        <button onclick="switchAuthTab('forgot')" style="background:none;border:none;color:#4A9B7F;font-size:12px;cursor:pointer;text-decoration:underline">
+          نسيت كلمة المرور؟ | Forgot password?
+        </button>
+      </div>
+    </div>
+
+    <!-- FORGOT PASSWORD FORM -->
+    <div id="authFormForgot" style="display:none">
+      <p style="font-size:13px;color:#555;margin-bottom:14px;line-height:1.6;text-align:center">
+        أدخل بريدك وسنرسل لك رابط إعادة تعيين كلمة المرور.<br>
+        <span style="color:#888;font-size:12px">Enter your email and we'll send a reset link.</span>
+      </p>
+      <input class="auth-field" id="forgotEmail" type="email" placeholder="البريد الإلكتروني | Email" autocomplete="email"/>
+      <button class="auth-submit" id="forgotBtn" onclick="doForgot()">
+        📧 إرسال رابط الإعادة | Send Reset Link
+      </button>
+      <div class="auth-msg" id="forgotMsg"></div>
+      <div style="text-align:center;margin-top:10px">
+        <button onclick="switchAuthTab('login')" style="background:none;border:none;color:#4A9B7F;font-size:12px;cursor:pointer;text-decoration:underline">
+          ← العودة لتسجيل الدخول | Back to Sign In
+        </button>
+      </div>
     </div>
 
   </div>
@@ -2635,26 +2658,29 @@ function openAuthModal() {
 function closeAuthModal() {
   document.getElementById('authModal').classList.remove('open');
   // Reset forms
-  ['regName','regEmail','regPassword','regNat','loginEmail','loginPassword'].forEach(id => {
+  ['regName','regEmail','regPassword','regNat','loginEmail','loginPassword','forgotEmail'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  ['regMsg','loginMsg'].forEach(id => {
+  ['regMsg','loginMsg','forgotMsg'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.textContent = ''; el.className = 'auth-msg'; }
   });
-  ['regBtn','loginBtn'].forEach(id => {
+  ['regBtn','loginBtn','forgotBtn'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.disabled = false;
   });
 }
 
 function switchAuthTab(tab) {
-  const isReg = tab === 'register';
+  const isReg    = tab === 'register';
+  const isLogin  = tab === 'login';
+  const isForgot = tab === 'forgot';
   document.getElementById('tabRegister').className = 'auth-tab' + (isReg ? ' active' : '');
-  document.getElementById('tabLogin').className    = 'auth-tab' + (!isReg ? ' active' : '');
-  document.getElementById('authFormRegister').style.display = isReg  ? 'block' : 'none';
-  document.getElementById('authFormLogin').style.display    = !isReg ? 'block' : 'none';
+  document.getElementById('tabLogin').className    = 'auth-tab' + (isLogin ? ' active' : '');
+  document.getElementById('authFormRegister').style.display = isReg    ? 'block' : 'none';
+  document.getElementById('authFormLogin').style.display    = isLogin  ? 'block' : 'none';
+  document.getElementById('authFormForgot').style.display   = isForgot ? 'block' : 'none';
 }
 
 // ── Toggle password visibility ───────────────────────────────────────────────
@@ -2728,7 +2754,47 @@ async function doRegister() {
   }
 }
 
-// ── Login (email + password) ─────────────────────────────────────────────────
+// ── Forgot Password ──────────────────────────────────────────────────────────
+async function doForgot() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  const btn   = document.getElementById('forgotBtn');
+  const msg   = document.getElementById('forgotMsg');
+
+  if (!email) {
+    msg.textContent = curLang==='ar' ? '⚠️ أدخل بريدك الإلكتروني' : '⚠️ Please enter your email';
+    msg.className = 'auth-msg err'; return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = curLang==='ar' ? '⏳ جاري الإرسال…' : '⏳ Sending…';
+  msg.textContent = '';
+
+  try {
+    const r = await fetch(BACKEND + '/auth/visitor/forgot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const d = await r.json();
+
+    if (r.ok) {
+      msg.className = 'auth-msg ok';
+      msg.innerHTML = curLang==='ar'
+        ? '✅ تم الإرسال! تحقق من بريدك وانقر رابط إعادة التعيين.<br><small style="color:#4A9B7F">صالح لـ 15 دقيقة فقط · قد يصل في البريد غير الهام</small>'
+        : '✅ Sent! Check your inbox and click the reset link.<br><small style="color:#4A9B7F">Valid for 15 minutes · Check spam if you don\'t see it</small>';
+      btn.textContent = '✅ ' + (curLang==='ar' ? 'تم الإرسال' : 'Email sent!');
+    } else {
+      throw new Error(d.error || 'Failed');
+    }
+  } catch (err) {
+    msg.className = 'auth-msg err';
+    msg.textContent = curLang==='ar' ? '❌ حدث خطأ — حاول مجدداً' : '❌ Something went wrong. Please try again.';
+    btn.disabled = false;
+    btn.textContent = '📧 ' + (curLang==='ar' ? 'إرسال رابط الإعادة' : 'Send Reset Link');
+  }
+}
+
+// ── Login (email + password) ──────────────────────────────────────────────────
 async function doLogin() {
   const email    = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
@@ -2803,8 +2869,10 @@ document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
   const modal = document.getElementById('authModal');
   if (!modal.classList.contains('open')) return;
-  var regVisible = document.getElementById('authFormRegister').style.display !== 'none';
+  var regVisible    = document.getElementById('authFormRegister').style.display !== 'none';
+  var forgotVisible = document.getElementById('authFormForgot').style.display !== 'none';
   if (regVisible) doRegister();
+  else if (forgotVisible) doForgot();
   else doLogin();
 });
 </script>
