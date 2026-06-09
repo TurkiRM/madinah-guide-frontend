@@ -1112,10 +1112,11 @@ async function sendMessage(){
   const rStr = (p) => { const rv=ratingsCache[p.id]; return rv&&rv.count>0?` ★${rv.rating}(${rv.count})`:''; };
 
   // ── 4. BUILD PLACES LIST sorted by distance ───────────────────────────────────
-  const placesSorted = (cat) => PLACES
+  const placesSorted = (cat, limit) => PLACES
     .filter(p => p.cat === cat && p.lat)
     .map(p => ({...p, km: haversineKm(vLat, vLng, p.lat, p.lng)}))
     .sort((a,b) => a.km - b.km)
+    .slice(0, limit || 999)
     .map(p => {
       // Only show infoEn if place has a currently active offer in our database
       const hasActiveOffer = [...relFlash, ...relOffers].some(o => o.place_id === p.id);
@@ -1151,13 +1152,15 @@ async function sendMessage(){
 
   let placesCtx = '';
   if (detectedCat) {
-    placesCtx = `\n${catEmojis[detectedCat]||'📍'} ${detectedCat.toUpperCase()} near visitor (sorted by distance):\n${placesSorted(detectedCat)}`;
+    // Category detected — show top 12 nearest in that category + list other categories
+    placesCtx = `\n${catEmojis[detectedCat]||'📍'} ${detectedCat.toUpperCase()} near visitor (sorted by distance):\n${placesSorted(detectedCat, 12)}`;
     const others = [...new Set(PLACES.map(p=>p.cat))].filter(c=>c!==detectedCat&&PLACES.some(p=>p.cat===c));
     if (others.length) placesCtx += `\n\nOther categories available: ${others.map(c=>(catEmojis[c]||'')+''+c).join(', ')}`;
   } else {
+    // No category — show top 3 nearest per category to keep context small
     const allCats = [...new Set(PLACES.map(p=>p.cat))];
     allCats.forEach(cat => {
-      placesCtx += `\n${catEmojis[cat]||'📍'} ${cat.toUpperCase()} (sorted nearest first):\n${placesSorted(cat)}\n`;
+      placesCtx += `\n${catEmojis[cat]||'📍'} ${cat.toUpperCase()}:\n${placesSorted(cat, 3)}\n`;
     });
   }
 
@@ -1182,13 +1185,6 @@ Use exact English place names — they become tappable links. Prices in SAR.`;
 
   chatHistory.push({role:'user',content:text});
   showTyping();
-  const ratingStr = (p) => { const rv=ratingsCache[p.id]; return rv&&rv.count>0?`★${rv.rating}(${rv.count} reviews)`:''; };
-  const placeList = (cat) => PLACES.filter(p=>p.cat===cat).map(p=>`• ${p.nameEn} (${p.nameAr}) — ${p.cost}${ratingStr(p)?' '+ratingStr(p):''} — ${p.descEn}`).join('\n');
-  // Build verified info context — includes full infoEn/infoAr for places that have it
-  const infoList = (cat) => PLACES.filter(p=>p.cat===cat).map(p=>{
-    const info = p.infoEn ? `\n   VERIFIED INFO: ${p.infoEn}` : '';
-    return `• ${p.nameEn} (${p.nameAr}) — ${p.cost}${ratingStr(p)?' '+ratingStr(p):''}${info}`;
-  }).join('\n');
 
 
   try{
