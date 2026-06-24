@@ -1400,7 +1400,7 @@ function filterPlaces(el,cat){
 function renderPlaces(){
   const list=document.getElementById('placesList');
   const lang=curLang;
-  const COMMERCIAL_CATS = ['restaurant','coffee','juices','desserts','market','shopping','pharmacy','clinic','services','technology','car','sports'];
+  const COMMERCIAL_CATS = ['restaurant','coffee','juices','desserts','market','shopping','pharmacy','clinic','services','technology','car','sports','education','homecooking'];
   const visiblePlaces = PLACES.filter(p => COMMERCIAL_CATS.includes(p.cat));
   const filtered = curCat==='all' ? visiblePlaces : PLACES.filter(p=>p.cat===curCat);
   list.innerHTML='';
@@ -1425,7 +1425,10 @@ function renderPlaces(){
     const ratingHtml = rv && rv.count > 0
       ? `<span class="place-rating">★ ${rv.rating} <span style="font-weight:400;color:#aaa">(${rv.count})</span></span>`
       : '';
-    div.innerHTML=`${imgHtml}<div class="place-body"><div class="place-name">${name}</div>${nameAlt?`<div class="place-name-ar">${nameAlt}</div>`:''}<div class="place-meta"><span class="place-cost">${p.cost}</span>${ratingHtml}${p.instagram?`<span style="font-size:11px;color:#534AB7">📸 @${p.instagram}</span>`:''}</div><div class="place-desc">${desc}</div></div>`;
+    const deliveryBadge = p.cat === 'homecooking'
+      ? `<span style="font-size:10px;background:#E8F7F2;color:#085041;padding:2px 7px;border-radius:8px;font-weight:700">📦 Delivery</span>`
+      : '';
+    div.innerHTML=`${imgHtml}<div class="place-body"><div class="place-name">${name}</div>${nameAlt?`<div class="place-name-ar">${nameAlt}</div>`:''}<div class="place-meta"><span class="place-cost">${p.cost}</span>${ratingHtml}${deliveryBadge}${p.instagram?`<span style="font-size:11px;color:#534AB7">📸 @${p.instagram}</span>`:''}</div><div class="place-desc">${desc}</div></div>`;
     list.appendChild(div);
   });
 }
@@ -1448,8 +1451,26 @@ function openModal(p){
   const branchLabel = {en:'Choose a branch',ar:'اختر الفرع',ur:'شاخ منتخب کریں',fr:'Choisir une succursale',id:'Pilih cabang',tr:'Şube seçin',ru:'Выберите филиал'};
 
   let directionsHtml = '';
+
+  // ── Home cooking: WhatsApp order button instead of directions ───────────────
+  if(p.cat === 'homecooking') {
+    const waLabels = {en:'Order via WhatsApp',ar:'اطلب عبر واتساب',ur:'واٹس ایپ پر آرڈر کریں',fr:'Commander via WhatsApp',id:'Pesan via WhatsApp',tr:'WhatsApp ile sipariş ver',ru:'Заказать через WhatsApp'};
+    if(p.whatsapp) {
+      const waNum = p.whatsapp.replace(/[^0-9]/g,'');
+      const waMsg = encodeURIComponent(curLang==='ar' ? `مرحباً، أريد الطلب من ${p.nameAr||p.nameEn}` : `Hello, I'd like to order from ${p.nameEn}`);
+      directionsHtml = `<a href="https://wa.me/${waNum}?text=${waMsg}" target="_blank"
+        style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px;background:#25D366;color:#fff;border-radius:13px;font-size:15px;font-weight:700;text-decoration:none">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        ${waLabels[lang]||waLabels.en}
+      </a>`;
+    } else {
+      // No whatsapp number yet — show placeholder
+      directionsHtml = `<div style="padding:12px;background:#f5f5f0;border-radius:13px;text-align:center;font-size:13px;color:#888">
+        📦 ${lang==='ar'?'التوصيل متاح — تواصل معنا للطلب':'Delivery available — contact for orders'}
+      </div>`;
+    }
   // Transport routes display
-  if(p.routes && p.routes.length > 0){
+  } else if(p.routes && p.routes.length > 0){
     const routeBtns = p.routes.map(r => {
       const rName = (rtl && r.nameAr) ? r.nameAr : r.nameEn;
       const stops = r.stops.join(' → ');
@@ -1493,7 +1514,7 @@ function openModal(p){
     ? `<div style="margin:-1rem -1.25rem 1rem;height:200px;overflow:hidden;border-radius:14px 14px 0 0"><img src="${p.img}" alt="${p.nameEn}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=\\'height:200px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:64px\\'>${p.icon}</div>'"/></div>`
     : `<div style="height:160px;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:64px;margin:-1rem -1.25rem 1rem;border-radius:14px 14px 0 0">${p.icon}</div>`;
 
-  const branchCount = p.branches?.length > 1
+  const branchCount = p.cat !== 'homecooking' && p.branches?.length > 1
     ? `<span style="font-size:11px;background:#E1F5EE;color:#085041;padding:3px 9px;border-radius:10px;font-weight:600">${p.branches.length} ${lang==='ar'?'فروع':lang==='tr'?'şube':lang==='ru'?'филиала':'branches'}</span>`
     : '';
 
@@ -1501,6 +1522,7 @@ function openModal(p){
     ${heroImg}
     <div style="font-size:19px;font-weight:700;color:#1a1a1a;margin-bottom:3px">${p.nameEn}</div>
     ${p.nameAr?`<div style="font-size:14px;color:#888;direction:rtl;text-align:right;margin-bottom:0.75rem">${p.nameAr}</div>`:''}
+    ${p.cat==='homecooking'?`<div style="display:inline-flex;align-items:center;gap:6px;background:#E8F7F2;color:#085041;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:10px">📦 ${lang==='ar'?'توصيل فقط — لا يوجد عنوان':'Delivery only — no physical location'}</div>`:''}
     <div style="display:flex;gap:8px;margin-bottom:0.85rem;flex-wrap:wrap;align-items:center">
       <span style="font-size:13px;color:#0F6E56;font-weight:600">${p.cost}</span>
       ${(()=>{const rv=ratingsCache[p.id];return rv&&rv.count>0?`<span style="font-size:13px;color:#BA7517;font-weight:600">★ ${rv.rating} <span style="font-weight:400;color:#aaa;font-size:12px">(${rv.count} ${curLang==='ar'?'تقييم':curLang==='tr'?'yorum':curLang==='ru'?'отзывов':'reviews'})</span></span>`:'';})()}
@@ -1567,7 +1589,7 @@ function buildNearbyContext(fromPlace){
   const visitorLng = userLng || MADINAH_LNG;
   const distToPlace = haversineKm(visitorLat, visitorLng, fromPlace.lat, fromPlace.lng);
 
-  const COMMERCIAL_CATS = ['restaurant','coffee','juices','desserts','market','shopping','pharmacy','clinic','services','technology','car','sports'];
+  const COMMERCIAL_CATS = ['restaurant','coffee','juices','desserts','market','shopping','pharmacy','clinic','services','technology','car','sports','education','homecooking'];
 
   // Find nearby commercial places sorted by distance from this place (within 3km)
   const nearby = PLACES
