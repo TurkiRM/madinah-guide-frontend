@@ -63,8 +63,9 @@
     .vb-t{background:#FAEEDA;color:#633806;display:flex}
     .chips-row{padding:0 1rem 0.75rem;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0}
     .chips-row::-webkit-scrollbar{display:none}
-    .chip{font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid #ddd;color:#555;background:#fff;white-space:nowrap;flex-shrink:0;cursor:pointer}
-    .chip:active{background:#E1F5EE;color:#085041}
+    .chip{font-size:13px;padding:7px 14px;border-radius:20px;border:1.5px solid #e0e0e0;color:#555;background:#fff;white-space:nowrap;flex-shrink:0;cursor:pointer;font-weight:500}
+    .chip:active{opacity:0.8}
+    .chip.on{border-color:#085041;background:#085041;color:#fff}
     .input-bar{background:#fff;border-top:1px solid #eee;padding:0.65rem 1rem;display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
     .input-bar textarea{flex:1;padding:10px 12px;font-size:16px;border:1.5px solid #e0e0e0;border-radius:22px;background:#f9f9f9;color:#1a1a1a;resize:none;outline:none;font-family:inherit;line-height:1.4;max-height:100px}
     .input-bar textarea:focus{border-color:#1D9E75;background:#fff}
@@ -225,14 +226,20 @@
         </div>
       </div>
       <div class="chips-row" id="chipsRow" style="display:none">
-        <div class="chip" onclick="quickCat('restaurant')">🍽️ Food</div>
-        <div class="chip" onclick="quickCat('coffee')">☕ Cafes</div>
-        <div class="chip" onclick="quickCat('market')">🛒 Markets</div>
-        <div class="chip" onclick="quickCat('hotel')">🏨 Hotels</div>
-        <div class="chip" onclick="quickCat('shopping')">🛍️ Shopping</div>
-        <div class="chip" onclick="quickCat('pharmacy')">💊 Pharmacy</div>
-        <div class="chip" onclick="quickCat('salon')">✂️ Salons</div>
-        <div class="chip" onclick="quickCat('transport')">🚗 Transport</div>
+        <div class="chip" onclick="selectChip(this,'restaurant')">🍽️ Restaurant</div>
+        <div class="chip" onclick="selectChip(this,'coffee')">☕ Coffee</div>
+        <div class="chip" onclick="selectChip(this,'juices')">🥤 Juices</div>
+        <div class="chip" onclick="selectChip(this,'desserts')">🍰 Desserts</div>
+        <div class="chip" onclick="selectChip(this,'homecooking')">🍲 Home Cooking</div>
+        <div class="chip" onclick="selectChip(this,'market')">🛒 Markets</div>
+        <div class="chip" onclick="selectChip(this,'shopping')">🛍️ Shopping</div>
+        <div class="chip" onclick="selectChip(this,'technology')">💻 Technology</div>
+        <div class="chip" onclick="selectChip(this,'car')">🚗 Cars</div>
+        <div class="chip" onclick="selectChip(this,'pharmacy')">💊 Pharmacy</div>
+        <div class="chip" onclick="selectChip(this,'clinic')">🏥 Clinics</div>
+        <div class="chip" onclick="selectChip(this,'sports')">⚽ Sports</div>
+        <div class="chip" onclick="selectChip(this,'education')">📚 Education</div>
+        <div class="chip" onclick="selectChip(this,'services')">🛎️ Services</div>
       </div>
       <div class="input-bar">
         <textarea id="userInput" rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
@@ -1293,6 +1300,13 @@ function quickSend(key){
   const t=T[curLang]||T.en;
   document.getElementById('userInput').value=t.chips[key]||key;
   showTab('plan');sendMessage();
+}
+
+function selectChip(el, cat) {
+  // Toggle active state — same behaviour as cat-pill
+  document.querySelectorAll('#chipsRow .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  quickCat(cat);
 }
 
 function quickCat(cat){
