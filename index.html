@@ -1249,14 +1249,38 @@ Use exact English place names — they become tappable links. Prices in SAR.`;
 
 
   try{
-    const r=await fetch(BACKEND+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory.slice(-10),language:curLang,bizContext,userLat,userLng})});
+    // 25s timeout — Render free tier can be slow to wake up
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 25000);
+    let r;
+    try {
+      r = await fetch(BACKEND+'/chat',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({messages:chatHistory.slice(-10),language:curLang,bizContext,userLat,userLng}),
+        signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
     const d=await r.json();
     if(!d.success)throw new Error(d.detail||d.error);
     const reply=d.reply||'Sorry, please try again.';
     chatHistory.push({role:'assistant',content:reply});
     removeTyping();addMsg('ai',reply);detectType(reply);
     speak(reply);
-  }catch(e){removeTyping();addMsg('ai','Sorry, I could not connect. Please try again or call a local guide.');}
+  }catch(e){
+    removeTyping();
+    console.error('Chat error:', e.name, e.message);
+    const offline = !navigator.onLine;
+    const timedOut = e.name === 'AbortError';
+    const lang = curLang;
+    let errMsg;
+    if(offline)   errMsg = lang==='ar' ? '❌ لا يوجد اتصال بالإنترنت — تحقق من شبكتك' : '❌ No internet connection — please check your network.';
+    else if(timedOut) errMsg = lang==='ar' ? '⏳ الاستجابة تأخرت — الخادم قد يكون نائماً، حاول مجدداً' : '⏳ Request timed out — the server may be starting up. Please try again in a moment.';
+    else          errMsg = lang==='ar' ? '❌ تعذّر الاتصال — حاول مجدداً أو اتصل بمرشد' : '❌ Could not connect — please try again or call a local guide.';
+    addMsg('ai', errMsg);
+  }
   isTyping=false;document.getElementById('sendBtn').disabled=false;
 }
 
