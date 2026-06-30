@@ -857,6 +857,7 @@ const PLACES = [
   ];;
 
 
+
 let curLang='en', chatHistory=[], isTyping=false, curCat='all', deferredPrompt=null, userLat=null, userLng=null;
 const ratingsCache = {}; // placeId -> {rating, count} fetched from backend
 
@@ -1285,8 +1286,10 @@ Use exact English place names — they become tappable links. Prices in SAR.`;
     const timedOut = e.name === 'AbortError';
     const lang = curLang;
     let errMsg;
+    const isBusy = e.message && (e.message.toLowerCase().includes('busy') || e.message.toLowerCase().includes('high demand') || e.message.toLowerCase().includes('overloaded'));
     if(offline)   errMsg = lang==='ar' ? '❌ لا يوجد اتصال بالإنترنت — تحقق من شبكتك' : '❌ No internet connection — please check your network.';
     else if(timedOut) errMsg = lang==='ar' ? '⏳ الاستجابة تأخرت — الخادم قد يكون نائماً، حاول مجدداً' : '⏳ Request timed out — the server may be starting up. Please try again in a moment.';
+    else if(isBusy) errMsg = lang==='ar' ? '🤖 المساعد مشغول حالياً بسبب الازدحام — حاول بعد لحظات' : '🤖 The AI guide is experiencing high demand right now — please try again in a few moments.';
     else          errMsg = lang==='ar' ? '❌ تعذّر الاتصال — حاول مجدداً أو اتصل بمرشد' : '❌ Could not connect — please try again or call a local guide.';
     addMsg('ai', errMsg);
   }
